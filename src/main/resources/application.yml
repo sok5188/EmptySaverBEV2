@@ -1,0 +1,23 @@
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: demo
+  datasource:
+    url: jdbc:mysql://localhost:3306/emptysaver?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&rewriteBatchedStatements=true
+    username: emptysaver  #?? 3306/db?? <- ??? ??? username, password ??? ?? ?
+    password: emptysaver
+    driver-class: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+jwt:
+  header: Authorization
+  secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
+  token-validity-in-seconds: 86400
+
+
