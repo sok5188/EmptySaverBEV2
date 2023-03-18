@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @Entity
 @Builder
+@ToString
 public class Schedule {
     @Id
     @GeneratedValue

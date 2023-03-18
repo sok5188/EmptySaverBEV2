@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
@@ -43,5 +45,26 @@ class TimeTableRepositoryTest {
 
         assertThat(scheduleRepository.findById(savedSchedule.getId()).get().getTimeTable().getId())
                 .isEqualTo(savedTable.getId());
+    }
+
+
+    @DisplayName("schedule과 timetable간의 관계 저장 테스트")
+    @Test
+    void testRelationWithScheduleAndTimeTable(){
+        Time_Table table = Time_Table.builder().title("noSoEasy").build();
+        Time_Table savedTable = timeTableRepository.save(table);
+
+        Schedule schedule1 = Schedule.builder().name("캡스톤").timeTable(table).build();
+        Schedule schedule2 = Schedule.builder().name("컴파일러").timeTable(table).build();
+        Schedule savedSchedule1 = scheduleRepository.save(schedule1);
+        Schedule savedSchedule2 = scheduleRepository.save(schedule2);
+
+        //then
+        List<Schedule> scheduleList = timeTableRepository.findById(savedTable.getId()).get().getScheduleList();
+
+        for(Schedule schedule:scheduleList){
+            System.out.println(schedule);
+        }
+        assertThat(scheduleList.size()).isEqualTo(2);
     }
 }
