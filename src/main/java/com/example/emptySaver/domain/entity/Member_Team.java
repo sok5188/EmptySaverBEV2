@@ -8,13 +8,18 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-public class Interest {
+public class Member_Team {
     @Id@GeneratedValue
     private Long id;
 
-    private String interestName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //private List<Team> team;
+    @ManyToOne
     @JoinColumn
-    private Category category;
+    private Team team;
+
+    @ManyToOne
+    @JoinColumn
+    private Member member;
+
 }

@@ -2,17 +2,15 @@ package com.example.emptySaver.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.List;
 
-@Document(collection = "member")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Getter
 @Setter
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Member {
     @Id
     @GeneratedValue
@@ -28,7 +26,18 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @DocumentReference
-    private List<Group> groups;
+    @OneToMany(mappedBy = "member")
+    private List<Member_Team> member_team;
+//    @ManyToOne
+//    @JoinColumn(name = "host_member_id",referencedColumnName = "member_id")
+//    private Member host_member;
 
+//    @OneToMany(mappedBy = "host_member")
+//    private List<Friend> friends;
+
+    @OneToMany(mappedBy = "member")
+    private List<Member_Interest> member_interests;
+
+    @OneToMany(mappedBy = "friend_member")
+    private List<Friend> friends;
 }
