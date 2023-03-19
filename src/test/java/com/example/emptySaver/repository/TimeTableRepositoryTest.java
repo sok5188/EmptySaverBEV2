@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -66,5 +67,16 @@ class TimeTableRepositoryTest {
             System.out.println(schedule);
         }
         assertThat(scheduleList.size()).isEqualTo(2);
+    }
+
+    @DisplayName("LocalDateTime DB 저장 테스트")
+    @Test
+    void saveWithTimeData(){
+        LocalDateTime now = LocalDateTime.now();
+        Schedule schedule = Schedule.builder().name("컴파일러").startTime(now).build();
+        Schedule savedSchedule = scheduleRepository.save(schedule);
+
+        System.out.println(savedSchedule);
+        assertThat(savedSchedule.getStartTime()).isEqualTo(now);
     }
 }

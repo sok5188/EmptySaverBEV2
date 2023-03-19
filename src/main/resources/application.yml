@@ -6,7 +6,7 @@ spring:
   application:
     name: demo
   datasource:
-    url: jdbc:mysql://localhost:3306/emptysaver?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&rewriteBatchedStatements=true
+    url: jdbc:mysql://localhost:3306/emptysaver?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&autoReconnect=true&rewriteBatchedStatements=true
     username: emptysaver  #?? 3306/db?? <- ??? ??? username, password ??? ?? ?
     password: emptysaver
     driver-class: com.mysql.cj.jdbc.Driver
