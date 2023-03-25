@@ -1,5 +1,5 @@
 package com.example.emptySaver.domain.entity;
 
-public enum Role {
+public enum MemberRole {
     USER,ADMIN
 }

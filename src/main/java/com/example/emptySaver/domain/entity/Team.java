@@ -3,6 +3,7 @@ package com.example.emptySaver.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -12,9 +13,12 @@ import java.util.List;
 @Entity
 public class Team {
     @Id@GeneratedValue
+    @Column(name = "team_id")
     private Long id;
     private String name;
 
     @OneToMany(mappedBy = "team")
     private List<Member_Team> teamMembers;
+
+    private LocalDateTime createTime;
 }
