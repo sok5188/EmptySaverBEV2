@@ -14,6 +14,7 @@ import java.util.List;
 public class Member {
     @Id
     @GeneratedValue
+    @Column(name = "member_id")
     private Long id;
 
     private String username;
@@ -24,16 +25,10 @@ public class Member {
     private String phone;
     private String email;
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private MemberRole role;
 
     @OneToMany(mappedBy = "member")
     private List<Member_Team> member_team;
-//    @ManyToOne
-//    @JoinColumn(name = "host_member_id",referencedColumnName = "member_id")
-//    private Member host_member;
-
-//    @OneToMany(mappedBy = "host_member")
-//    private List<Friend> friends;
 
     @OneToMany(mappedBy = "member")
     private List<Member_Interest> member_interests;
