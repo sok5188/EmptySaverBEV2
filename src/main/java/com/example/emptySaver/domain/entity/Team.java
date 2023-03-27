@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -11,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@ToString
 public class Team {
     @Id@GeneratedValue
     @Column(name = "team_id")
@@ -18,7 +20,8 @@ public class Team {
     private String name;
 
     @OneToMany(mappedBy = "team")
-    private List<Member_Team> teamMembers;
+    @ToString.Exclude
+    private List<MemberTeam> teamMembers=new ArrayList<>();
 
     private LocalDateTime createTime;
 }
