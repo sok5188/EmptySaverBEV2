@@ -6,13 +6,14 @@ spring:
   application:
     name: demo
   datasource:
-    url: jdbc:mysql://localhost:3306/emptysaver?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&rewriteBatchedStatements=true
+    url: jdbc:mysql://localhost:3306/emptysaver?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&rewriteBatchedStatements=true
     username: emptysaver
     password: emptysaver
     driver-class: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
+      default-batch-size: 200
     show-sql: true
 
 jwt:
