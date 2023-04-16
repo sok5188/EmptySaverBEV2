@@ -13,6 +13,6 @@ permissions:
 
 hooks:
   ApplicationStart:
-    - location: scripts/gbuild.sh
-      timeout: 600
+    - location: scripts/build.sh
+      timeout: 6000
       runas: ubuntu
