@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}"
+          href="../css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 560px;
+        }
+        .field-error {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h3> 으으으 아아아 으으으</h3>
+        <h4> 컨트롤러 부터의 인사 : [[${greet}]]</h4>
+    </div>
+    <button class="w-100 btn btn-secondary btn-lg" type="button" onclick="callApi()">
+        헬로api
+    </button>
+</body>
+<script>
+    function callApi(){
+        console.log("called api !");
+        fetch("/helloApi").then(res=>res.text()).then(data=>{
+            console.log("got data from api : "+ data);
+        })
+    }
+</script>
+</html>

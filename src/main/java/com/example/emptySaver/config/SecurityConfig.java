@@ -60,7 +60,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .requestMatchers("/auth/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .logout().deleteCookies("JSESSIONID").logoutSuccessHandler(((request, response, authentication) -> {
                     //do something
