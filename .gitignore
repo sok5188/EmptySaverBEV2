@@ -39,3 +39,5 @@ out/
 
 ### VS Code ###
 .vscode/
+serviceAccountKeyOrigin.json
+application.yml
