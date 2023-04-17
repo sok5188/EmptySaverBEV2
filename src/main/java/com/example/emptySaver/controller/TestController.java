@@ -15,4 +15,10 @@ public class TestController {
         model.addAttribute("greet","hello from Controller~");
         return "test/hello";
     }
+    @GetMapping("/authTest")
+    public String authTest(Model model){
+        log.error("Called AuthTest");
+        //model.addAttribute("code","Not Yet");
+        return "test/authTest";
+    }
 }
