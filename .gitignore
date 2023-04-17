@@ -40,4 +40,4 @@ out/
 ### VS Code ###
 .vscode/
 serviceAccountKeyOrigin.json
-application.yml
+application-local.yml
