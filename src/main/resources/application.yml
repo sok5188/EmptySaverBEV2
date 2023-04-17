@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: demo
+  datasource:
+    url: jdbc:mysql://${db.host}:3306/${db.table}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&rewriteBatchedStatements=true
+    username: ${db.username}
+    password: ${db.password}
+    driver-class: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+      default-batch-size: 200
+    show-sql: true
+jwt:
+  header: Authorization
+  secret: ${jwt.secret}
+  token-validity-in-seconds: ${jwt.token.validity}
+
+mail:
+  id: ${mail.id}
+  password: ${mail.password}
+
+
+
+
