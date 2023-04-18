@@ -5,7 +5,7 @@ spring:
   application:
     name: demo
   datasource:
-    url: jdbc:mysql://${db.host}:3306/${db.table}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&rewriteBatchedStatements=true
+    url: ${db.url}
     username: ${db.username}
     password: ${db.password}
     driver-class: com.mysql.cj.jdbc.Driver
