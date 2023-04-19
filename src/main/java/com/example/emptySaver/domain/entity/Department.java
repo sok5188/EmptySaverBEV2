@@ -17,7 +17,8 @@ public class Department {
     @GeneratedValue
     private Long id;
 
-    private String deptDiv; //by subdept
+    private String name;
+    private String deptDiv; //by colg
     private String dept;    //by up_dept
-    private String subDiv;  //by colg
+    private String subDiv;  //by dept
 }
