@@ -28,6 +28,7 @@ public class Member {
     private String email;
     @Enumerated(EnumType.STRING)
     private MemberRole role;
+    private String refreshToken;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "member")
@@ -40,4 +41,16 @@ public class Member {
     @ToString.Exclude
     @OneToMany(mappedBy = "friendMember")
     private List<Friend> friends=new ArrayList<>();
+    @Builder(builderClassName = "InitUser",builderMethodName = "init")
+    public Member(String username, String password, String classOf, String name,String nickname, String email){
+        this.username = username;
+        this.password = password;
+        this.classOf = classOf;
+        this.name =name;
+        this.nickname=nickname;
+        this.email=email;
+        this.role=MemberRole.USER;
+
+    }
+
 }
