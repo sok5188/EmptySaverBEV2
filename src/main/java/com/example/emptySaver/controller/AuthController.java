@@ -10,6 +10,7 @@ import com.example.emptySaver.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -72,18 +73,62 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     @PostMapping("/sendEmail")
-    @Operation(summary = "이메일 전송", description = "해당 이메일로 인증 코드를 전송하고 코드를 반환해주는 API")
+    @Operation(summary = "이메일 인증 코드 전송", description = "해당 이메일로 인증 코드를 전송하고 코드를 반환해주는 API")
     public ResponseEntity<String> sendEmail(@RequestParam String email){
         log.info("email : "+email);
-        String code = mailService.sendMessage(email);
+        String code = mailService.createCode();
+        String text="";
+        text += "<div style='margin:100px;'>";
+        text += "<h1> 안녕하세요</h1>";
+        text += "<h1> 서울 시립대학교 공강구조대 팀입니다.</h1>";
+        text += "<br>";
+        text += "<p>아래 코드를 복사하여 앱에서 입력해주세요<p>";
+        text += "<br>";
+        text += "<br>";
+        text += "<div align='center' style='border:1px solid black; font-family:verdana';>";
+        text += "<h3 style='color:blue;'>인증 코드입니다.</h3>";
+        text += "<div style='font-size:130%'>";
+        text += "CODE : <strong>";
+        text += code + "</strong><div><br/> "; // 메일에 인증번호 넣기
+        text += "</div>";
+        mailService.sendMessage(email,text,"공강구조대 이메일 인증 코드 입니다.");
+        //String code = mailService.sendMessage(email);
         return new ResponseEntity<>(code,null,HttpStatus.OK);
     }
 
     @PostMapping("/signup")
     @Operation(summary = "회원 가입", description = "회원 가입 처리 API(이메일 인증 후)")
     public ResponseEntity<String> signup(@RequestBody SignInForm signInDto){
-        signInDto.setPassword(encoder.encode(signInDto.getPassword()));
+        String encode = encoder.encode(signInDto.getPassword());
+        signInDto.setPassword(encode);
         SignInForm join = memberService.join(signInDto);
         return new ResponseEntity<>("User SignIn complete"+join.getName(), null, HttpStatus.OK);
     }
+    @PutMapping("/findPassword")
+    @Operation(summary = "비밀번호 찾기", description = "비밀번호를 찾기에서 이메일과 이름으로 인증 후 새 비밀번호를 발급하는 API")
+    public ResponseEntity<String> findPassword(@RequestBody AuthDto.findPwdReq findPwdReq){
+        String resetPassword = memberService.resetPassword(findPwdReq);
+        String text="";
+        text += "<div style='margin:100px;'>";
+        text += "<h1> 안녕하세요</h1>";
+        text += "<h1> 서울 시립대학교 공강구조대 팀입니다.</h1>";
+        text += "<br>";
+        text += "<p>새로 발급된 비밀번호를 복사하여 로그인해주세요<p>";
+        text += "<br>";
+        text += "<p>로그인 후 꼭 비밀번호를 변경해주세요 !<p>";
+        text += "<br>";
+        text += "<div align='center' style='border:1px solid black; font-family:verdana';>";
+        text += "<h3 style='color:blue;'>인증 코드입니다.</h3>";
+        text += "<div style='font-size:130%'>";
+        text += "<strong>";
+        text += resetPassword + "</strong><div><br/> "; // 메일에 인증번호 넣기
+        text += "</div>";
+        mailService.sendMessage(findPwdReq.getEmail(),text,"공강구조대 비밀번호 초기화 이메일 입니다.");
+        return new ResponseEntity<>("Password has been reset", null, HttpStatus.OK);
+    }
+
+
+
+
+
 }
