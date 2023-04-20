@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class JwtFilter extends GenericFilterBean {
-    private static final String[] whiteList={"/","/members/add","/auth/*","/css/*","/noAuthOk",
+    private static final String[] whiteList={"/","/auth/*","/css/*","/helloTest",
             "/h2-console/*","/swagger-ui/*","/swagger-resources/*","/swagger-resources",
             "/swagger-ui","/swagger-ui.html","/v3/api-docs"};
 
@@ -49,7 +49,7 @@ public class JwtFilter extends GenericFilterBean {
                 logger.info("cookie.getValue() = " + cookie.getValue());
             }
         }
-        if(isLoginCheckPath(requestURI)||requestURI.equals("/auth/logout")){
+        if(isLoginCheckPath(requestURI)){
             //AccessToken이 있고 유효한 경우 OK
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)==1) {
                 Authentication authentication = tokenProvider.getAuthentication(jwt,"ACCESS");
