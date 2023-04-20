@@ -40,7 +40,7 @@ public class SecurityConfig {
         source.setAllowCredentials(true);
         source.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:8080"));
         source.addAllowedOrigin("*");
-        source.setAllowedMethods(Arrays.asList("GET","POST"));
+        source.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
         source.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource url= new UrlBasedCorsConfigurationSource();
         url.registerCorsConfiguration("/**", source);
@@ -52,21 +52,25 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
                 .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().formLogin().disable()
+                .httpBasic().disable()
+
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
+
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .headers().frameOptions().disable()
+
                 .and()
                 .authorizeRequests()
                 .requestMatchers("/auth/**").permitAll()
-                .anyRequest().permitAll()
-                .and()
-                .logout().deleteCookies("JSESSIONID").logoutSuccessHandler(((request, response, authentication) -> {
-                    //do something
-                    //일단 뭐 임시로 홈 리다이렉트? (나중에 따로 핸들러 만들어서 처리 필요)
-                    response.sendRedirect("/");
-                }))
+                //TODO: 개발 완료 시 test부분 삭제
+                .requestMatchers("/helloTest").permitAll()
+                .requestMatchers("/swagger-ui/**","/swagger-ui","/swagger-resources/**","/swagger-resources",
+                        "/swagger-ui","/swagger-ui.html","/v3/api-docs").permitAll()
+                .anyRequest().authenticated()
                 .and().apply(new JwtSecurityConfig(tokenProvider))
         ;
         return httpSecurity.build();
