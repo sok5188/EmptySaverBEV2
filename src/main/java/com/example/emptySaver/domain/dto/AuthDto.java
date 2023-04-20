@@ -16,4 +16,14 @@ public class AuthDto {
         private String name;
         private String nickname;
     }
+    @Data
+    public static class findPwdReq{
+        private String email;
+        private String name;
+    }
+    @Data
+    public static class changePasswordReq{
+        private String oldPassword;
+        private String newPassword;
+    }
 }
