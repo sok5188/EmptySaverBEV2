@@ -70,7 +70,7 @@ public class UosDepartmentAutoSaver {
             dataMap.put(dataName,data);
         }
 
-        Department department = Department.builder().name("dept_nm").dept(dataMap.get("up_dept")).deptDiv(dataMap.get("colg")).subDiv(dataMap.get("dept")).build();
+        Department department = Department.builder().name(dataMap.get("dept_nm")).dept(dataMap.get("up_dept")).deptDiv(dataMap.get("colg")).subDiv(dataMap.get("dept")).build();
         return department;
     }
 
