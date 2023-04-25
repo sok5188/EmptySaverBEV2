@@ -142,7 +142,8 @@ public class UosSubjectAutoSaver {
         }
 
         //Subject subject = Subject.builder().subject_nm(dataMap.get("subject_nm")).credit(Integer.parseInt(dataMap.get("credit"))).build();
-        Subject subject = Subject.builder()
+        /*
+        Subject subject1 = Subject.builder()
                 .subject_nm(dataMap.get("subject_nm"))
                 .sub_dept(dataMap.get("sub_dept"))
                 .subject_div(dataMap.get("subject_div"))
@@ -153,8 +154,20 @@ public class UosSubjectAutoSaver {
                 .prof_nm(dataMap.get("prof_nm"))
                 .year(dataMap.get("year"))
                 .term(dataMap.get("term"))
-                .weekScheduleData(class_numToSchedule(dataMap.get("class_nm")))
-                .build();
+                .build();*/
+        Subject subject = new Subject();
+        subject.setSubject_nm(dataMap.get("subject_nm"));
+        subject.setSub_dept(dataMap.get("sub_dept"));
+        subject.setSubject_div(dataMap.get("subject_div2"));
+        subject.setSubject_div2(dataMap.get("subject_div2"));
+        subject.setClass_div(dataMap.get("class_div"));
+        subject.setCredit(credit);
+        subject.setShyr(dataMap.get("shyr"));
+        subject.setProf_nm(dataMap.get("prof_nm"));
+        subject.setYear(dataMap.get("year"));
+        subject.setTerm(dataMap.get("term"));
+
+        subject.setWeekScheduleData(class_numToSchedule(dataMap.get("class_nm")));  //상위 클래스 데이터이므로 직접 삽입
         return subject;
     }
 

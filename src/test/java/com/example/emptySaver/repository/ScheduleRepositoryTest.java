@@ -23,7 +23,7 @@ class ScheduleRepositoryTest {
     @DisplayName("Schedule 상속 테스트")
     @Test
     void testSaveWithInheritance(){
-        int[][] weekData = {{0,0,0},{1,1,1}};
+        long[] weekData = {0,1,1};
 
         Periodic_Schedule periodicSchedule = new Periodic_Schedule();
         periodicSchedule.setName("욕망");
@@ -34,10 +34,8 @@ class ScheduleRepositoryTest {
 
         assertThat(upperClass.getId()).isEqualTo(savedSchedule.getId());
 
-        for(int[] list:savedSchedule.getWeekScheduleData()){
-            for(int v: list){
-                System.out.println(v);
-            }
+        for(long v:savedSchedule.getWeekScheduleData()){
+            System.out.println(v);
         }
     }
 

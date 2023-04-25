@@ -13,12 +13,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Builder
+//@Builder
 @ToString
-public class Subject {
+public class Subject extends Periodic_Schedule{
+    /*
     @Id
     @GeneratedValue
     private Long id;
+    */
 
     private String sub_dept; //학부(과) 정보입니다.
 
@@ -52,5 +54,5 @@ public class Subject {
     private String year; //학년도 정보입니다.
     private String term; // 학기 정보
 
-    private long[] weekScheduleData;
+    //private long[] weekScheduleData;
 }
