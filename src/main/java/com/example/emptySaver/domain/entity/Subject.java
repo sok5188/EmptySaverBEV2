@@ -52,5 +52,5 @@ public class Subject {
     private String year; //학년도 정보입니다.
     private String term; // 학기 정보
 
-    private int[][] weekScheduleData;
+    private long[] weekScheduleData;
 }

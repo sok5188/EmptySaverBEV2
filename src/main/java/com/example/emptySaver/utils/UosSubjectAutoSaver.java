@@ -24,6 +24,12 @@ public class UosSubjectAutoSaver {
     private final DepartmentRepository departmentRepository;
     private final UosDepartmentAutoSaver uosDepartmentAutoSaver;
 
+    private final Map<String,Integer> dayToInt = new HashMap<>(){{
+            put("월", 0); put("화", 1);
+            put("수", 2); put("목", 3);
+            put("금", 4); put("토", 5);
+            put("일", 6);
+        }};
 
     public String buildRequestURL(String url, Map<String, String> params){
         StringBuilder stringBuilder = new StringBuilder(url);
@@ -134,7 +140,7 @@ public class UosSubjectAutoSaver {
         } catch (NumberFormatException exception){
             credit = -1;
         }
-        
+
         //Subject subject = Subject.builder().subject_nm(dataMap.get("subject_nm")).credit(Integer.parseInt(dataMap.get("credit"))).build();
         Subject subject = Subject.builder()
                 .subject_nm(dataMap.get("subject_nm"))
@@ -147,12 +153,60 @@ public class UosSubjectAutoSaver {
                 .prof_nm(dataMap.get("prof_nm"))
                 .year(dataMap.get("year"))
                 .term(dataMap.get("term"))
+                .weekScheduleData(class_numToSchedule(dataMap.get("class_nm")))
                 .build();
         return subject;
     }
-    /*
-    private int[][] class_numToSchedule(){
 
-    }*/
+    private long[] class_numToSchedule(String classTimeData){
+        //ex: 월02,03/19-110/111, 목05,06/19-110/111
+        long[] schedule = {0,0,0,0,0,0,0};
+        if (classTimeData == null) {
+            return schedule;
+        }
+
+        String[] dayTimeDataList = classTimeData.split(", ");
+
+        for(String dayTimeData: dayTimeDataList){
+            String data = dayTimeData.split("/")[0];
+            if(data.length()<2){
+                continue;
+            }
+
+            String day = data.substring(0,1);
+            String timeData = data.substring(1);
+
+            if(!dayToInt.containsKey(day))
+                continue;
+
+            schedule[dayToInt.get(day)] = makeScheduleByStringData(timeData);
+        }
+
+        return schedule;
+    }
+
+    private long makeScheduleByStringData(String timeData){
+        String[] times = timeData.split(",");
+
+        int subjectStartTimeIdx = Integer.parseInt(times[0]);
+        subjectStartTimeIdx += 8;
+        subjectStartTimeIdx *= 2;
+
+        int subjectEndTimeIdx = Integer.parseInt(times[times.length -1]);
+        subjectEndTimeIdx += 9;
+        subjectEndTimeIdx *= 2;
+        //log.info("" + subjectStartTimeIdx+" to " + subjectEndTimeIdx);
+
+        long fillBits = 0;
+        long tempBits = 1;
+        for (int i = subjectStartTimeIdx ; i < subjectEndTimeIdx; i++) {
+            tempBits =1;
+            tempBits <<= i;
+            fillBits |= tempBits;
+        }
+        //log.info(Long.toBinaryString(fillBits));
+
+        return fillBits;
+    }
 
 }
