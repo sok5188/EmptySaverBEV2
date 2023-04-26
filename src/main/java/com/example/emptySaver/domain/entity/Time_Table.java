@@ -23,4 +23,25 @@ public class Time_Table {
     @OneToMany(mappedBy = "timeTable", fetch = FetchType.EAGER, cascade = CascadeType.ALL) //casecade all로 이 table사라지면 일정도 같이 제거됨
     @ToString.Exclude
     private List<Schedule> scheduleList = new ArrayList<>();
+
+    private long[] weekScheduleData = {0,0,0,0,0,0,0};
+
+    public void calcAllWeekScheduleData(){
+        weekScheduleData = new long[]{0,0,0,0,0,0,0};   //0으로 init 후 재계산
+
+        for (Schedule schedule: this.scheduleList) {
+            Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
+            addWeekScheduleData(periodicSchedule.getWeekScheduleData());
+        }
+        /*
+        scheduleList.stream().forEach(schedule -> {
+            Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
+            addWeekScheduleData(periodicSchedule.getWeekScheduleData());
+        });*/
+    }
+
+    private void addWeekScheduleData(long[] otherScheduleData){
+        for (int i=0; i<otherScheduleData.length ; ++i)
+            this.weekScheduleData[i] |= otherScheduleData[i];
+    }
 }

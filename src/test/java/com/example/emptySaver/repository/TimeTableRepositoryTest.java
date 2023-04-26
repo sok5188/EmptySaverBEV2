@@ -1,5 +1,6 @@
 package com.example.emptySaver.repository;
 
+import com.example.emptySaver.domain.entity.Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Schedule;
 import com.example.emptySaver.domain.entity.Time_Table;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,36 @@ class TimeTableRepositoryTest {
     void beforeEach(){
         timeTableRepository.deleteAll();
         scheduleRepository.deleteAll();
+    }
+
+    @DisplayName("weekScheduleData 비트 연산 테스트")
+    @Test
+    void addScheduleData(){
+        long data1 = 15;
+        long data2 = data1<<4;
+        long result = data1 | data2;
+
+        Time_Table table = Time_Table.builder().title("headHigh").build();
+        Time_Table savedTable = timeTableRepository.save(table);
+
+        Periodic_Schedule periodicSchedule1 = new Periodic_Schedule();
+        periodicSchedule1.setWeekScheduleData(new long[]{0,data1,0,0,data1,0,data2});
+        periodicSchedule1.setTimeTable(savedTable);
+        scheduleRepository.save(periodicSchedule1);
+
+        Periodic_Schedule periodicSchedule2 = new Periodic_Schedule();
+        periodicSchedule2.setWeekScheduleData(new long[]{0,data1,0,0,data2,0,data1});
+        periodicSchedule2.setTimeTable(savedTable);
+        scheduleRepository.save(periodicSchedule2);
+
+        Time_Table time_table = timeTableRepository.findById(savedTable.getId()).get();
+        time_table.calcAllWeekScheduleData();
+        long[] weekScheduleData = time_table.getWeekScheduleData();
+
+        assertThat(weekScheduleData[1]).isEqualTo(data1);
+        assertThat(weekScheduleData[4]).isEqualTo(result);
+        assertThat(weekScheduleData[6]).isEqualTo(result);
+
     }
 
     @DisplayName("timeTable save test")
