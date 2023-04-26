@@ -69,7 +69,7 @@ public class SecurityConfig {
                 //TODO: 개발 완료 시 test부분 삭제
                 .requestMatchers("/helloTest").permitAll()
                 .requestMatchers("/swagger-ui/**","/swagger-ui","/swagger-resources/**","/swagger-resources",
-                        "/swagger-ui","/swagger-ui.html","/v3/api-docs/**").permitAll()
+                        "/swagger-ui","/swagger-ui.html","/v3/api-docs","/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
                 .and().apply(new JwtSecurityConfig(tokenProvider))
         ;
