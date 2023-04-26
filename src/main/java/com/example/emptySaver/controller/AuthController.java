@@ -118,7 +118,7 @@ public class AuthController {
         text += "<p>로그인 후 꼭 비밀번호를 변경해주세요 !<p>";
         text += "<br>";
         text += "<div align='center' style='border:1px solid black; font-family:verdana';>";
-        text += "<h3 style='color:blue;'>인증 코드입니다.</h3>";
+        text += "<h3 style='color:blue;'>임시 비밀번호입니다.</h3>";
         text += "<div style='font-size:130%'>";
         text += "<strong>";
         text += resetPassword + "</strong><div><br/> "; // 메일에 인증번호 넣기
