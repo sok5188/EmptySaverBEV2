@@ -3,7 +3,6 @@ package com.example.emptySaver.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,8 +23,4 @@ public class Schedule {
     @JoinColumn(name = "time_table_id")
     @ToString.Exclude
     private Time_Table timeTable;
-
-    //주기적인 일정인 경우
-    private boolean isPeriodic;
-    private LocalDateTime startTime;
 }
