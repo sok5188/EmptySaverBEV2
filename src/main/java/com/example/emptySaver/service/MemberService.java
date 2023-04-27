@@ -90,4 +90,10 @@ public class MemberService {
             throw new BaseException(BaseResponseStatus.INVALID_PASSWORD);
         member.setPassword(encoder.encode(passwordReq.getNewPassword()));
     }
+
+    @Transactional
+    public void setFCMToken(String fcmToken) {
+        Member member = this.getMember();
+        member.setFcmToken(fcmToken);
+    }
 }

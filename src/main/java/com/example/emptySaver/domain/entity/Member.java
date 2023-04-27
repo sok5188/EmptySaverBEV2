@@ -29,6 +29,7 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
     private String refreshToken;
+    private String fcmToken;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "member")

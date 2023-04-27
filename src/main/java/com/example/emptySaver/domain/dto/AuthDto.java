@@ -7,6 +7,7 @@ public class AuthDto {
     public static class LoginForm{
         private String email;
         private String password;
+        private String fcmToken;
     }
     @Data
     public static class SignInForm{
