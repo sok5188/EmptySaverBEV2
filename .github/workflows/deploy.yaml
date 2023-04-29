@@ -8,7 +8,7 @@ on:
 env:
   S3_BUCKET_NAME: emptysaverbucket
   RESOURCE_PATH: ./src/main/resources/application.yml
-  FIREBASE_PATH: ./src/main/resources/firebase/emptyAdminSDK.json
+  FIREBASE_PATH: ./src/main/resources/firebase/
   CODE_DEPLOY_APPLICATION_NAME: emptysaver-code-deploy
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: emptysaver-server
 
@@ -43,8 +43,9 @@ jobs:
         id: create-json
         uses: jsdaniell/create-json@v1.2.2
         with:
-          files: ${{ env.RESOURCE_PATH }} 
+          name: "emptyAdminSDK.json"
           json: ${{ secrets.FIREBASE_JSON }}
+          dir: ${{ env.FIREBASE_PATH }}
           
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
