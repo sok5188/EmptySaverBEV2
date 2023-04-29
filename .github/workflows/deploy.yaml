@@ -8,7 +8,6 @@ on:
 env:
   S3_BUCKET_NAME: emptysaverbucket
   RESOURCE_PATH: ./src/main/resources/application.yml
-  FIREBASE_PATH: ./src/main/resources/firebase/
   CODE_DEPLOY_APPLICATION_NAME: emptysaver-code-deploy
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: emptysaver-server
 
@@ -45,7 +44,7 @@ jobs:
         with:
           name: "emptyAdminSDK.json"
           json: ${{ secrets.FIREBASE_JSON }}
-          dir: 'src/firebase/'
+          dir: 'src/main/resources/firebase/'
           
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
