@@ -1,9 +1,6 @@
 package com.example.emptySaver.repository;
 
-import com.example.emptySaver.domain.entity.category.Category;
-import com.example.emptySaver.domain.entity.category.Game;
-import com.example.emptySaver.domain.entity.category.Movie;
-import com.example.emptySaver.domain.entity.category.Study;
+import com.example.emptySaver.domain.entity.category.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,7 +27,7 @@ class CategoryRepositoryTest {
         public void 게임저장(){
             //given
             Game game=new Game();
-            game.setGameGenre("FPS");
+            game.setGameGenre(GameType.FPS);
             game.setName("SuddenAttack");
             em.persistAndFlush(game);
             //when
@@ -45,7 +42,7 @@ class CategoryRepositoryTest {
         public void 영화저장(){
             Movie movie=new Movie();
             movie.setName("바람");
-            movie.setMovieGenre("action");
+            movie.setMovieGenre(MovieType.ACTION);
             em.persistAndFlush(movie);
             //when
             em.clear();
@@ -58,7 +55,7 @@ class CategoryRepositoryTest {
         @Test void 스터디저장(){
             Study study=new Study();
             study.setName("백엔드 개발 스터디");
-            study.setStudyCategory("Programming");
+            study.setStudyType(StudyType.LANGUAGE);
             em.persistAndFlush(study);
 
             em.clear();

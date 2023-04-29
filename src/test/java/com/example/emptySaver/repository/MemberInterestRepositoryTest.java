@@ -3,7 +3,9 @@ package com.example.emptySaver.repository;
 import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.domain.entity.MemberInterest;
 import com.example.emptySaver.domain.entity.category.Game;
+import com.example.emptySaver.domain.entity.category.GameType;
 import com.example.emptySaver.domain.entity.category.Movie;
+import com.example.emptySaver.domain.entity.category.MovieType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -31,11 +33,11 @@ class MemberInterestRepositoryTest {
 
         Movie movie=new Movie();
         movie.setName("바람");
-        movie.setMovieGenre("action");
+        movie.setMovieGenre(MovieType.ACTION);
         em.persist(movie);
 
         Game game=new Game();
-        game.setGameGenre("FPS");
+        game.setGameGenre(GameType.FPS);
         game.setName("SuddenAttack");
         em.persist(game);
 
