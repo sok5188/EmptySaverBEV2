@@ -96,4 +96,16 @@ public class MemberService {
         Member member = this.getMember();
         member.setFcmToken(fcmToken);
     }
+
+    @Transactional
+    public void changeNickName(String newNickName) {
+        Member member= this.getMember();
+        member.setNickname(newNickName);
+    }
+
+    public AuthDto.MemberInfo getMemberInfo() {
+        Member member= this.getMember();
+        return AuthDto.MemberInfo.builder().email(member.getEmail()).name(member.getName()).nickname(member.getNickname())
+                .classOf(member.getClassOf()).build();
+    }
 }

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/afterAuth")
 @RequiredArgsConstructor
 @Slf4j
-public class NeedAuthController {
+public class MemberController {
     private final MemberService memberService;
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "회원 로그아웃 처리")
@@ -46,6 +46,20 @@ public class NeedAuthController {
         memberService.changePassword(pwdReq);
         return new ResponseEntity<>("User Password Updated",HttpStatus.OK);
     }
+    @PutMapping("/changeNickName")
+    @Operation(summary = "별명 변경", description = "사용자 별명을 변경하는 API")
+    public ResponseEntity<String> changeNickName(@RequestParam String newNickName){
+        memberService.changeNickName(newNickName);
+        return new ResponseEntity<>("User NickName Updated",HttpStatus.OK);
+    }
+    @GetMapping("/getMemberInfo")
+    @Operation(summary = "회원정보 조회", description = "회원 정보 조회 API")
+    public ResponseEntity<AuthDto.MemberInfo> getMemberInfo(){
+        return new ResponseEntity<AuthDto.MemberInfo>(memberService.getMemberInfo(),HttpStatus.OK);
+    }
+
+
+
     private static void expireCookie(HttpServletResponse response,String name) {
         Cookie cookie=new Cookie(name, null);
         cookie.setMaxAge(0);
