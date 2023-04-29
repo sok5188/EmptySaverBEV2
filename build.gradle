@@ -35,9 +35,9 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	implementation 'com.h2database:h2'
-//	//firebase
-//	implementation group: 'com.google.firebase', name: 'firebase-admin', version: '8.1.0'
-//	runtimeOnly group: 'com.google.firebase', name: 'firebase-admin', version: '8.1.0'
+	runtimeOnly 'com.h2database:h2'
+	//firebase
+	implementation 'com.google.firebase:firebase-admin:9.1.1'
 
 	//email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'

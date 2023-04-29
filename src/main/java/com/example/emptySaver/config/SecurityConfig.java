@@ -5,6 +5,7 @@ import com.example.emptySaver.config.jwt.JwtAuthenticationEntryPoint;
 import com.example.emptySaver.config.jwt.JwtSecurityConfig;
 import com.example.emptySaver.config.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -61,7 +62,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(jwtAccessDeniedHandler)
 
                 .and()
-                .headers().frameOptions().disable()
+                .headers().frameOptions().sameOrigin()
 
                 .and()
                 .authorizeRequests()
@@ -70,6 +71,7 @@ public class SecurityConfig {
                 .requestMatchers("/helloTest").permitAll()
                 .requestMatchers("/swagger-ui/**","/swagger-ui","/swagger-resources/**","/swagger-resources",
                         "/swagger-ui","/swagger-ui.html","/v3/api-docs","/v3/api-docs/**").permitAll()
+                .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
                 .and().apply(new JwtSecurityConfig(tokenProvider))
         ;

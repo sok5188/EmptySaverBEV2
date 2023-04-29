@@ -90,4 +90,22 @@ public class MemberService {
             throw new BaseException(BaseResponseStatus.INVALID_PASSWORD);
         member.setPassword(encoder.encode(passwordReq.getNewPassword()));
     }
+
+    @Transactional
+    public void setFCMToken(String fcmToken) {
+        Member member = this.getMember();
+        member.setFcmToken(fcmToken);
+    }
+
+    @Transactional
+    public void changeNickName(String newNickName) {
+        Member member= this.getMember();
+        member.setNickname(newNickName);
+    }
+
+    public AuthDto.MemberInfo getMemberInfo() {
+        Member member= this.getMember();
+        return AuthDto.MemberInfo.builder().email(member.getEmail()).name(member.getName()).nickname(member.getNickname())
+                .classOf(member.getClassOf()).build();
+    }
 }

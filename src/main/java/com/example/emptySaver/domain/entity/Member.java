@@ -11,7 +11,6 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @ToString
 public class Member {
     @Id
@@ -24,11 +23,12 @@ public class Member {
     private String classOf;
     private String name;
     private String nickname;
-    private String phone;
+    //private String phone;
     private String email;
     @Enumerated(EnumType.STRING)
     private MemberRole role;
     private String refreshToken;
+    private String fcmToken;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "member")

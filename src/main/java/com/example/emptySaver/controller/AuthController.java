@@ -35,6 +35,7 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
 
+    //TODO: 클라이언트에서 firebase토큰 발급받아서 그걸 유저에 저장해야 한다.
     @PostMapping("/login")
     @Operation(summary = "Login", description = "로그인 성공 시 인증헤더에 접근토큰, 쿠키에 갱신토큰 심어준다.")
     public ResponseEntity<String> login(@RequestBody LoginForm loginDTO, HttpServletResponse response){
@@ -56,7 +57,8 @@ public class AuthController {
 
 
             memberService.setRefreshToken(username,refreshJwt);
-
+            //FCM token 설정
+            memberService.setFCMToken(loginDTO.getFcmToken());
             Cookie cookie = new Cookie("RefreshToken",refreshJwt);
             cookie.setHttpOnly(true);
             cookie.setPath("/");

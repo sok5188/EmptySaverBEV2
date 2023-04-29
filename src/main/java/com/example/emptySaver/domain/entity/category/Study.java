@@ -2,6 +2,8 @@ package com.example.emptySaver.domain.entity.category;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +12,8 @@ import lombok.Setter;
 @Setter
 @DiscriminatorValue("study")
 public class Study extends Category{
-    //ex, toeic, coding, ...
-    private String studyCategory;
+    @Enumerated(EnumType.STRING)
+    private StudyType studyType;
 
 
 
