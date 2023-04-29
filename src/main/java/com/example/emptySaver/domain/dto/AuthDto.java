@@ -1,5 +1,6 @@
 package com.example.emptySaver.domain.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 public class AuthDto {
@@ -26,5 +27,13 @@ public class AuthDto {
     public static class changePasswordReq{
         private String oldPassword;
         private String newPassword;
+    }
+    @Data
+    @Builder
+    public static class MemberInfo{
+        private String email;
+        private String name;
+        private String nickname;
+        private String classOf;
     }
 }
