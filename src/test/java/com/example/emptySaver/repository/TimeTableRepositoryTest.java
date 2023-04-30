@@ -1,14 +1,18 @@
 package com.example.emptySaver.repository;
 
+import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.domain.entity.Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Schedule;
 import com.example.emptySaver.domain.entity.Time_Table;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,15 +22,42 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 class TimeTableRepositoryTest {
+
+    @Autowired
+    private EntityManager entityManager;
     @Autowired
     private TimeTableRepository timeTableRepository;
     @Autowired
     private ScheduleRepository scheduleRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
     @BeforeEach
     void beforeEach(){
         timeTableRepository.deleteAll();
         scheduleRepository.deleteAll();
+        memberRepository.deleteAll();
+    }
+
+    @Transactional
+    @Test
+    void 멤버에시간표저장(){
+        Time_Table timeTable = Time_Table.builder().title("헬스루틴").build();
+        entityManager.persist(timeTable);
+
+        Member member = new Member();
+        member.setName("오운완");
+        member.setTimeTable(timeTable);
+        entityManager.persist(member);
+        //Member savedMember = memberRepository.save(member);
+
+        entityManager.flush();
+        entityManager.clear();
+        //then
+        Member savedMember = memberRepository.findById(member.getId()).get();
+        Time_Table savedTimeTable = timeTableRepository.findById(timeTable.getId()).get();
+        assertThat(savedMember.getTimeTable().getId()).isEqualTo(timeTable.getId());
+        assertThat(savedTimeTable.getMember().getId()).isEqualTo(savedMember.getId());
     }
 
     @DisplayName("weekScheduleData 비트 연산 테스트")

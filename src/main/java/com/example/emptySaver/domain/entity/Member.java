@@ -53,4 +53,8 @@ public class Member {
 
     }
 
+    @ToString.Exclude
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "time_table_id")
+    private Time_Table timeTable;
 }

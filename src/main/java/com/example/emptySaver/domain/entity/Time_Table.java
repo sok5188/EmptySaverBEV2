@@ -11,13 +11,15 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "time_table")
 @Builder
 public class Time_Table {
     @Id
     @GeneratedValue
     private Long id;
     private String title;
+
+    @OneToOne(mappedBy = "timeTable")
+    private Member member;
 
     //외래키 저장을 상대에게 위임 -> 상대는 @joinColumn에 외래키 저장
     @Builder.Default
