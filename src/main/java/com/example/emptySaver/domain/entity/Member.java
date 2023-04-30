@@ -3,6 +3,7 @@ package com.example.emptySaver.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -10,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+@ToString
 public class Member {
     @Id
     @GeneratedValue
@@ -22,17 +23,34 @@ public class Member {
     private String classOf;
     private String name;
     private String nickname;
-    private String phone;
+    //private String phone;
     private String email;
     @Enumerated(EnumType.STRING)
     private MemberRole role;
+    private String refreshToken;
+    private String fcmToken;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "member")
-    private List<Member_Team> member_team;
+    private List<MemberTeam> memberTeam =new ArrayList<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "member")
-    private List<Member_Interest> member_interests;
+    private List<MemberInterest> memberInterests =new ArrayList<>();
 
-    @OneToMany(mappedBy = "friend_member")
-    private List<Friend> friends;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "friendMember")
+    private List<Friend> friends=new ArrayList<>();
+    @Builder(builderClassName = "InitUser",builderMethodName = "init")
+    public Member(String username, String password, String classOf, String name,String nickname, String email){
+        this.username = username;
+        this.password = password;
+        this.classOf = classOf;
+        this.name =name;
+        this.nickname=nickname;
+        this.email=email;
+        this.role=MemberRole.USER;
+
+    }
+
 }

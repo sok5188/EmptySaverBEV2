@@ -22,6 +22,12 @@ public class Friend{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "friend_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Member friend_member;
+    private Member friendMember;
+
+    public void addFriend(Member owner, Member friend){
+        this.owner = owner;
+        this.friendMember=friend;
+        owner.getFriends().add(this);
+    }
 
 }

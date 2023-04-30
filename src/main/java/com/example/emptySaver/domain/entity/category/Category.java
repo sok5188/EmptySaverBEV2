@@ -1,6 +1,6 @@
 package com.example.emptySaver.domain.entity.category;
 
-import com.example.emptySaver.domain.entity.Member_Interest;
+import com.example.emptySaver.domain.entity.MemberInterest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Cache;
@@ -21,5 +21,7 @@ public abstract class Category {
 //   추후 카테고리로 회원을 찾아야 하는 경우 사용
 //    @OneToMany(mappedBy = "category")
 //    private List<Member_Interest> memberInterestList;
+
+    private String name;
 
 }

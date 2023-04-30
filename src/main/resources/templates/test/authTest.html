@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <link th:href="@{/css/bootstrap.min.css}"
+        href="../css/bootstrap.min.css" rel="stylesheet">
+  <style>
+        .container {
+            max-width: 560px;
+        }
+        .field-error {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div>
+  <h3> 로그인, 회원가입 관련 테스트 페이지</h3>
+</div>
+<button class="w-100 btn btn-secondary btn-lg" type="button" onclick="callApi()">
+  이메일 인증 요청하기
+</button>
+
+
+</body>
+<script th:inline="javascript">
+
+    function callApi(){
+        console.log("called api !");
+        fetch("/auth/sendEmail2?email=sok5188@gmail.com",{method:"POST"}).then(res=>res.text()).then(data=>{
+            console.log("got data from api : "+ data);
+            //code=data;
+            //console.log("got data from api : "+ [[${code}]]);
+        })
+    }
+
+</script>
+</html>

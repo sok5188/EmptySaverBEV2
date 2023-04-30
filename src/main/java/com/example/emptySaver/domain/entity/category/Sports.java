@@ -8,9 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Getter@Setter
-@DiscriminatorValue("movie")
-public class Movie extends Category{
+@Getter
+@Setter
+@DiscriminatorValue("sports")
+public class Sports extends Category{
     @Enumerated(EnumType.STRING)
-    private MovieType movieGenre;
+    private SportsType sportType;
 }

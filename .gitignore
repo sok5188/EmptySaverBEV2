@@ -1,10 +1,13 @@
 HELP.md
 .gradle
 build/
+.json
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 ~/Desktop/guess_music
+serviceAccountKey.json
+
 ### STS ###
 .apt_generated
 .classpath
@@ -26,6 +29,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -35,3 +39,5 @@ out/
 
 ### VS Code ###
 .vscode/
+serviceAccountKeyOrigin.json
+application-local.yml

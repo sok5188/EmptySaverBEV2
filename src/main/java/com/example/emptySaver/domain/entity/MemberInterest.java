@@ -6,14 +6,12 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Entity
-public class Member_Interest {
+public class MemberInterest {
     @Id@GeneratedValue
     private Long id;
 

@@ -10,7 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 @Entity
-public class Member_Team {
+public class MemberTeam {
     @Id@GeneratedValue
     private Long id;
 
@@ -30,4 +30,12 @@ public class Member_Team {
     @JoinColumn(name = "owner_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member owner;
+
+    public void addMemberToTeam(Member member,Team team,Member owner){
+        this.member=member;
+        this.team=team;
+        this.owner=owner;
+        member.getMemberTeam().add(this);
+        team.getTeamMembers().add(this);
+    }
 }
