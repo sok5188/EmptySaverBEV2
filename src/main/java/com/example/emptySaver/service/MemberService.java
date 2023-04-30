@@ -92,8 +92,8 @@ public class MemberService {
     }
 
     @Transactional
-    public void setFCMToken(String fcmToken) {
-        Member member = this.getMember();
+    public void setFCMToken(String username,String fcmToken) {
+        Member member = memberRepository.findFirstByUsername(username).orElseThrow(() -> new BaseException(BaseResponseStatus.FAILED_TO_LOGIN));
         member.setFcmToken(fcmToken);
     }
 

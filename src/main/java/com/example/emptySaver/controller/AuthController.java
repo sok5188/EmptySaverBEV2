@@ -44,9 +44,7 @@ public class AuthController {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, loginDTO.getPassword());
         try{
-            log.info("before authenticate");
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            log.info("after authenticate");
             String accessJwt = tokenProvider.createToken(authentication,"Access");
             String refreshJwt = tokenProvider.createToken(authentication,"Refresh");
 
@@ -58,7 +56,7 @@ public class AuthController {
 
             memberService.setRefreshToken(username,refreshJwt);
             //FCM token 설정
-            memberService.setFCMToken(loginDTO.getFcmToken());
+            memberService.setFCMToken(username,loginDTO.getFcmToken());
             Cookie cookie = new Cookie("RefreshToken",refreshJwt);
             cookie.setHttpOnly(true);
             cookie.setPath("/");

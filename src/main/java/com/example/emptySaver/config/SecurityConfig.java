@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .requestMatchers("/helloTest").permitAll()
                 .requestMatchers("/swagger-ui/**","/swagger-ui","/swagger-resources/**","/swagger-resources",
                         "/swagger-ui","/swagger-ui.html","/v3/api-docs","/v3/api-docs/**").permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                //.requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
                 .and().apply(new JwtSecurityConfig(tokenProvider))
         ;
