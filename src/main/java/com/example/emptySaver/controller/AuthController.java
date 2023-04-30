@@ -74,7 +74,7 @@ public class AuthController {
     }
     @PostMapping("/sendEmail")
     @Operation(summary = "이메일 인증 코드 전송", description = "해당 이메일로 인증 코드를 전송하고 코드를 반환해주는 API")
-    public ResponseEntity<String> sendEmail(@RequestParam String email){
+    public ResponseEntity<String> sendEmail(@RequestParam("email") String email){
         log.info("email : "+email);
         String code = mailService.createCode();
         String text="";
