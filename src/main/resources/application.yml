@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: local
+    active: local_integration
   application:
     name: demo
   datasource:

@@ -41,3 +41,5 @@ out/
 .vscode/
 serviceAccountKeyOrigin.json
 application-local.yml
+application-local_integration.yml
+emptyAdminSDK.json
