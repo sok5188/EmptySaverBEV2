@@ -18,7 +18,7 @@ public class FCMService {
     private final FirebaseMessaging firebaseMessaging;
     private final MemberRepository memberRepository;
     public void sendNotificationByToken(FCMDto fcmDto){
-        Member member = memberRepository.findById(fcmDto.getUserId()).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_ID));
+        Member member = memberRepository.findById(fcmDto.getUserId()).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
         if(member.getFcmToken() == null){
             throw new BaseException(BaseResponseStatus.INVALID_FCMTOKEN);
         }
