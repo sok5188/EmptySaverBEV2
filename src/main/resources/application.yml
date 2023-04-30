@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  #profiles:
+    #active: local_integration -> timeTable 관련 테스트시 적용
   application:
     name: demo
   datasource:
