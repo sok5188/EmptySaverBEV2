@@ -24,10 +24,19 @@ public class Friend{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member friendMember;
 
-    public void addFriend(Member owner, Member friend){
+    private boolean isFriend=false;
+
+    public void addFriendRequest(Member owner, Member friend){
         this.owner = owner;
         this.friendMember=friend;
         owner.getFriends().add(this);
+        isFriend=false;
+    }
+    public void makeFriend(Member owner, Member friend){
+        this.owner = owner;
+        this.friendMember=friend;
+        owner.getFriends().add(this);
+        isFriend=true;
     }
 
 }

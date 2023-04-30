@@ -9,5 +9,9 @@ import java.util.List;
 
 public interface FriendRepository extends JpaRepository<Friend, Long> {
     @EntityGraph(attributePaths = "friendMember")
-    List<Friend> findWithFriendByOwner(Member owner);
+    List<Friend> findWithFriendMemberByOwner(Member owner);
+
+    @EntityGraph(attributePaths = "owner")
+    List<Friend> findWithOwnerByFriendMember(Member friendMember);
+
 }
