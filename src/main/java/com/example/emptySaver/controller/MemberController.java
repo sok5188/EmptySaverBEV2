@@ -27,9 +27,9 @@ public class MemberController {
     }
 
     //TODO:백오피스 만들면 role이 관리자인 경우만 접근 가능한 API로 수정
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{memberId}")
     @Operation(summary = "회원삭제", description = "특정 회원을 삭제하는 API")
-    public ResponseEntity<String> deleteMember(@RequestParam("memberId") Long memberId){
+    public ResponseEntity<String> deleteMember(@PathVariable("memberId") Long memberId){
         memberService.deleteMember(memberId);
         return new ResponseEntity<>("User Deleted By Manager",HttpStatus.OK);
     }
@@ -46,9 +46,9 @@ public class MemberController {
         memberService.changePassword(pwdReq);
         return new ResponseEntity<>("User Password Updated",HttpStatus.OK);
     }
-    @PutMapping("/changeNickName")
+    @PutMapping("/changeNickName/{newNickName}")
     @Operation(summary = "별명 변경", description = "사용자 별명을 변경하는 API")
-    public ResponseEntity<String> changeNickName(@RequestParam String newNickName){
+    public ResponseEntity<String> changeNickName(@PathVariable String newNickName){
         memberService.changeNickName(newNickName);
         return new ResponseEntity<>("User NickName Updated",HttpStatus.OK);
     }
