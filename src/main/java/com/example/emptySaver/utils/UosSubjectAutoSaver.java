@@ -6,7 +6,6 @@ import com.example.emptySaver.repository.DepartmentRepository;
 import com.example.emptySaver.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -164,7 +163,7 @@ public class UosSubjectAutoSaver {
         subject.setCredit(credit);
         subject.setShyr(dataMap.get("shyr"));
         subject.setProf_nm(dataMap.get("prof_nm"));
-        subject.setYear(dataMap.get("year"));
+        subject.setYears(dataMap.get("year"));
         subject.setTerm(dataMap.get("term"));
 
         subject.setWeekScheduleData(class_numToSchedule(dataMap.get("class_nm")));  //상위 클래스 데이터이므로 직접 삽입

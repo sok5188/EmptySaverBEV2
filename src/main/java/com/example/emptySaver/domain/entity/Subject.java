@@ -1,12 +1,7 @@
 package com.example.emptySaver.domain.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,7 +46,7 @@ public class Subject extends Periodic_Schedule{
     private String etc_permit_yn; //타과허용 정보입니다.
     private String sec_permit_yn; // 복수전공 정보입니다.
 
-    private String year; //학년도 정보입니다.
+    private String years; //학년도 정보입니다.
     private String term; // 학기 정보
 
     //private long[] weekScheduleData;
