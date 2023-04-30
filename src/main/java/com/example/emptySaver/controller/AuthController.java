@@ -72,9 +72,9 @@ public class AuthController {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
-    @PostMapping("/sendEmail")
+    @PostMapping("/sendEmail/{email}")
     @Operation(summary = "이메일 인증 코드 전송", description = "해당 이메일로 인증 코드를 전송하고 코드를 반환해주는 API")
-    public ResponseEntity<String> sendEmail(@RequestParam("email") String email){
+    public ResponseEntity<String> sendEmail(@PathVariable String email){
         log.info("email : "+email);
         String code = mailService.createCode();
         String text="";
