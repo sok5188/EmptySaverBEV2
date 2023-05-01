@@ -33,6 +33,8 @@ public class Time_Table {
         weekScheduleData = new long[]{0,0,0,0,0,0,0};   //0으로 init 후 재계산
 
         for (Schedule schedule: this.scheduleList) {
+            if (!(schedule instanceof  Periodic_Schedule))
+                continue;
             Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
             addWeekScheduleData(periodicSchedule.getWeekScheduleData());
         }
