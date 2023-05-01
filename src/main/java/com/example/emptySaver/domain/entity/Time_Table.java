@@ -23,7 +23,7 @@ public class Time_Table {
 
     //외래키 저장을 상대에게 위임 -> 상대는 @joinColumn에 외래키 저장
     @Builder.Default
-    @OneToMany(mappedBy = "timeTable", fetch = FetchType.EAGER, cascade = CascadeType.ALL) //casecade all로 이 table사라지면 일정도 같이 제거됨
+    @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY, cascade = CascadeType.ALL) //casecade all로 이 table사라지면 일정도 같이 제거됨
     @ToString.Exclude
     private List<Schedule> scheduleList = new ArrayList<>();
 

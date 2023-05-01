@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
@@ -30,6 +32,50 @@ class TimeTableServiceTest {
     private MemberRepository memberRepository;
     @Autowired
     private TimeTableRepository timeTableRepository;
+
+    @Transactional
+    private Member getSavedMember(){
+        Time_Table timeTable = Time_Table.builder().title("육사시미").build();
+        em.persist(timeTable);
+
+        Member member = Member.init().name("멤버").build();
+        member.setTimeTable(timeTable);
+        em.persist(member);
+        em.flush();     //저장시킴
+
+        return(memberRepository.findById(member.getId()).get());   //저장된 멤버 호출
+    }
+
+    @Transactional
+    @Test
+    void Id로스케줄수정(){
+        Member savedMember = getSavedMember();
+
+        long[] weekData = {0,100,100,0,0,0,0};
+        Periodic_Schedule periodicSchedule = new Periodic_Schedule();           //저장시킬 스케줄
+        periodicSchedule.setName("캡스톤");
+        periodicSchedule.setWeekScheduleData(weekData);
+
+        timeTableService.saveScheduleInTimeTable(periodicSchedule,savedMember);        //멤버에게 스케줄 저장
+
+        Long scheduleId = savedMember.getTimeTable().getScheduleList().get(0).getId();
+
+        long[] newWeekData = {100,0,0,0,0,100,0};
+        Periodic_Schedule newPeriodicSchedule = new Periodic_Schedule();           //새로운 스케줄 데이터
+        newPeriodicSchedule.setName("코코롱");
+        newPeriodicSchedule.setWeekScheduleData(newWeekData);
+
+        timeTableService.updateScheduleInTimeTable(scheduleId, newPeriodicSchedule);
+
+
+        List<Schedule> scheduleList = savedMember.getTimeTable().getScheduleList();
+        //for (Schedule sc: scheduleList)
+            //System.out.println("schedule: "+sc);
+
+        Periodic_Schedule updatedSchedule = (Periodic_Schedule) scheduleList.get(0);
+        assertThat(updatedSchedule.getWeekScheduleData()).isEqualTo(newPeriodicSchedule.getWeekScheduleData());
+        assertThat(updatedSchedule.getName()).isEqualTo(newPeriodicSchedule.getName());
+    }
 
     @Transactional
     @Test
