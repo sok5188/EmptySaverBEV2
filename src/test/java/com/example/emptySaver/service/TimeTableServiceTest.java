@@ -48,6 +48,31 @@ class TimeTableServiceTest {
 
     @Transactional
     @Test
+    void 스케줄삭제(){
+        Member savedMember = getSavedMember();      //영속성 유지됨
+
+        long[] weekData = {0,100,100,0,0,0,0};
+        Periodic_Schedule periodicSchedule = new Periodic_Schedule();           //저장시킬 스케줄
+        periodicSchedule.setName("캡스톤");
+        periodicSchedule.setWeekScheduleData(weekData);
+
+        timeTableService.saveScheduleInTimeTable(periodicSchedule,savedMember);        //멤버에게 스케줄 저장
+
+        em.flush();
+            //em.clear();
+
+        Long scheduleId = memberRepository.findById(savedMember.getId()).get().getTimeTable().getScheduleList().get(0).getId();
+        timeTableService.deleteScheduleInTimeTable(scheduleId); //삭제
+        em.flush();
+        em.clear();
+
+        //System.out.println(savedMember.getTimeTable().getScheduleList().get(0).getId());
+        assertThat(memberRepository.findById(savedMember.getId()).get().getTimeTable().getScheduleList().size()).isEqualTo(0);
+        //assertThat(savedMember.getTimeTable().getScheduleList().size()).isEqualTo(0);
+    }
+
+    @Transactional
+    @Test
     void Id로스케줄수정(){
         Member savedMember = getSavedMember();
 
@@ -66,7 +91,6 @@ class TimeTableServiceTest {
         newPeriodicSchedule.setWeekScheduleData(newWeekData);
 
         timeTableService.updateScheduleInTimeTable(scheduleId, newPeriodicSchedule);
-
 
         List<Schedule> scheduleList = savedMember.getTimeTable().getScheduleList();
         //for (Schedule sc: scheduleList)

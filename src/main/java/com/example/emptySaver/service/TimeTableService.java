@@ -3,8 +3,12 @@ package com.example.emptySaver.service;
 import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.repository.ScheduleRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceContexts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,8 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class TimeTableService {
+    @PersistenceContext
+    private final EntityManager em;
 
     private final TimeTableRepository timeTableRepository;
     private final ScheduleRepository scheduleRepository;
@@ -49,19 +55,20 @@ public class TimeTableService {
             updatePeriodicSchedule((Periodic_Schedule)schedule, (Periodic_Schedule)updateData);
         else
             updateNonPeriodicSchedule((Non_Periodic_Schedule)schedule, (Non_Periodic_Schedule)updateData);
+
+        scheduleRepository.save(schedule);
     }
 
     @Transactional
     private void updatePeriodicSchedule(Periodic_Schedule schedule, Periodic_Schedule updateData){
-
         if(updateData.getWeekScheduleData() != null)
             schedule.setWeekScheduleData(updateData.getWeekScheduleData());
         if(updateData.getName() != null)
             schedule.setName(updateData.getName());
         //일단 확인용으로 두개만
-        scheduleRepository.save(schedule);
         log.info("update Schedule "+ schedule.getId() + " as " + updateData.toString());
     }
+
     @Transactional
     private void updateNonPeriodicSchedule(Non_Periodic_Schedule schedule, Non_Periodic_Schedule updateData){
         if(updateData.getName() != null)
@@ -71,7 +78,23 @@ public class TimeTableService {
         if(updateData.getEndTime() != null)
             schedule.setEndTime(updateData.getEndTime());
         //일단 확인용
-        scheduleRepository.save(schedule);
         log.info("update Schedule "+ schedule.getId() + " as " + updateData.toString());
     }
+
+    @Transactional
+    public void deleteScheduleInTimeTable(Long scheduleId){
+        em.flush();
+        em.clear();
+        Schedule schedule = scheduleRepository.findById(scheduleId).get();
+
+        Time_Table timeTable = schedule.getTimeTable();
+        timeTable.getScheduleList().remove(schedule);   //서로의 연관관계 끊기
+        timeTable.calcAllWeekScheduleData();
+
+        schedule.setTimeTable(null);                    //서로의 연관관계 끊기
+
+        scheduleRepository.deleteById(scheduleId);
+        log.info("delete Schedule "+ scheduleId);
+    }
+
 }
