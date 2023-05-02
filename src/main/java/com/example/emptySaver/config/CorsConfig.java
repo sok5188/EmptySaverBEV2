@@ -21,6 +21,8 @@ public class CorsConfig {
       config.addAllowedOrigin("http://localhost:3000");
       config.addAllowedOrigin("http://172.30.1.48:3000");
       config.addAllowedOrigin("http://localhost:8080");
+      config.addAllowedOrigin("http://3.34.232.63:3000");
+
       config.setAllowedHeaders(Collections.singletonList("*"));
       config.addExposedHeader(JwtFilter.AUTHORIZATION_HEADER);
 
