@@ -1,5 +1,6 @@
 package com.example.emptySaver.service;
 
+import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.domain.entity.Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Schedule;
@@ -7,6 +8,7 @@ import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.ScheduleRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
+import com.example.emptySaver.utils.TimeDataToBitConverter;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -25,6 +30,8 @@ class TimeTableServiceTest {
     private EntityManager em;
 
     @Autowired
+    private TimeDataToBitConverter bitConverter;
+    @Autowired
     private TimeTableService timeTableService;
     @Autowired
     private MemberService memberService;
@@ -32,6 +39,58 @@ class TimeTableServiceTest {
     private MemberRepository memberRepository;
     @Autowired
     private TimeTableRepository timeTableRepository;
+
+    @Test
+    void TimeTableDto받아오기(){
+        Time_Table timeTable = Time_Table.builder().title("육사시미").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
+        Time_Table savedTable = timeTableRepository.save(timeTable);
+
+        Member member = Member.init().name("멤버").build();
+        member.setTimeTable(savedTable);
+        Member savedMember = memberRepository.save(member);
+
+        long[] weekData = {0,100,100,100,0,0,0};
+        Periodic_Schedule periodicSchedule = new Periodic_Schedule();           //저장시킬 스케줄
+        periodicSchedule.setName("캡스톤");
+        periodicSchedule.setWeekScheduleData(weekData);
+
+        timeTableService.saveScheduleInTimeTable(periodicSchedule,savedMember);
+
+        long[] weekData2 = {0,1000,0,1000,100,0,0};
+        Periodic_Schedule periodicSchedule2 = new Periodic_Schedule();           //저장시킬 스케줄
+        periodicSchedule2.setName("킹스톤");
+        periodicSchedule2.setWeekScheduleData(weekData2);
+
+        timeTableService.saveScheduleInTimeTable(periodicSchedule2,savedMember);
+
+
+        LocalDateTime startDate = LocalDateTime.of(2023, 4, 30,10,0);
+        LocalDateTime endDate = LocalDateTime.of(2023, 5, 10,12,30);
+        TimeTableDto.TimeTableInfo timeTableDto = timeTableService.getMemberTimeTableByDayNum(savedMember.getId(), startDate.toLocalDate(), endDate.toLocalDate());
+
+        List<Long> bitDataPerDays = timeTableDto.getBitDataPerDays();
+
+        for (Long bits: bitDataPerDays) {
+            System.out.println(Long.toBinaryString(bits));
+        }
+
+        List<List<TimeTableDto.ScheduleDto>> scheduleListPerDays = timeTableDto.getScheduleListPerDays();
+        for (List<TimeTableDto.ScheduleDto> ss: scheduleListPerDays) {
+            System.out.println("======");
+            for (TimeTableDto.ScheduleDto scheduleDto: ss) {
+                System.out.println(scheduleDto);
+            }
+        }
+    }
+
+    @Test
+    void LocalTime_ToBit_연산_테스트(){
+        LocalDateTime startDate = LocalDateTime.of(2023, 4, 30,10,0);
+        LocalDateTime endDate = LocalDateTime.of(2023, 4, 30,12,30);
+        Long toBit = bitConverter.convertTimeToBit(startDate, endDate);
+        System.out.println(Long.toBinaryString(toBit));
+    }
+
 
     @Transactional
     private Member getSavedMember(){

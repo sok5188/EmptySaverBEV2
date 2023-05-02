@@ -30,7 +30,7 @@ public class Time_Table {
     private long[] weekScheduleData = {0,0,0,0,0,0,0};
 
     public void calcAllWeekScheduleData(){
-        weekScheduleData = new long[]{0,0,0,0,0,0,0};   //0으로 init 후 재계산
+        this.weekScheduleData = new long[]{0,0,0,0,0,0,0};   //0으로 init 후 재계산
 
         for (Schedule schedule: this.scheduleList) {
             if (!(schedule instanceof  Periodic_Schedule))
