@@ -63,12 +63,12 @@ class TimeTableServiceTest {
 
         Long scheduleId = memberRepository.findById(savedMember.getId()).get().getTimeTable().getScheduleList().get(0).getId();
         timeTableService.deleteScheduleInTimeTable(scheduleId); //삭제
-        em.flush();
+        em.flush();     //이런거 다 삭제할땐 영속성이 오히려 불편해져서 넣는거
         em.clear();
 
-        //System.out.println(savedMember.getTimeTable().getScheduleList().get(0).getId());
-        assertThat(memberRepository.findById(savedMember.getId()).get().getTimeTable().getScheduleList().size()).isEqualTo(0);
-        //assertThat(savedMember.getTimeTable().getScheduleList().size()).isEqualTo(0);
+        Member finalMember = memberRepository.findById(savedMember.getId()).get();
+        assertThat(finalMember.getTimeTable().getScheduleList().size()).isEqualTo(0);
+        assertThat(finalMember.getTimeTable().getWeekScheduleData()[1]).isEqualTo(0l);
     }
 
     @Transactional
@@ -99,6 +99,8 @@ class TimeTableServiceTest {
         Periodic_Schedule updatedSchedule = (Periodic_Schedule) scheduleList.get(0);
         assertThat(updatedSchedule.getWeekScheduleData()).isEqualTo(newPeriodicSchedule.getWeekScheduleData());
         assertThat(updatedSchedule.getName()).isEqualTo(newPeriodicSchedule.getName());
+        assertThat(savedMember.getTimeTable().getWeekScheduleData()).isEqualTo(newWeekData);
+        em.flush();     //왜 이거 없을때는 update쿼리가 안나감? Transactionl 끝나면 나가야되는거 아님? 롤백 때문임?
     }
 
     @Transactional

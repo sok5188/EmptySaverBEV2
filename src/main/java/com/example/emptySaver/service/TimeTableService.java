@@ -56,7 +56,8 @@ public class TimeTableService {
         else
             updateNonPeriodicSchedule((Non_Periodic_Schedule)schedule, (Non_Periodic_Schedule)updateData);
 
-        scheduleRepository.save(schedule);
+        Schedule savedSchedule = scheduleRepository.save(schedule);
+        savedSchedule.getTimeTable().calcAllWeekScheduleData();
     }
 
     @Transactional
