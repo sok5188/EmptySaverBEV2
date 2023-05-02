@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(jwtAccessDeniedHandler)
 
                 .and()
-                .headers().frameOptions().sameOrigin()
+                .headers().frameOptions().disable()
 
                 .and()
                 .authorizeRequests()
