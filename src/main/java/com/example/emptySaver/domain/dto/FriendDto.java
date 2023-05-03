@@ -16,5 +16,6 @@ public class FriendDto {
     public static class FriendInfo{
         private String friendName;
         private Long friendId;
+        private Long friendMemberId;
     }
 }

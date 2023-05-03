@@ -44,9 +44,7 @@ public class AuthController {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, loginDTO.getPassword());
         try{
-            log.info("before authenticate");
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            log.info("after authenticate");
             String accessJwt = tokenProvider.createToken(authentication,"Access");
             String refreshJwt = tokenProvider.createToken(authentication,"Refresh");
 
@@ -58,7 +56,7 @@ public class AuthController {
 
             memberService.setRefreshToken(username,refreshJwt);
             //FCM token 설정
-            memberService.setFCMToken(loginDTO.getFcmToken());
+            memberService.setFCMToken(username,loginDTO.getFcmToken());
             Cookie cookie = new Cookie("RefreshToken",refreshJwt);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
@@ -74,9 +72,9 @@ public class AuthController {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
-    @PostMapping("/sendEmail")
+    @PostMapping("/sendEmail/{email}")
     @Operation(summary = "이메일 인증 코드 전송", description = "해당 이메일로 인증 코드를 전송하고 코드를 반환해주는 API")
-    public ResponseEntity<String> sendEmail(@RequestParam String email){
+    public ResponseEntity<String> sendEmail(@PathVariable String email){
         log.info("email : "+email);
         String code = mailService.createCode();
         String text="";

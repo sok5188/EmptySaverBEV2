@@ -1,9 +1,6 @@
 package com.example.emptySaver.config;
 
-import com.example.emptySaver.config.jwt.JwtAccessDeniedHandler;
-import com.example.emptySaver.config.jwt.JwtAuthenticationEntryPoint;
-import com.example.emptySaver.config.jwt.JwtSecurityConfig;
-import com.example.emptySaver.config.jwt.TokenProvider;
+import com.example.emptySaver.config.jwt.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -14,11 +11,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -28,25 +29,13 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final CorsFilter corsFilter;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> {
             web.ignoring().requestMatchers("/css/**","/js/**","/images/**");
         };
-    }
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
-        CorsConfiguration source = new CorsConfiguration();
-        source.setAllowCredentials(true);
-        source.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:8080"));
-        source.addAllowedOrigin("*");
-        source.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
-        source.addAllowedHeader("*");
-        UrlBasedCorsConfigurationSource url= new UrlBasedCorsConfigurationSource();
-        url.registerCorsConfiguration("/**", source);
-
-        return url;
     }
 
     @Bean
@@ -56,13 +45,14 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().formLogin().disable()
                 .httpBasic().disable()
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
 
                 .and()
-                .headers().frameOptions().sameOrigin()
+                .headers().frameOptions().disable()
 
                 .and()
                 .authorizeRequests()
@@ -71,7 +61,7 @@ public class SecurityConfig {
                 .requestMatchers("/helloTest").permitAll()
                 .requestMatchers("/swagger-ui/**","/swagger-ui","/swagger-resources/**","/swagger-resources",
                         "/swagger-ui","/swagger-ui.html","/v3/api-docs","/v3/api-docs/**").permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                //.requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
                 .and().apply(new JwtSecurityConfig(tokenProvider))
         ;

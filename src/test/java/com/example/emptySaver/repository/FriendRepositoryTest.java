@@ -31,18 +31,18 @@ class FriendRepositoryTest {
         em.persist(member2);
 
         Friend friend=new Friend();
-        friend.addFriend(member,member2);
+        friend.addFriendRequest(member,member2);
         em.persist(friend);
 
         Friend friend2=new Friend();
-        friend2.addFriend(member2,member);
+        friend2.addFriendRequest(member2,member);
         em.persist(friend2);
 
         em.flush();
         em.clear();
 
-        List<Friend> byOwner = repository.findWithFriendByOwner(member);
-        List<Friend> byOwner2 = repository.findWithFriendByOwner(member2);
+        List<Friend> byOwner = repository.findWithFriendMemberByOwner(member);
+        List<Friend> byOwner2 = repository.findWithFriendMemberByOwner(member2);
 
         assertThat(byOwner.size()).isEqualTo(1);
         assertThat(byOwner.get(0).getFriendMember().getUsername()).isEqualTo("testUser22");
@@ -61,16 +61,16 @@ class FriendRepositoryTest {
         em.persist(member2);
 
         Friend friend=new Friend();
-        friend.addFriend(member,member2);
+        friend.addFriendRequest(member,member2);
         em.persist(friend);
 
         em.flush();
         em.clear();
 
-        List<Friend> byOwner = repository.findWithFriendByOwner(member);
+        List<Friend> byOwner = repository.findWithFriendMemberByOwner(member);
 
         memberRepository.delete(member2);
-        List<Friend> byOwner2 = repository.findWithFriendByOwner(member);
+        List<Friend> byOwner2 = repository.findWithFriendMemberByOwner(member);
         assertThat(byOwner2.size()).isEqualTo(0);
     }
     @Test
@@ -84,10 +84,10 @@ class FriendRepositoryTest {
         em.persist(member2);
 
         Friend friend=new Friend();
-        friend.addFriend(member,member2);
+        friend.addFriendRequest(member,member2);
         em.persist(friend);
 
-        List<Friend> byOwner = repository.findWithFriendByOwner(member);
+        List<Friend> byOwner = repository.findWithFriendMemberByOwner(member);
         String beforeName = byOwner.get(0).getFriendMember().getUsername();
 
         member2.setUsername("newTestUserName");
