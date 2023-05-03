@@ -1,5 +1,6 @@
 package com.example.emptySaver.service;
 
+import com.example.emptySaver.config.jwt.SecurityUtil;
 import com.example.emptySaver.domain.dto.FCMDto;
 import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.errorHandler.BaseException;
@@ -12,13 +13,21 @@ import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class FCMService {
     private final FirebaseMessaging firebaseMessaging;
     private final MemberRepository memberRepository;
     public void sendNotificationByToken(FCMDto fcmDto){
-        Member member = memberRepository.findById(fcmDto.getUserId()).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
+        //Member member = memberRepository.findById(fcmDto.getUserId()).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
+        Optional<String> opt = SecurityUtil.getCurrentUsername();
+        Member member;
+        if(opt.isPresent())
+            member=memberRepository.findFirstByUsername(opt.get()).get();
+        else throw new BaseException(BaseResponseStatus.INVALID_USERID);
+
         if(member.getFcmToken() == null){
             throw new BaseException(BaseResponseStatus.INVALID_FCMTOKEN);
         }
