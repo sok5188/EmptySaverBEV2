@@ -4,9 +4,11 @@ import com.example.emptySaver.config.jwt.SecurityUtil;
 import com.example.emptySaver.domain.dto.AuthDto;
 import com.example.emptySaver.domain.dto.AuthDto.SignInForm;
 import com.example.emptySaver.domain.entity.Member;
+import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.MemberRepository;
+import com.example.emptySaver.repository.TimeTableRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final TimeTableRepository timeTableRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Transactional
@@ -29,10 +32,14 @@ public class MemberService {
             throw new BaseException(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
         String username= signInForm.getEmail().split("@")[0];
 
+        Time_Table timeTable = Time_Table.builder().build();
+        timeTableRepository.save(timeTable);
+
         Member build = Member.init().username(username).password(signInForm.getPassword()).classOf(signInForm.getClassOf())
                 .name(signInForm.getName()).nickname(signInForm.getNickname()).email(signInForm.getEmail()).build();
-
+        build.setTimeTable(timeTable);  //연관관계 설정을 위해 삽입, 주인이 저장시켜야 반영됨.
         memberRepository.save(build);
+
         return signInForm;
     }
     public String getUserNameByEmail(String email) {

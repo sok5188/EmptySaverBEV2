@@ -40,6 +40,12 @@ class TimeTableServiceTest {
     @Autowired
     private TimeTableRepository timeTableRepository;
 
+    private TimeTableDto.SchedulePostDto getTempSchedulePostDto(){
+        long[] weekData = {0,100,100,100,0,0,0};
+        TimeTableDto.SchedulePostDto periodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").isPeriodic(true).timeBitData(weekData).build();
+        return periodicSchedule;
+    }
+
     @Test
     void TimeTableDto받아오기(){
         Time_Table timeTable = Time_Table.builder().title("육사시미").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
@@ -50,19 +56,12 @@ class TimeTableServiceTest {
         Member savedMember = memberRepository.save(member);
 
         long[] weekData = {0,100,100,100,0,0,0};
-        Periodic_Schedule periodicSchedule = new Periodic_Schedule();           //저장시킬 스케줄
-        periodicSchedule.setName("캡스톤");
-        periodicSchedule.setWeekScheduleData(weekData);
-
-        timeTableService.saveScheduleInTimeTable(periodicSchedule,savedMember);
+        TimeTableDto.SchedulePostDto periodicSchedule1 = TimeTableDto.SchedulePostDto.builder().name("캡스톤").isPeriodic(true).timeBitData(weekData).build();
+        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule1);
 
         long[] weekData2 = {0,1000,0,1000,100,0,0};
-        Periodic_Schedule periodicSchedule2 = new Periodic_Schedule();           //저장시킬 스케줄
-        periodicSchedule2.setName("킹스톤");
-        periodicSchedule2.setWeekScheduleData(weekData2);
-
-        timeTableService.saveScheduleInTimeTable(periodicSchedule2,savedMember);
-
+        TimeTableDto.SchedulePostDto periodicSchedule2 = TimeTableDto.SchedulePostDto.builder().name("z스톤").isPeriodic(true).timeBitData(weekData2).build();
+        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule2);
 
         LocalDateTime startDate = LocalDateTime.of(2023, 4, 30,10,0);
         LocalDateTime endDate = LocalDateTime.of(2023, 5, 10,12,30);
@@ -110,12 +109,9 @@ class TimeTableServiceTest {
     void 스케줄삭제(){
         Member savedMember = getSavedMember();      //영속성 유지됨
 
-        long[] weekData = {0,100,100,0,0,0,0};
-        Periodic_Schedule periodicSchedule = new Periodic_Schedule();           //저장시킬 스케줄
-        periodicSchedule.setName("캡스톤");
-        periodicSchedule.setWeekScheduleData(weekData);
+        TimeTableDto.SchedulePostDto periodicSchedule = getTempSchedulePostDto();
 
-        timeTableService.saveScheduleInTimeTable(periodicSchedule,savedMember);        //멤버에게 스케줄 저장
+        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule);        //멤버에게 스케줄 저장
 
         em.flush();
             //em.clear();
@@ -135,19 +131,13 @@ class TimeTableServiceTest {
     void Id로스케줄수정(){
         Member savedMember = getSavedMember();
 
-        long[] weekData = {0,100,100,0,0,0,0};
-        Periodic_Schedule periodicSchedule = new Periodic_Schedule();           //저장시킬 스케줄
-        periodicSchedule.setName("캡스톤");
-        periodicSchedule.setWeekScheduleData(weekData);
-
-        timeTableService.saveScheduleInTimeTable(periodicSchedule,savedMember);        //멤버에게 스케줄 저장
+        TimeTableDto.SchedulePostDto periodicSchedule = getTempSchedulePostDto();
+        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule);        //멤버에게 스케줄 저장
 
         Long scheduleId = savedMember.getTimeTable().getScheduleList().get(0).getId();
 
         long[] newWeekData = {100,0,0,0,0,100,0};
-        Periodic_Schedule newPeriodicSchedule = new Periodic_Schedule();           //새로운 스케줄 데이터
-        newPeriodicSchedule.setName("코코롱");
-        newPeriodicSchedule.setWeekScheduleData(newWeekData);
+        TimeTableDto.SchedulePostDto newPeriodicSchedule = TimeTableDto.SchedulePostDto.builder().name("킹스톤").isPeriodic(true).timeBitData(newWeekData).build();
 
         timeTableService.updateScheduleInTimeTable(scheduleId, newPeriodicSchedule);
 
@@ -156,7 +146,7 @@ class TimeTableServiceTest {
             //System.out.println("schedule: "+sc);
 
         Periodic_Schedule updatedSchedule = (Periodic_Schedule) scheduleList.get(0);
-        assertThat(updatedSchedule.getWeekScheduleData()).isEqualTo(newPeriodicSchedule.getWeekScheduleData());
+        assertThat(updatedSchedule.getWeekScheduleData()).isEqualTo(newPeriodicSchedule.getTimeBitData());
         assertThat(updatedSchedule.getName()).isEqualTo(newPeriodicSchedule.getName());
         assertThat(savedMember.getTimeTable().getWeekScheduleData()).isEqualTo(newWeekData);
         em.flush();     //왜 이거 없을때는 update쿼리가 안나감? Transactionl 끝나면 나가야되는거 아님? 롤백 때문임?
@@ -177,14 +167,14 @@ class TimeTableServiceTest {
 
         Member savedMember = memberRepository.findById(member.getId()).get();   //저장된 멤버 호출
 
-        Schedule schedule = Schedule.builder().name("결전의날").build();        //저장시킬 스케줄
-        timeTableService.saveScheduleInTimeTable(schedule,savedMember);        //멤버에게 스케줄 저장
+        TimeTableDto.SchedulePostDto periodicSchedule = getTempSchedulePostDto();
+        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule);        //멤버에게 스케줄 저장
         em.flush();
         em.clear();
 
         savedMember = memberRepository.findById(member.getId()).get();
         assertThat(savedMember.getTimeTable().getScheduleList().size()).isEqualTo(1);   //저장 확인
-        assertThat(savedMember.getTimeTable().getScheduleList().get(0).getName()).isEqualTo(schedule.getName());   //저장 내용 확인
+        assertThat(savedMember.getTimeTable().getScheduleList().get(0).getName()).isEqualTo(periodicSchedule.getName());   //저장 내용 확인
         assertThat(savedMember.getTimeTable().getScheduleList().get(0).getTimeTable().getId()).isEqualTo(timeTable.getId());   //스케줄과 timeTable의 연관관계 확인
     }
 
@@ -203,12 +193,8 @@ class TimeTableServiceTest {
 
         Member savedMember = memberRepository.findById(member.getId()).get();   //저장된 멤버 호출
 
-        long[] weekData = {0,100,100,0,0,0,0};
-        Periodic_Schedule periodicSchedule = new Periodic_Schedule();           //저장시킬 스케줄
-        periodicSchedule.setName("캡스톤");
-        periodicSchedule.setWeekScheduleData(weekData);
-
-        timeTableService.saveScheduleInTimeTable(periodicSchedule,savedMember);        //멤버에게 스케줄 저장
+        TimeTableDto.SchedulePostDto periodicSchedule = getTempSchedulePostDto();
+        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule);        //멤버에게 스케줄 저장
         em.flush();
         em.clear();
 
@@ -217,6 +203,6 @@ class TimeTableServiceTest {
         assertThat(savedMember.getTimeTable().getScheduleList().get(0).getName()).isEqualTo(periodicSchedule.getName());   //저장 내용 확인
         assertThat(savedMember.getTimeTable().getScheduleList().get(0).getTimeTable().getId()).isEqualTo(timeTable.getId());   //스케줄과 timeTable의 연관관계 확인
 
-        assertThat(savedMember.getTimeTable().getWeekScheduleData()).isEqualTo(weekData);   //bitData 재계산 확인
+        assertThat(savedMember.getTimeTable().getWeekScheduleData()).isEqualTo(new long[]{0,100,100,100,0,0,0});   //bitData 재계산 확인
     }
 }

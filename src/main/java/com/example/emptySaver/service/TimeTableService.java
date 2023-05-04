@@ -118,10 +118,26 @@ public class TimeTableService {
                 .scheduleListPerDays(scheduleListPerDays).build();
     }
 
+    private Schedule convertDtoToSchedule(TimeTableDto.SchedulePostDto schedulePostData){
+        if(schedulePostData.isPeriodic()){
+            Periodic_Schedule periodicSchedule = new Periodic_Schedule();
+            periodicSchedule.setWeekScheduleData(schedulePostData.getTimeBitData());
+            periodicSchedule.setName(schedulePostData.getName());
+            return periodicSchedule;
+        }
+        Non_Periodic_Schedule nonPeriodicSchedule = new Non_Periodic_Schedule();
+        nonPeriodicSchedule.setName(schedulePostData.getName());
+        nonPeriodicSchedule.setStartTime(schedulePostData.getStartTime());
+        nonPeriodicSchedule.setEndTime(schedulePostData.getEndTime());
+        return  nonPeriodicSchedule;
+    }
 
     //멤버로 스케줄 저장
     @Transactional
-    public void saveScheduleInTimeTable(Schedule schedule, Member member){
+    public void saveScheduleInTimeTable(Long memberId, TimeTableDto.SchedulePostDto schedulePostData){
+        Member member = memberRepository.findById(memberId).get();
+        Schedule schedule = this.convertDtoToSchedule(schedulePostData);
+
         Time_Table timeTable = member.getTimeTable();
         schedule.setTimeTable(timeTable);
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
@@ -135,7 +151,8 @@ public class TimeTableService {
 
     //멤버로 수정
     @Transactional
-    public void updateScheduleInTimeTable(Long scheduleId, Schedule updateData){
+    public void updateScheduleInTimeTable(final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData){
+        Schedule updateData = this.convertDtoToSchedule(updatePostData);
         Optional<Schedule> scheduleOptional = scheduleRepository.findById(scheduleId);
         if(scheduleOptional.isEmpty()){
             log.info("NoSuchScheduleId: " + scheduleId);
@@ -175,7 +192,7 @@ public class TimeTableService {
     }
 
     @Transactional
-    public void deleteScheduleInTimeTable(Long scheduleId){
+    public void deleteScheduleInTimeTable(final Long scheduleId){
         em.flush();
         em.clear();
         Schedule schedule = scheduleRepository.findById(scheduleId).get();

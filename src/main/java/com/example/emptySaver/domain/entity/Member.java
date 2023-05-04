@@ -50,7 +50,6 @@ public class Member {
         this.nickname=nickname;
         this.email=email;
         this.role=MemberRole.USER;
-
     }
 
     @ToString.Exclude
