@@ -51,7 +51,7 @@ public class MemberService {
         user.setRefreshToken("");
     }
 
-    private Member getMember() {
+    public Member getMember() {
         String userName = SecurityUtil.getCurrentUsername().orElseThrow(() -> new BaseException(BaseResponseStatus.FAILED_TO_LOGIN));
         Member user = memberRepository.findFirstByUsername(userName).orElseThrow(() -> new BaseException(BaseResponseStatus.FAILED_TO_LOGIN));
         return user;
