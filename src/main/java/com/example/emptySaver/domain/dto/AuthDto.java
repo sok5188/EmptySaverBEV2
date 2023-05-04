@@ -36,4 +36,11 @@ public class AuthDto {
         private String nickname;
         private String classOf;
     }
+
+    @Data
+    @Builder
+    public static class SimpleMemberInfo{
+        private Long memberId;
+        private String name;
+    }
 }
