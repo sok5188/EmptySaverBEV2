@@ -6,17 +6,17 @@ public enum MovieType {
     ROMANCE("로맨스"),
     ACTION("액션");
 
-    private String value;
+    private String label;
 
-    MovieType(String value) {
-        this.value = value;
+    MovieType(String label) {
+        this.label = label;
     }
 
     public String getKey() {
         return name();
     }
 
-    public String getValue() {
-        return value;
+    public String getLabel() {
+        return label;
     }
 }
