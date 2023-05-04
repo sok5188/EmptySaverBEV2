@@ -12,26 +12,16 @@ import java.util.Optional;
 
 public interface MemberTeamRepository extends JpaRepository<MemberTeam,Long> {
 
-    //By Owner
-    List<MemberTeam> findByOwner(Member owner);
-    @EntityGraph(attributePaths = "member")
-    List<MemberTeam> findWithMemberByOwner(Member owner);
-    @EntityGraph(attributePaths = "team")
-    List<MemberTeam> findWithTeamByOwner(Member owner);
-    @EntityGraph(attributePaths = {"member","team"})
-    List<MemberTeam> findWithTeamAndMemberByOwner(Member owner);
-
-
     //By Team
     List<MemberTeam> findByTeam(Team team);
     @EntityGraph(attributePaths = "member")
     List<MemberTeam> findWithMemberByTeam(Team team);
-    @EntityGraph(attributePaths = "owner")
-    List<MemberTeam> findWithOwnerByTeam(Team team);
 
+    List<MemberTeam> findByMember(Member member);
+    @EntityGraph(attributePaths = "team")
+    List<MemberTeam> findWithTeamByMember(Member member);
 
-    //By Member
-    @EntityGraph(attributePaths = {"owner","team"})
-    List<MemberTeam> findWithOwnerAndTeamByMember(Member member);
+    int countByTeam(Team team);
+
 
 }
