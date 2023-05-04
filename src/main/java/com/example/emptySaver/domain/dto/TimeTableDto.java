@@ -27,7 +27,9 @@ public class TimeTableDto {
     @Data
     @Builder
     public static class ScheduleDto{
+        private Long id;
         private String name;
+        private String body;
         private Long timeBitData;
     }
 

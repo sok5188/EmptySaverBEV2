@@ -43,15 +43,14 @@ public class TimeTableController {
 
     @PostMapping("/updateSchedule")
     @Operation(summary = "update Schedule in Memebr time table", description = "특정 스케줄을 id로 변경")
-    public ResponseEntity<String> updateSchedule(@RequestBody TimeTableDto.SchedulePostDto updateData){
-        Long currentMemberId = memberService.getCurrentMemberId();
-        //timeTableService.updateScheduleInTimeTable(currentMemberId, updateData);
-        return new ResponseEntity<>("Schedule update for member", HttpStatus.OK);
+    public ResponseEntity<String> updateSchedule(final @RequestParam Long scheduleId, final @RequestBody TimeTableDto.SchedulePostDto updateData){
+        timeTableService.updateScheduleInTimeTable(scheduleId, updateData);
+        return new ResponseEntity<>("Schedule update, id: " +scheduleId, HttpStatus.OK);
     }
 
     @PostMapping("/deleteSchedule")
     @Operation(summary = "saveSchedule in Memebr time table", description = "특정 스케줄을 id로 지움, 따라서 id는 절대 변경 안되도록")
-    public ResponseEntity<String> deleteSchedule(final @RequestBody Long scheduleId){
+    public ResponseEntity<String> deleteSchedule(final @RequestParam Long scheduleId){
         timeTableService.deleteScheduleInTimeTable(scheduleId);
         return new ResponseEntity<>("Schedule deleted, id: " + scheduleId, HttpStatus.OK);
     }

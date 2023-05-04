@@ -84,6 +84,7 @@ public class TimeTableService {
                 if(weekBits[day] >0) {  //Dto Convert
                     weekRoutines.get(day).add(
                             TimeTableDto.ScheduleDto.builder()
+                                    .id(schedule.getId())
                                     .name(schedule.getName())
                                     .timeBitData(weekBits[day])
                                     .build());
@@ -105,6 +106,7 @@ public class TimeTableService {
 
             scheduleListPerDays.get(afterDayNumFromStart).add(
                     TimeTableDto.ScheduleDto.builder()
+                            .id(schedule.getId())
                             .name(schedule.getName())
                             .timeBitData(timeBitData)
                             .build());
@@ -156,7 +158,6 @@ public class TimeTableService {
     //멤버로 수정
     @Transactional
     public void updateScheduleInTimeTable(final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData){
-        Schedule updateData = this.convertDtoToSchedule(updatePostData);
         Optional<Schedule> scheduleOptional = scheduleRepository.findById(scheduleId);
         if(scheduleOptional.isEmpty()){
             log.info("NoSuchScheduleId: " + scheduleId);
@@ -164,6 +165,11 @@ public class TimeTableService {
         }
 
         Schedule schedule = scheduleOptional.get();
+        if(schedule instanceof Periodic_Schedule)
+            updatePostData.setPeriodicType(true);
+
+        Schedule updateData = this.convertDtoToSchedule(updatePostData);
+
         if(schedule instanceof Periodic_Schedule)
             updatePeriodicSchedule((Periodic_Schedule)schedule, (Periodic_Schedule)updateData);
         else
