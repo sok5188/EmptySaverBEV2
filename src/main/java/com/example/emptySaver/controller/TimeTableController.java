@@ -22,11 +22,13 @@ public class TimeTableController {
     private final TimeTableService timeTableService;
     private final MemberService memberService;
 
-    @GetMapping("/getTimeTable")
+    @PostMapping("/getTimeTable")
     @Operation(summary = "getTimeTableData", description = "로그인 한 유저, 자신의 timeTable의 정보를 가져옴")
-    public ResponseEntity<TimeTableDto.TimeTableInfo> getMemberTimeTable(@RequestBody LocalDate startDate,@RequestBody LocalDate endDate){
+    public ResponseEntity<TimeTableDto.TimeTableInfo> getMemberTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
         Long currentMemberId = memberService.getCurrentMemberId();
-        TimeTableDto.TimeTableInfo timeTableInfo = timeTableService.getMemberTimeTableByDayNum(currentMemberId, startDate, endDate);
+        log.info("build: " + requestForm.toString());
+        TimeTableDto.TimeTableInfo timeTableInfo
+                = timeTableService.getMemberTimeTableByDayNum(currentMemberId, requestForm.getStartDate(), requestForm.getEndDate());
         return new ResponseEntity<>(timeTableInfo, HttpStatus.OK);
     }
 
@@ -34,6 +36,7 @@ public class TimeTableController {
     @Operation(summary = "saveSchedule in Memebr time table", description = "로그인 한 유저가 스케줄 정보를 timetable에 추가")
     public ResponseEntity<String> addMemberSchedule(@RequestBody TimeTableDto.SchedulePostDto schedulePostData){
         Long currentMemberId = memberService.getCurrentMemberId();
+        log.info("build: " + schedulePostData.toString());
         timeTableService.saveScheduleInTimeTable(currentMemberId, schedulePostData);
         return new ResponseEntity<>("Schedule saved for member", HttpStatus.OK);
     }
@@ -53,5 +56,8 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule deleted, id: " + scheduleId, HttpStatus.OK);
     }
 
+    //찬민이형이 말한 형식대로 전달
+    //LocalTimeData 변환
+    //Group의 TimeTable 접근
 
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,11 +38,25 @@ public class TimeTableDto {
     public static class SchedulePostDto{
         private String name;
         private String body;
-        private boolean isPeriodic;
+        private boolean periodicType;
 
         private long[] timeBitData;           //only for Periodic
 
+        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime startTime;    //only for Non_Periodic
+        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime endTime;      //only for Non_Periodic
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TimeTableRequestForm{
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        private LocalDate startDate;
+
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        private LocalDate endDate;
     }
 }

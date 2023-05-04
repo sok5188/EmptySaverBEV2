@@ -6,7 +6,6 @@ import com.example.emptySaver.domain.entity.Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Schedule;
 import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.repository.MemberRepository;
-import com.example.emptySaver.repository.ScheduleRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
 import com.example.emptySaver.utils.TimeDataToBitConverter;
 import jakarta.persistence.EntityManager;
@@ -16,8 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,7 +39,7 @@ class TimeTableServiceTest {
 
     private TimeTableDto.SchedulePostDto getTempSchedulePostDto(){
         long[] weekData = {0,100,100,100,0,0,0};
-        TimeTableDto.SchedulePostDto periodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").isPeriodic(true).timeBitData(weekData).build();
+        TimeTableDto.SchedulePostDto periodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType(true).timeBitData(weekData).build();
         return periodicSchedule;
     }
 
@@ -56,11 +53,11 @@ class TimeTableServiceTest {
         Member savedMember = memberRepository.save(member);
 
         long[] weekData = {0,100,100,100,0,0,0};
-        TimeTableDto.SchedulePostDto periodicSchedule1 = TimeTableDto.SchedulePostDto.builder().name("캡스톤").isPeriodic(true).timeBitData(weekData).build();
+        TimeTableDto.SchedulePostDto periodicSchedule1 = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType(true).timeBitData(weekData).build();
         timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule1);
 
         long[] weekData2 = {0,1000,0,1000,100,0,0};
-        TimeTableDto.SchedulePostDto periodicSchedule2 = TimeTableDto.SchedulePostDto.builder().name("z스톤").isPeriodic(true).timeBitData(weekData2).build();
+        TimeTableDto.SchedulePostDto periodicSchedule2 = TimeTableDto.SchedulePostDto.builder().name("z스톤").periodicType(true).timeBitData(weekData2).build();
         timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule2);
 
         LocalDateTime startDate = LocalDateTime.of(2023, 4, 30,10,0);
@@ -137,7 +134,7 @@ class TimeTableServiceTest {
         Long scheduleId = savedMember.getTimeTable().getScheduleList().get(0).getId();
 
         long[] newWeekData = {100,0,0,0,0,100,0};
-        TimeTableDto.SchedulePostDto newPeriodicSchedule = TimeTableDto.SchedulePostDto.builder().name("킹스톤").isPeriodic(true).timeBitData(newWeekData).build();
+        TimeTableDto.SchedulePostDto newPeriodicSchedule = TimeTableDto.SchedulePostDto.builder().name("킹스톤").periodicType(true).timeBitData(newWeekData).build();
 
         timeTableService.updateScheduleInTimeTable(scheduleId, newPeriodicSchedule);
 

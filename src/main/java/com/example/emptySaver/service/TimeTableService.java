@@ -62,8 +62,9 @@ public class TimeTableService {
         List<Periodic_Schedule> periodicScheduleList = new ArrayList<>();
         List<Non_Periodic_Schedule> nonPeriodicScheduleList = new ArrayList<>();
         for (Schedule schedule: scheduleList) { //타입 분리
-            if(schedule instanceof Periodic_Schedule)
+            if(schedule instanceof Periodic_Schedule){
                 periodicScheduleList.add((Periodic_Schedule)schedule);
+            }
             else {
                 Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
                 if((nonPeriodicSchedule.getStartTime().isAfter(startDate.atStartOfDay())
@@ -99,7 +100,8 @@ public class TimeTableService {
         for (Non_Periodic_Schedule schedule: nonPeriodicScheduleList ) {
             LocalDateTime scheduleStartTime = schedule.getStartTime();
             Long timeBitData = bitConverter.convertTimeToBit(scheduleStartTime, schedule.getEndTime());
-            int afterDayNumFromStart = (int) Duration.between(startDate.atStartOfDay(),scheduleStartTime.toLocalDate()).toDays() +1;
+            LocalDate startLocalDate = LocalDate.of(scheduleStartTime.getYear(), scheduleStartTime.getMonth(), scheduleStartTime.getDayOfMonth());
+            int afterDayNumFromStart = (int) Duration.between(startDate.atStartOfDay(),startLocalDate.atStartOfDay()).toDays() +1;
 
             scheduleListPerDays.get(afterDayNumFromStart).add(
                     TimeTableDto.ScheduleDto.builder()
@@ -119,12 +121,14 @@ public class TimeTableService {
     }
 
     private Schedule convertDtoToSchedule(TimeTableDto.SchedulePostDto schedulePostData){
-        if(schedulePostData.isPeriodic()){
+        if(schedulePostData.isPeriodicType()){
+            log.info("build Periodic Schedule");
             Periodic_Schedule periodicSchedule = new Periodic_Schedule();
             periodicSchedule.setWeekScheduleData(schedulePostData.getTimeBitData());
             periodicSchedule.setName(schedulePostData.getName());
             return periodicSchedule;
         }
+        log.info("build NonPeriodic Schedule");
         Non_Periodic_Schedule nonPeriodicSchedule = new Non_Periodic_Schedule();
         nonPeriodicSchedule.setName(schedulePostData.getName());
         nonPeriodicSchedule.setStartTime(schedulePostData.getStartTime());
