@@ -25,6 +25,12 @@ public enum BaseResponseStatus {
     INVALID_DELETE_ATTEMPT(false,2225,"유효하지 않은 삭제 시도입니다."),
     INVALID_FCMTOKEN(false,2226,"FCM 토큰이 유효하지 않습니다"),
     INVALID_FRIEND_ID(false, 2227, "존재하지 않는 친구 ID입니다."),
+    INVALID_LABEL_NAME(false, 2228, "존재하지 않는 라벨 이름입니다."),
+    INVALID_TEAM_ID(false, 2229, "존재하지 않는 팀 ID입니다."),
+    INVALID_TEAM_MODIFY(false, 2230, "그룹장을 탈퇴 시킬 수 없습니다 (그룹장을 변경 후 탈퇴 하거나 그룹 자체를 삭제해주세요)"),
+    INVALID_MAKE_TEAM_ATTEMPT(false, 2231, "유효하지 않은 그룹 생성 시도 입니다. (이미 동일한 이름의 그룹이 존재합니다.)"),
+    INVALID_CATEGORY_ID(false, 2232, "유효하지 않은 카테고리 입니다."),
+
 
 
     /**
@@ -35,6 +41,8 @@ public enum BaseResponseStatus {
     DUPLICATE_FRIEND_REQUEST(false, 3001, "중복된 친구 요청 입니다."),
     FAILED_TO_SEND_NOTIFICATION(false, 3010, "알림 전송에 실패했습니다."),
     FAILED_TO_LOGIN(false, 3014, "가입된 유저가 아닙니다."),
+    FAILED_TO_MAKE_TEAM(false, 3015, "가능한 그룹 생성 갯수를 초과했습니다."),
+    FAILED_TO_ADD_MEMBER_TO_TEAM(false, 3016, "그룹에 회원을 추가하는데 실패했습니다.(이미 추가된 유저입니다)"),
     FAILED_TO_SEND_MAIL(false,3111,"메일 전송에 실패했습니다.");
 
 
