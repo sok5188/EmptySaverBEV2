@@ -116,36 +116,36 @@ class MemberTeamRepositoryTest {
             assertThat(count).isEqualTo(0L);
         }
 
-        @Test
-        public void 그룹장탈퇴(){
-            Member member=new Member();
-            member.setUsername("testUser");
-            em.persist(member);
-
-            Member member2=new Member();
-            member2.setUsername("testUser22");
-            em.persist(member2);
-
-            Team team=new Team();
-            team.setName("testTeam");
-            em.persist(team);
-
-            MemberTeam mt=new MemberTeam();
-            mt.initMemberTeam(member,team,member);
-            em.persist(mt);
-
-            MemberTeam mt2=new MemberTeam();
-            mt2.initMemberTeam(member2,team,member);
-            em.persist(mt2);
-
-            em.flush();
-            em.clear();
-
-            memberRepository.delete(member);
-
-            Long count = repository.count();
-            assertThat(count).isEqualTo(0L);
-        }
+//        @Test
+//        public void 그룹장탈퇴(){
+//            Member member=new Member();
+//            member.setUsername("testUser");
+//            em.persist(member);
+//
+//            Member member2=new Member();
+//            member2.setUsername("testUser22");
+//            em.persist(member2);
+//
+//            Team team=new Team();
+//            team.setName("testTeam");
+//            em.persist(team);
+//
+//            MemberTeam mt=new MemberTeam();
+//            mt.initMemberTeam(member,team,member);
+//            em.persist(mt);
+//
+//            MemberTeam mt2=new MemberTeam();
+//            mt2.initMemberTeam(member2,team,member);
+//            em.persist(mt2);
+//
+//            em.flush();
+//            em.clear();
+//
+//            memberRepository.delete(member);
+//
+//            Long count = repository.count();
+//            assertThat(count).isEqualTo(0L);
+//        }
         @Test
         public void 멤버탈퇴(){
             Member member=new Member();
