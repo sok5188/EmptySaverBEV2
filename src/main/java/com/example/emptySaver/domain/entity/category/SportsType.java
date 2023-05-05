@@ -9,17 +9,17 @@ public enum SportsType {
     SQUASH("스쿼시"),
     TENNIS("테니스"),
     PINGPONG("탁구");
-    private String value;
+    private String label;
 
-    SportsType(String value) {
-        this.value = value;
+    SportsType(String label) {
+        this.label = label;
     }
 
     public String getKey() {
         return name();
     }
 
-    public String getValue() {
-        return value;
+    public String getLabel() {
+        return label;
     }
 }

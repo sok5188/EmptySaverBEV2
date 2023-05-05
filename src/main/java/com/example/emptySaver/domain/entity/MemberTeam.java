@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -14,6 +16,7 @@ public class MemberTeam {
     @Id@GeneratedValue
     private Long id;
 
+    private LocalDateTime  joinDate;
 
     //private List<Team> team;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,16 +29,11 @@ public class MemberTeam {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Member owner;
-
-    public void addMemberToTeam(Member member,Team team,Member owner){
+    public void initMemberTeam(Member member, Team team, Member owner){
         this.member=member;
         this.team=team;
-        this.owner=owner;
         member.getMemberTeam().add(this);
         team.getTeamMembers().add(this);
+        this.joinDate=LocalDateTime.now();
     }
 }

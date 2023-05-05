@@ -7,17 +7,17 @@ public enum StudyType {
     PROGRAMMING("개발");
 
 
-    private String value;
+    private String label;
 
-    StudyType(String value) {
-        this.value = value;
+    StudyType(String label) {
+        this.label = label;
     }
 
     public String getKey() {
         return name();
     }
 
-    public String getValue() {
-        return value;
+    public String getLabel() {
+        return label;
     }
 }

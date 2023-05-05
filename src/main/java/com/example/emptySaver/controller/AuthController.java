@@ -39,8 +39,9 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login", description = "로그인 성공 시 인증헤더에 접근토큰, 쿠키에 갱신토큰 심어준다.")
     public ResponseEntity<String> login(@RequestBody LoginForm loginDTO, HttpServletResponse response){
+        log.info("email: " + loginDTO.getEmail());
         String username = memberService.getUserNameByEmail(loginDTO.getEmail());
-
+        log.info("User name: " + username);
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, loginDTO.getPassword());
         try{
