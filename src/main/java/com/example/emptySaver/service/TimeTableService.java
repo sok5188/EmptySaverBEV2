@@ -110,6 +110,7 @@ public class TimeTableService {
                             TimeTableDto.ScheduleDto.builder()
                                     .id(schedule.getId())
                                     .name(schedule.getName())
+                                    .body(schedule.getBody())
                                     .timeBitData(weekBits[day])
                                     .build());
                 }
@@ -132,6 +133,7 @@ public class TimeTableService {
                     TimeTableDto.ScheduleDto.builder()
                             .id(schedule.getId())
                             .name(schedule.getName())
+                            .body(schedule.getBody())
                             .timeBitData(timeBitData)
                             .build());
 
@@ -153,6 +155,7 @@ public class TimeTableService {
             Periodic_Schedule periodicSchedule = new Periodic_Schedule();
             periodicSchedule.setWeekScheduleData(schedulePostData.getTimeBitData());
             periodicSchedule.setName(schedulePostData.getName());
+            periodicSchedule.setBody(schedulePostData.getBody());
             return periodicSchedule;
         }
         log.info("build NonPeriodic Schedule");
@@ -160,6 +163,7 @@ public class TimeTableService {
         nonPeriodicSchedule.setName(schedulePostData.getName());
         nonPeriodicSchedule.setStartTime(schedulePostData.getStartTime());
         nonPeriodicSchedule.setEndTime(schedulePostData.getEndTime());
+        nonPeriodicSchedule.setBody(schedulePostData.getBody());
         return  nonPeriodicSchedule;
     }
 

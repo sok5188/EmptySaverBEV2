@@ -35,6 +35,7 @@ class TimeTableRepositoryTest {
     @BeforeEach
     void beforeEach(){
         timeTableRepository.deleteAll();
+        timeTableRepository.flush();
         scheduleRepository.deleteAll();
         memberRepository.deleteAll();
     }

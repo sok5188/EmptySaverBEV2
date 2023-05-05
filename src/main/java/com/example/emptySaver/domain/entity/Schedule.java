@@ -18,6 +18,7 @@ public class Schedule {
     @GeneratedValue
     private Long id;
     private String name;
+    private String body;
 
     @ManyToOne
     @JoinColumn(name = "time_table_id")
