@@ -43,6 +43,30 @@ public class TimeTableService {
         return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,scheduleList);
     }
 
+    private List<List<Boolean>> convertLongListToBitListsPerDay(List<Long> bitDataPerDays){
+        List<List<Boolean>> bitListsPerDay = new ArrayList<>();
+
+        for (Long bits: bitDataPerDays) {
+            List<Boolean> bitList = new ArrayList<>();
+            long moveBit = 1l;
+
+            for (int i = 0; i < 48 ; i++) {
+                long andOpResult = bits & moveBit;
+                boolean result = false;
+
+                if(andOpResult >0l)
+                    result = true;
+
+                bitList.add(result);
+                moveBit <<= 1;
+            }
+
+            bitListsPerDay.add(bitList);
+        }
+
+        return bitListsPerDay;
+    }
+
     private TimeTableDto.TimeTableInfo calcTimeTableDataPerWeek( final LocalDate startDate, final LocalDate endDate ,final long[] weekScheduleData, final List<Schedule> scheduleList){
         final int dayNum = (int) Duration.between(startDate.atStartOfDay(),endDate.atStartOfDay()).toDays() +1;
         final int startDayOfWeek = startDate.getDayOfWeek().getValue() -1; //월요일부터 0~6까지 정수
@@ -115,10 +139,11 @@ public class TimeTableService {
             bitDataPerDays.set(afterDayNumFromStart,targetBits|timeBitData);
         }
 
+
         return TimeTableDto.TimeTableInfo.builder()
                 .startDate(startDate)
                 .endData(endDate)
-                .bitDataPerDays(bitDataPerDays)
+                .bitListsPerDay(this.convertLongListToBitListsPerDay(bitDataPerDays))
                 .scheduleListPerDays(scheduleListPerDays).build();
     }
 

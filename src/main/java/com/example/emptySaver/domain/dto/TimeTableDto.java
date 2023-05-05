@@ -19,7 +19,7 @@ public class TimeTableDto {
         private LocalDate startDate;
         private LocalDate endData;
         @Builder.Default
-        private List<Long> bitDataPerDays  = new ArrayList<>();
+        private List<List<Boolean>> bitListsPerDay = new ArrayList<>();
         @Builder.Default
         private List<List<ScheduleDto>> scheduleListPerDays = new ArrayList<List<ScheduleDto>>();
     }

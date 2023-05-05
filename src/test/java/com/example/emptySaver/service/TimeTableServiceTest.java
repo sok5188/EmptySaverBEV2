@@ -64,11 +64,6 @@ class TimeTableServiceTest {
         LocalDateTime endDate = LocalDateTime.of(2023, 5, 10,12,30);
         TimeTableDto.TimeTableInfo timeTableDto = timeTableService.getMemberTimeTableByDayNum(savedMember.getId(), startDate.toLocalDate(), endDate.toLocalDate());
 
-        List<Long> bitDataPerDays = timeTableDto.getBitDataPerDays();
-
-        for (Long bits: bitDataPerDays) {
-            System.out.println(Long.toBinaryString(bits));
-        }
 
         List<List<TimeTableDto.ScheduleDto>> scheduleListPerDays = timeTableDto.getScheduleListPerDays();
         for (List<TimeTableDto.ScheduleDto> ss: scheduleListPerDays) {
