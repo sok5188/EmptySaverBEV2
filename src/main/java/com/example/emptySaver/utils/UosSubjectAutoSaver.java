@@ -155,8 +155,8 @@ public class UosSubjectAutoSaver {
                 .term(dataMap.get("term"))
                 .build();*/
         Subject subject = new Subject();
-        subject.setSubject_nm(dataMap.get("subject_nm"));
-        subject.setSub_dept(dataMap.get("sub_dept"));
+        subject.setSubjectname(dataMap.get("subject_nm"));
+        subject.setDept(dataMap.get("sub_dept"));
         subject.setSubject_div(dataMap.get("subject_div2"));
         subject.setSubject_div2(dataMap.get("subject_div2"));
         subject.setClass_div(dataMap.get("class_div"));

@@ -25,6 +25,11 @@ public class UosDepartmentAutoSaver {
     private final DepartmentRepository departmentRepository;
 
     public void saveAllUOSDepartment(){
+        if(departmentRepository.count() >0){
+            log.info("Uos Department already saved in DB");
+            return;
+        }
+
         List<Department> departsFromApiData = getDepartmentHtmlData();
         for(Department department: departsFromApiData){
             departmentRepository.save(department);
