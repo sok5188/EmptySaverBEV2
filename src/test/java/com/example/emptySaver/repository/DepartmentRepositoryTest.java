@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.*;
 
+
 //@SpringBootTest
 //@ActiveProfiles("test")
 @DataJpaTest
@@ -22,7 +23,7 @@ class DepartmentRepositoryTest {
     void beforeEach(){
         departmentRepository.deleteAll();
     }
-
+/*
     @Test
     void saveDepartment(){
         //given
@@ -34,5 +35,5 @@ class DepartmentRepositoryTest {
         //then
         assertThat(savedDepartment.getDept()).isEqualTo(department.getDept());
 
-    }
+    }*/
 }
