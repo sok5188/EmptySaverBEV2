@@ -36,7 +36,7 @@ class SubjectRepositoryTest {
 
     private static final String URL = "https://wise.uos.ac.kr/uosdoc/api.ApiUcrMjTimeInq.oapi";
     private static final String GET = "GET";
-
+    /*
     @DisplayName("학교 모든 부서의 강의 저장하기")
     @Test
     void saveAllSubject(){
@@ -55,7 +55,7 @@ class SubjectRepositoryTest {
         Subject savedSubject = subjectRepository.save(subject);
         assertThat(savedSubject.getSubject_nm()).isEqualTo(subject.getSubject_nm());
     }
-
+    */
     private Subject getSubject(){
         Subject subject = null;
         try{

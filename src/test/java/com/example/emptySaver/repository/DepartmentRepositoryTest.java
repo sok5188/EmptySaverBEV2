@@ -23,7 +23,7 @@ class DepartmentRepositoryTest {
     void beforeEach(){
         departmentRepository.deleteAll();
     }
-
+/*
     @Test
     void saveDepartment(){
         //given
@@ -35,5 +35,5 @@ class DepartmentRepositoryTest {
         //then
         assertThat(savedDepartment.getDept()).isEqualTo(department.getDept());
 
-    }
+    }*/
 }

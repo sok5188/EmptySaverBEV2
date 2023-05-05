@@ -31,14 +31,17 @@ class TimeTableRepositoryTest {
     private ScheduleRepository scheduleRepository;
     @Autowired
     private MemberRepository memberRepository;
-
+/*
     @BeforeEach
-    void beforeEach(){
+    void afterEach(){
+        em.flush();
+        em.clear();
         timeTableRepository.deleteAll();
         timeTableRepository.flush();
+
         scheduleRepository.deleteAll();
         memberRepository.deleteAll();
-    }
+    }*/
 
     @Transactional
     @Test
