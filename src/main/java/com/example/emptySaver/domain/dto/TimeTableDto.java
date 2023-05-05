@@ -42,7 +42,8 @@ public class TimeTableDto {
         private String body;
         private boolean periodicType;
 
-        private long[] timeBitData;           //only for Periodic
+        @Builder.Default
+        private List<String> periodicTimeStringList = new ArrayList<>(); //only for Periodic
 
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime startTime;    //only for Non_Periodic

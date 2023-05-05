@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -31,6 +29,8 @@ public class TimeTableService {
     private final ScheduleRepository scheduleRepository;
     private final MemberService memberService;
     private final MemberRepository memberRepository;
+
+    private Map<String,Integer> dayToIntMap = Map.of("월",0, "화", 1,"수",2,"목",3,"금",4,"토",5,"일",6);
 
     public TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId,LocalDate startDate, LocalDate endDate){
         Member member = memberRepository.findById(memberId).get();
@@ -149,11 +149,30 @@ public class TimeTableService {
                 .scheduleListPerDays(scheduleListPerDays).build();
     }
 
+    private long[] convertTimeStringsToBitsArray(List<String> periodicTimeStringList){
+        long[] bitsArray = {0,0,0,0,0,0,0};
+        for (String time: periodicTimeStringList) {
+            String[] splitData = time.split(",");
+            Integer dayNumber = dayToIntMap.get(splitData[0]);
+            String[] duration = splitData[1].split("-");
+            int startIdx = (int) (Float.parseFloat(duration[0])*2);
+            int endIdx = (int) (Float.parseFloat(duration[1])*2);
+
+            long moveBit =(1l << startIdx);
+            for (int i = startIdx; i <endIdx ; i++) {
+                bitsArray[dayNumber] |= moveBit;
+                moveBit <<=1;
+            }
+        }
+
+        return bitsArray;
+    }
+
     private Schedule convertDtoToSchedule(TimeTableDto.SchedulePostDto schedulePostData){
         if(schedulePostData.isPeriodicType()){
             log.info("build Periodic Schedule");
             Periodic_Schedule periodicSchedule = new Periodic_Schedule();
-            periodicSchedule.setWeekScheduleData(schedulePostData.getTimeBitData());
+            periodicSchedule.setWeekScheduleData(this.convertTimeStringsToBitsArray(schedulePostData.getPeriodicTimeStringList()));
             periodicSchedule.setName(schedulePostData.getName());
             periodicSchedule.setBody(schedulePostData.getBody());
             return periodicSchedule;
