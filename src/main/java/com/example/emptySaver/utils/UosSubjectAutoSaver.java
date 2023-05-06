@@ -114,7 +114,7 @@ public class UosSubjectAutoSaver {
 
     private Subject buildSubjectByHtmlData(String subjectHtmlData){
         //data parsing
-        String[] splitSubject = subjectHtmlData.split("<|>|/");
+        String[] splitSubject = subjectHtmlData.split("</|<|>");
         List<String> splitData = new ArrayList<>();
 
         for (String parsed: splitSubject)
@@ -163,6 +163,8 @@ public class UosSubjectAutoSaver {
         subject.setCredit(credit);
         subject.setShyr(dataMap.get("shyr"));
         subject.setProf_nm(dataMap.get("prof_nm"));
+        subject.setClass_nm(dataMap.get("class_nm"));
+        subject.setClass_type(dataMap.get("class_type"));
         subject.setYears(dataMap.get("year"));
         subject.setTerm(dataMap.get("term"));
 
@@ -186,7 +188,7 @@ public class UosSubjectAutoSaver {
             }
 
             String day = data.substring(0,1);
-            String timeData = data.substring(1);
+            String timeData = data.substring(1,data.length());
 
             if(!dayToInt.containsKey(day))
                 continue;

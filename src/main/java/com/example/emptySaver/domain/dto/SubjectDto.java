@@ -1,7 +1,9 @@
 package com.example.emptySaver.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public class SubjectDto {
     @Data
@@ -34,10 +36,11 @@ public class SubjectDto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SubjectSearchData{
         private String name;
         private String department;
         private String grade;
-        private String professor;
     }
 }
