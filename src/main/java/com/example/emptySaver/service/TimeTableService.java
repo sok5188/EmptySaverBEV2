@@ -74,6 +74,7 @@ public class TimeTableService {
 
     private TimeTableDto.TimeTableInfo calcTimeTableDataPerWeek( final LocalDate startDate, final LocalDate endDate ,final long[] weekScheduleData, final List<Schedule> scheduleList){
         final int dayNum = (int) Duration.between(startDate.atStartOfDay(),endDate.atStartOfDay()).toDays() +1;
+        log.info("Day-- " + dayNum);
         final int startDayOfWeek = startDate.getDayOfWeek().getValue() -1; //월요일부터 0~6까지 정수
 
         List<Long> bitDataPerDays = new ArrayList<>();
@@ -97,7 +98,7 @@ public class TimeTableService {
             else {
                 Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
                 if((nonPeriodicSchedule.getStartTime().isAfter(startDate.atStartOfDay())
-                        && nonPeriodicSchedule.getEndTime().isBefore(endDate.atStartOfDay()) ))  //날짜 범위 내의 데이터만 저장
+                        && nonPeriodicSchedule.getEndTime().isBefore(endDate.plusDays(1).atStartOfDay())) )  //날짜 범위 내의 데이터만 저장
                     nonPeriodicScheduleList.add((Non_Periodic_Schedule)schedule);
             }
 
@@ -132,7 +133,7 @@ public class TimeTableService {
             LocalDateTime scheduleStartTime = schedule.getStartTime();
             Long timeBitData = bitConverter.convertTimeToBit(scheduleStartTime, schedule.getEndTime());
             LocalDate startLocalDate = LocalDate.of(scheduleStartTime.getYear(), scheduleStartTime.getMonth(), scheduleStartTime.getDayOfMonth());
-            int afterDayNumFromStart = (int) Duration.between(startDate.atStartOfDay(),startLocalDate.atStartOfDay()).toDays() +1;
+            int afterDayNumFromStart = (int) Duration.between(startDate.atStartOfDay(),startLocalDate.atStartOfDay()).toDays();
 
             scheduleListPerDays.get(afterDayNumFromStart).add(
                     TimeTableDto.ScheduleDto.builder()
