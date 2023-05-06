@@ -10,7 +10,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     List<Subject> findBySubjectnameContaining(String subjectname);
     List<Subject> findBySubjectname(String subjectname);
-    List<Subject> findByDept(String findByDept);
-    List<Subject> findByYearsAndTerm(String years, String term );
+    List<Subject> findByDept(String dept);
+    List<Subject> findByShyrAndDeptContaining(String shyr, String dept);
     boolean existsByYearsAndTerm(String years, String term );
 }

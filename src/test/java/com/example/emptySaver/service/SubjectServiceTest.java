@@ -39,6 +39,34 @@ class SubjectServiceTest {
     }
 
     @Test
+    void 강의를_searchForm으로_검색(){
+        Subject subject = new Subject();
+        subject.setSubjectname("캡스톤");
+        subjectRepository.save(subject);
+
+        SubjectDto.SubjectSearchData subjectSearchData = SubjectDto.SubjectSearchData.builder().name("스톤").build();
+        List<SubjectDto.SubjectInfo> searchedSubjects = subjectService.getSearchedSubjects(subjectSearchData);
+
+        assertThat(searchedSubjects.size()).isEqualTo(1);
+        assertThat(searchedSubjects.get(0).getSubjectname()).isEqualTo(subject.getSubjectname());
+
+
+        Subject subject1 = new Subject();
+        subject1.setSubjectname("멀티프로세서컴퓨팅");
+        subject1.setDept("컴퓨터과학부");
+        subject1.setShyr("4");
+        subjectRepository.save(subject1);
+
+
+        SubjectDto.SubjectSearchData subjectSearchData1 = SubjectDto.SubjectSearchData.builder().department("컴퓨터").grade("4").build();
+        List<SubjectDto.SubjectInfo> searchedSubjects1 = subjectService.getSearchedSubjects(subjectSearchData1);
+
+        assertThat(searchedSubjects1.size()).isEqualTo(1);
+        assertThat(searchedSubjects1.get(0).getSubjectname()).isEqualTo(subject1.getSubjectname());
+
+    }
+
+    @Test
     void 강의를_주기_데이터로_저장(){
         Time_Table timeTable = Time_Table.builder().title("육사시미").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
         Time_Table savedTable = timeTableRepository.save(timeTable);
@@ -64,7 +92,7 @@ class SubjectServiceTest {
             System.out.println("======");
             for (TimeTableDto.ScheduleDto scheduleDto: ss) {
                 System.out.println(scheduleDto);
-                System.out.println("bits: "+ Long.toBinaryString(scheduleDto.getTimeBitData()));
+                //System.out.println("bits: "+ Long.toBinaryString(scheduleDto.getTimeBitData()));
             }
         }
     }

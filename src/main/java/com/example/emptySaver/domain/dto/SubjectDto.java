@@ -7,6 +7,8 @@ public class SubjectDto {
     @Data
     @Builder
     public static class SubjectInfo{
+        private Long id;
+
         private String dept; //학부(과) 정보입니다.
 
         private String subject_div; //교과구분 정보입니다.
@@ -28,5 +30,14 @@ public class SubjectDto {
 
         private String class_type; // 강의 유형 정보
         private String class_nm; // 강의시간및강의실
+    }
+
+    @Data
+    @Builder
+    public static class SubjectSearchData{
+        private String name;
+        private String department;
+        private String grade;
+        private String professor;
     }
 }
