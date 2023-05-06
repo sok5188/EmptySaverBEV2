@@ -42,7 +42,7 @@ public class TimeTableController {
     @Parameter(
             name = "SchedulePostDto",
             description = "가장 중요한 부분은 periodicType설정 임다. \n" +
-                    "true로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. \n" +
+                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. \n" +
                     "periodicTimeStringList = [\"화,0.5-1.5\",\"화,18-19\",\"금,19-24\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. 30분은 0.5로 표긴한다. \n" +
                     "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. \n" +
                     "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
