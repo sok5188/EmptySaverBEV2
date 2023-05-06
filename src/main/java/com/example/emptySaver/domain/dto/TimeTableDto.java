@@ -30,7 +30,9 @@ public class TimeTableDto {
         private Long id;
         private String name;
         private String body;
-        private Long timeBitData;
+
+        @Builder.Default
+        private List<Boolean> timeData = new ArrayList<>();
     }
 
     @Data

@@ -43,24 +43,29 @@ public class TimeTableService {
         return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,scheduleList);
     }
 
+    private List<Boolean> convertLongToBooleanList(Long bits){
+        List<Boolean> bitList = new ArrayList<>();
+        long moveBit = 1l;
+
+        for (int i = 0; i < 48 ; i++) {
+            long andOpResult = bits & moveBit;
+            boolean result = false;
+
+            if(andOpResult >0l)
+                result = true;
+
+            bitList.add(result);
+            moveBit <<= 1;
+        }
+
+        return bitList;
+    }
+
     private List<List<Boolean>> convertLongListToBitListsPerDay(List<Long> bitDataPerDays){
         List<List<Boolean>> bitListsPerDay = new ArrayList<>();
 
         for (Long bits: bitDataPerDays) {
-            List<Boolean> bitList = new ArrayList<>();
-            long moveBit = 1l;
-
-            for (int i = 0; i < 48 ; i++) {
-                long andOpResult = bits & moveBit;
-                boolean result = false;
-
-                if(andOpResult >0l)
-                    result = true;
-
-                bitList.add(result);
-                moveBit <<= 1;
-            }
-
+            List<Boolean> bitList = convertLongToBooleanList(bits);
             bitListsPerDay.add(bitList);
         }
 
@@ -111,7 +116,7 @@ public class TimeTableService {
                                     .id(schedule.getId())
                                     .name(schedule.getName())
                                     .body(schedule.getBody())
-                                    .timeBitData(weekBits[day])
+                                    .timeData(this.convertLongToBooleanList(weekBits[day]))
                                     .build());
                 }
         }
@@ -134,7 +139,7 @@ public class TimeTableService {
                             .id(schedule.getId())
                             .name(schedule.getName())
                             .body(schedule.getBody())
-                            .timeBitData(timeBitData)
+                            .timeData(this.convertLongToBooleanList(timeBitData))
                             .build());
 
             Long targetBits = bitDataPerDays.get(afterDayNumFromStart);
