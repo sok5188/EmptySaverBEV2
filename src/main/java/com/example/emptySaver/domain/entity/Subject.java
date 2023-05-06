@@ -11,11 +11,6 @@ import lombok.*;
 //@Builder
 @ToString
 public class Subject extends Periodic_Schedule{
-    /*
-    @Id
-    @GeneratedValue
-    private Long id;
-    */
 
     private String dept; //학부(과) 정보입니다.
 

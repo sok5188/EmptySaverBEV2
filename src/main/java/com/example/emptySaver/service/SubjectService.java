@@ -37,11 +37,28 @@ public class SubjectService {
         log.info("year: " + years +", term"+ term + " saved Complete");
     }
 
+    public List<SubjectDto.SubjectInfo> getSearchedSubjects(final SubjectDto.SubjectSearchData searchData){
+        List<SubjectDto.SubjectInfo> ret = new ArrayList<>();
+
+        if(searchData.getName() != null){
+            ret = this.getSubjectsMatchedName(searchData.getName());
+        }else if(searchData.getDepartment() != null && searchData.getGrade() != null){
+            List<Subject> searchList = subjectRepository.findByShyrAndDeptContaining(searchData.getGrade(),searchData.getDepartment());
+            ret = this.subjectToDtoConvert(searchList);
+        }else{
+            log.info("subject Search data not right!");
+        }
+
+        return ret;
+    }
+
+
     private List<SubjectDto.SubjectInfo> subjectToDtoConvert(List<Subject> subjectList){
         List<SubjectDto.SubjectInfo> ret = new ArrayList<>();
 
         for (Subject subject: subjectList) {
             SubjectDto.SubjectInfo subjectInfo = SubjectDto.SubjectInfo.builder()
+                    .id(subject.getId())
                     .subjectname(subject.getSubjectname())
                     .dept(subject.getDept())
                     .subject_div(subject.getSubject_div())
@@ -54,7 +71,6 @@ public class SubjectService {
                     .class_nm(subject.getClass_nm())
                     .build();
             ret.add(subjectInfo);
-            //이거 일일히 다 채우기
         }
 
         return ret;
