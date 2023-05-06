@@ -8,6 +8,7 @@ import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.SubjectRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,6 +32,11 @@ class SubjectServiceTest {
     private TimeTableRepository timeTableRepository;
     @Autowired
     private TimeTableService timeTableService;
+
+    @BeforeEach
+    void beforeEach(){
+        subjectRepository.deleteAll();
+    }
 
     @Test
     void 강의를_주기_데이터로_저장(){
