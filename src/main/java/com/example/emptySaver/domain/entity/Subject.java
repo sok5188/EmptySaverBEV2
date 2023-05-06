@@ -17,7 +17,7 @@ public class Subject extends Periodic_Schedule{
     private Long id;
     */
 
-    private String sub_dept; //학부(과) 정보입니다.
+    private String dept; //학부(과) 정보입니다.
 
     private String subject_div; //교과구분 정보입니다.
 
@@ -27,7 +27,7 @@ public class Subject extends Periodic_Schedule{
 
     private String class_div; //  분반 정보입니다.
 
-    private String subject_nm; // 교과목명 정보입니다.
+    private String subjectname; // 교과목명 정보입니다.
 
     private String shyr; //학년 정보입니다.
 

@@ -169,20 +169,20 @@ public class TimeTableService {
     }
 
     private Schedule convertDtoToSchedule(TimeTableDto.SchedulePostDto schedulePostData){
-        if(schedulePostData.isPeriodicType()){
-            log.info("build Periodic Schedule");
+        if(schedulePostData.getPeriodicType().equals("true")){
             Periodic_Schedule periodicSchedule = new Periodic_Schedule();
             periodicSchedule.setWeekScheduleData(this.convertTimeStringsToBitsArray(schedulePostData.getPeriodicTimeStringList()));
             periodicSchedule.setName(schedulePostData.getName());
             periodicSchedule.setBody(schedulePostData.getBody());
+            log.info("build Periodic Schedule " + periodicSchedule.toString());
             return periodicSchedule;
         }
-        log.info("build NonPeriodic Schedule");
         Non_Periodic_Schedule nonPeriodicSchedule = new Non_Periodic_Schedule();
         nonPeriodicSchedule.setName(schedulePostData.getName());
         nonPeriodicSchedule.setStartTime(schedulePostData.getStartTime());
         nonPeriodicSchedule.setEndTime(schedulePostData.getEndTime());
         nonPeriodicSchedule.setBody(schedulePostData.getBody());
+        log.info("build NonPeriodic Schedule "+ nonPeriodicSchedule.toString());
         return  nonPeriodicSchedule;
     }
 
@@ -214,7 +214,7 @@ public class TimeTableService {
 
         Schedule schedule = scheduleOptional.get();
         if(schedule instanceof Periodic_Schedule)
-            updatePostData.setPeriodicType(true);
+            updatePostData.setPeriodicType("true");
 
         Schedule updateData = this.convertDtoToSchedule(updatePostData);
 

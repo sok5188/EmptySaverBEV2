@@ -40,7 +40,7 @@ public class TimeTableDto {
     public static class SchedulePostDto{
         private String name;
         private String body;
-        private boolean periodicType;
+        private String periodicType;
 
         @Builder.Default
         private List<String> periodicTimeStringList = new ArrayList<>(); //only for Periodic
