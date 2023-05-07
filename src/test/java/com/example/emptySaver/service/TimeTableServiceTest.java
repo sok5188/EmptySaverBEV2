@@ -1,10 +1,7 @@
 package com.example.emptySaver.service;
 
 import com.example.emptySaver.domain.dto.TimeTableDto;
-import com.example.emptySaver.domain.entity.Member;
-import com.example.emptySaver.domain.entity.Periodic_Schedule;
-import com.example.emptySaver.domain.entity.Schedule;
-import com.example.emptySaver.domain.entity.Time_Table;
+import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
 import com.example.emptySaver.utils.TimeDataToBitConverter;
@@ -40,10 +37,18 @@ class TimeTableServiceTest {
     private TimeTableRepository timeTableRepository;
 
     private TimeTableDto.SchedulePostDto getTempSchedulePostDto(){
-        List<String> timeList = Arrays.asList("화,14-17","화,18-19","금,19-24");
+        List<String> timeList = Arrays.asList("화,0.5-1.5","화,8.5-9.5","금,19-24");
         //long[] weekData = {0,100,100,100,0,0,0};
         TimeTableDto.SchedulePostDto periodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("true").periodicTimeStringList(timeList).build();
         return periodicSchedule;
+    }
+
+    private TimeTableDto.SchedulePostDto getNonPeriodicSchedulePostDto(){
+        TimeTableDto.SchedulePostDto nonPeriodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("false")
+                .startTime(LocalDateTime.of(2023,05,07,8,30,0))
+                .endTime(LocalDateTime.of(2023,05,07,9,30,0))
+                .build();
+        return nonPeriodicSchedule;
     }
 
     @Test
@@ -176,6 +181,8 @@ class TimeTableServiceTest {
         assertThat(savedMember.getTimeTable().getScheduleList().size()).isEqualTo(1);   //저장 확인
         assertThat(savedMember.getTimeTable().getScheduleList().get(0).getName()).isEqualTo(periodicSchedule.getName());   //저장 내용 확인
         assertThat(savedMember.getTimeTable().getScheduleList().get(0).getTimeTable().getId()).isEqualTo(timeTable.getId());   //스케줄과 timeTable의 연관관계 확인
+        Periodic_Schedule periodicSchedule1 = (Periodic_Schedule) savedMember.getTimeTable().getScheduleList().get(0);
+        System.out.println(Long.toBinaryString(periodicSchedule1.getWeekScheduleData()[1]));
     }
 
     @Transactional
