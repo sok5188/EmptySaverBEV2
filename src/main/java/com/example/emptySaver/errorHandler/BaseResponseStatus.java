@@ -30,6 +30,11 @@ public enum BaseResponseStatus {
     INVALID_TEAM_MODIFY(false, 2230, "그룹장을 탈퇴 시킬 수 없습니다 (그룹장을 변경 후 탈퇴 하거나 그룹 자체를 삭제해주세요)"),
     INVALID_MAKE_TEAM_ATTEMPT(false, 2231, "유효하지 않은 그룹 생성 시도 입니다. (이미 동일한 이름의 그룹이 존재합니다.)"),
     INVALID_CATEGORY_ID(false, 2232, "유효하지 않은 카테고리 입니다."),
+    NOT_ALLOWED(false, 2233, "허용되지 않은 요청입니다.(권한을 확인해주세요)"),
+    MAX_MEMBER_ERROR(false,2234,"해당 그룹의 최대 정원을 초과하는 요청은 허용되지 않습니다."),
+    NOT_BELONG_ERROR(false,2235,"해당 그룹에 속해야 요청할 수 있습니다."),
+    ALREADY_BELONG_ERROR(false,2235,"이미 해당 그룹에 속해있습니다."),
+    NOT_ALONE_ERROR(false,2236,"해당 그룹에 혼자가 아닙니다."),
 
 
 

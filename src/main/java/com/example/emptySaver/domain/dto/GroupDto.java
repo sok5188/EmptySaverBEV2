@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 public class GroupDto {
     @Data
     @AllArgsConstructor
@@ -63,5 +65,15 @@ public class GroupDto {
         private Boolean isPublic;
 
         private String categoryLabel;
+    }
+
+    @Data
+    @Builder
+    public static class InviteInfo{
+        private Long memberTeamId;
+        private Long memberId;
+        private Long groupId;
+        private String memberName;
+        private LocalDateTime inviteDate;
     }
 }

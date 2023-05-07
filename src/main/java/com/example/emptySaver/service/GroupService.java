@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,18 +55,22 @@ public class GroupService {
         teamRepository.save(team);
         MemberTeam mt=new MemberTeam();
         mt.initMemberTeam(member,team,member);
+        mt.setBelong(true);
         memberTeamRepository.save(mt);
     }
 
     @Transactional
-    public String addMemberToTeam(Long memberId, Long teamId){
+    public String addMemberToTeam(Long memberId, Long teamId,String subject){
         Member member = getMemberById(memberId);
         Team team = getTeamById(teamId);
+
         memberTeamRepository.findWithMemberByTeam(team).stream()
                 .filter(mt->mt.getMember().equals(member)).findAny()
                 .ifPresent(memberTeam -> {throw new BaseException(BaseResponseStatus.FAILED_TO_ADD_MEMBER_TO_TEAM);});
         MemberTeam mt=new MemberTeam();
         mt.initMemberTeam(member,team,member);
+        //그룹에서 보낸 초대는 group, 회원이 보낸 신청은 member
+        mt.setRelationSubject(subject);
         memberTeamRepository.save(mt);
         return member.getUsername();
     }
@@ -107,21 +112,32 @@ public class GroupService {
     }
 
     private void setSimpleGroupRes(List<Team> byCategory, List<GroupDto.SimpleGroupRes> result) {
+
         byCategory.forEach(team -> {
             result.add(GroupDto.SimpleGroupRes.builder().groupName(team.getName())
                     .groupId(team.getId()).oneLineInfo(team.getOneLineInfo())
-                    .nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
+                    .nowMember(
+                            Long.valueOf(
+                                    memberTeamRepository.findByTeam(team).stream().filter(mt->mt.isBelong())
+                                            .collect(Collectors.toList()).size()
+                            )
+                    )
                     .maxMember(team.getMaxMember()).isPublic(team.isPublic())
                     .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                     .build());
         });
     }
-    //TODO : 추후 지연로딩 관련 부분 수정해야 할 지점.. (이상해..)
+    //TODO : 추후 지연로딩 관련 부분 수정해야 할 지점.. (이상해..) 컬렉션 페치조인이 잘 안되는 건가..?
+    // 그거 말고도 좀 주의가 필요하다..
     public List<GroupDto.SimpleGroupRes> getMyGroup(){
         List<Team> all = teamRepository.findAll();
         Member member = memberService.getMember();
         List<Team> teamList = memberTeamRepository
-                .findWithTeamByMember(member).stream().map(mt->mt.getTeam()).collect(Collectors.toList());
+                .findWithTeamByMember(member).stream().map(mt->{
+                    if(mt.isBelong())
+                        return mt.getTeam();
+                    else return null;
+                }).collect(Collectors.toList());
 
         List<Team> collect=new ArrayList<>();
         for (Team team : all) {
@@ -133,18 +149,60 @@ public class GroupService {
         setSimpleGroupRes(collect,result);
         return result;
     }
+    //가입되지 않은 상태의 memberTeam중 subject와 맞는 목록을 dto로 변환하여 리턴하는 메소드
+    public List<GroupDto.SimpleGroupRes> getGroupRequests(String subject){
+        List<Team> collect = this.getGroupListBySubject(subject);
+        List<GroupDto.SimpleGroupRes> result = new ArrayList<>();
+        setSimpleGroupRes(collect,result);
+        return result;
+    }
+    private List<Team> getGroupListBySubject(String subject){
+        List<Team> all = teamRepository.findAll();
+        Member member = memberService.getMember();
+        List<MemberTeam> mtList = memberTeamRepository.findWithTeamByMember(member);
+        List<Team> target = mtList.stream().filter(mt -> !mt.isBelong()&&mt.getRelationSubject().equals(subject)).map(mt -> mt.getTeam()).collect(Collectors.toList());
+        List<Team> collect=new ArrayList<>();
+        for (Team team : all) {
+            if(target.contains(team))
+                collect.add(team);
+        }
 
+        return collect;
+    }
+
+
+    //해당 그룹에 참가하지 않은 회원중 group에서 초대를 보낸 목록 조회
+    public List<GroupDto.InviteInfo> getInviteMemberList(Long groupId,String subject) {
+        Team team = this.getTeamById(groupId);
+        List<MemberTeam> withMemberByTeam = memberTeamRepository
+                .findWithMemberByTeam(team);
+        List<GroupDto.InviteInfo> result = new ArrayList<>();
+        withMemberByTeam.forEach(mt-> {
+            if(!mt.isBelong()&&mt.getRelationSubject().equals(subject)){
+                result.add(GroupDto.InviteInfo.builder()
+                                .groupId(groupId).memberTeamId(mt.getId()).memberId(mt.getMember().getId())
+                                .memberName(mt.getMember().getName()).inviteDate(mt.getJoinDate())
+                        .build()
+                );
+            }
+        });
+        return result;
+    }
+
+    //가입된 유저만 조회한다.
     public GroupDto.GroupMemberRes getGroupMembers(Long groupId){
-        Team team = teamRepository.findById(groupId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        Team team = this.getTeamById(groupId);
         List<MemberTeam> withMemberByTeam = memberTeamRepository
                 .findWithMemberByTeam(team);
         List<AuthDto.SimpleMemberInfo> result = new ArrayList<>();
-        withMemberByTeam.forEach(mt->result.add(
-                AuthDto.SimpleMemberInfo.builder()
-                        .memberId(mt.getMember().getId())
-                        .name(mt.getMember().getName()).build()
-        ));
+        withMemberByTeam.forEach(mt-> {
+                    if(mt.isBelong()){
+                        result.add(AuthDto.SimpleMemberInfo.builder()
+                                        .memberId(mt.getMember().getId())
+                                        .name(mt.getMember().getName()).build()
+                        );
+                    }
+                });
         GroupDto.GroupMemberRes res= new GroupDto.GroupMemberRes<>(result,team.isPublic());
         return res;
     }
@@ -156,5 +214,42 @@ public class GroupService {
                 .groupDescription(team.getDescription()).nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
                 .maxMember(team.getMaxMember()).isPublic(team.isPublic()).categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                 .build();
+    }
+
+    public boolean checkOwner(Long groupId){
+        Member member = memberService.getMember();
+        Team team =this.getTeamById(groupId);
+        return team.getOwner().equals(member);
+    }
+    public boolean checkBelong(Long groupId){
+        Member member = memberService.getMember();
+        Team team = this.getTeamById(groupId);
+        Optional<MemberTeam> opt = memberTeamRepository.findFirstByMemberAndTeam(member, team);
+        return opt.isPresent()&&opt.get().isBelong();
+    }
+    public boolean checkAlone(Long groupId){
+        Team team = this.getTeamById(groupId);
+        List<MemberTeam> byTeam = memberTeamRepository.findByTeam(team);
+        if(byTeam.size()>1)
+            return false;
+        return true;
+    }
+    @Transactional
+    public String acceptMember(Long memberId, Long groupId){
+
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
+        Team team = teamRepository.findById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        MemberTeam memberTeam = memberTeamRepository.findFirstByMemberAndTeam(member, team).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REQUEST));
+        //최대 인원 초과 시 수락되지 않아야 한다.
+        List<MemberTeam> byTeam = memberTeamRepository.findByTeam(team);
+        int size = byTeam.stream().filter(mt -> mt.isBelong()).collect(Collectors.toList()).size();
+        if(size>=team.getMaxMember()){
+            throw new BaseException(BaseResponseStatus.MAX_MEMBER_ERROR);
+        }
+        if(memberTeam.isBelong())
+            throw new BaseException(BaseResponseStatus.ALREADY_BELONG_ERROR);
+        memberTeam.addMemberToTeam();
+        return member.getName();
     }
 }
