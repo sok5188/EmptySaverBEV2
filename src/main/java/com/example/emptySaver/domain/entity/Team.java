@@ -52,4 +52,9 @@ public class Team {
     private Member owner;
 
     private LocalDateTime createTime;
+
+    @ToString.Exclude
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "time_table_id")
+    private Time_Table timeTable;
 }

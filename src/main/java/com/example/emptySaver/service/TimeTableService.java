@@ -4,6 +4,7 @@ import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.ScheduleRepository;
+import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
 import com.example.emptySaver.utils.TimeDataToBitConverter;
 import jakarta.persistence.EntityManager;
@@ -29,8 +30,121 @@ public class TimeTableService {
     private final ScheduleRepository scheduleRepository;
     private final MemberService memberService;
     private final MemberRepository memberRepository;
+    private final TeamRepository teamRepository;
 
     private Map<String,Integer> dayToIntMap = Map.of("월",0, "화", 1,"수",2,"목",3,"금",4,"토",5,"일",6);
+
+    private String idxToTimeString(int idx){
+        StringBuilder stringBuilder = new StringBuilder();
+        int div = idx / 2;
+        stringBuilder.append(div);
+
+        if (idx % 2>0)
+            stringBuilder.append(":30");
+
+        return stringBuilder.toString();
+    }
+
+    private String bitTimeDataToStringData(long bitTimeData){
+
+        StringBuilder stringBuilder = new StringBuilder();
+        long moveBit = 1;
+
+        List<Integer> timeIdxList = new ArrayList<>();
+        for (int idx = 0; idx < 48; idx++) {
+            if((bitTimeData & moveBit) >0){
+                timeIdxList.add(idx);
+            }
+            moveBit <<=1;
+        }
+
+        if (timeIdxList.isEmpty())
+            return stringBuilder.append("no data").toString();
+
+        int start = timeIdxList.get(0), end = timeIdxList.get(0) +1;
+
+        for (int i = 0; i < timeIdxList.size()-1; i++) {
+            if(timeIdxList.get(i) +1 == timeIdxList.get(i+1)){
+                end = timeIdxList.get(i+1) +1;
+            }else{
+                stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) +",");
+                start = end=timeIdxList.get(i+1);
+                end++;
+            }
+        }
+        stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) );
+
+        return stringBuilder.toString();
+    }
+
+
+    private String bitTimeDataArrayToStringData(long[] bitTimeData){
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int day = 0; day < bitTimeData.length; day++) {
+            long moveBit = 1;
+
+            List<Integer> timeIdxList = new ArrayList<>();
+            for (int idx = 0; idx < 48; idx++) {
+                if((bitTimeData[day] & moveBit) >0){
+                    timeIdxList.add(idx);
+                }
+                moveBit <<=1;
+            }
+
+            if (timeIdxList.isEmpty())
+                return stringBuilder.append("no data").toString();
+
+            int start = timeIdxList.get(0), end = timeIdxList.get(0) +1;
+
+            for (int i = 0; i < timeIdxList.size()-1; i++) {
+                if(timeIdxList.get(i) +1 == timeIdxList.get(i+1)){
+                    end = timeIdxList.get(i+1) +1;
+                }else{
+                    stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) +",");
+                    start = end=timeIdxList.get(i);
+                    end++;
+                }
+            }
+            stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) );
+
+        }
+        return stringBuilder.toString();
+    }
+
+    private String convertTimeDataToString(final Schedule schedule){
+        StringBuilder stringBuilder = new StringBuilder();
+        if (schedule instanceof Periodic_Schedule) {
+            Periodic_Schedule periodicSchedule = (Periodic_Schedule) schedule;
+            periodicSchedule.getWeekScheduleData();
+        }
+
+        return null;
+    }
+
+    private List<TimeTableDto.TeamScheduleDto> convertSchedulesToTeamScheduleDtos(final List<Schedule> scheduleList){
+        List<TimeTableDto.TeamScheduleDto> ret = new ArrayList<>();
+
+        for (final Schedule schedule: scheduleList) {
+            ret.add(TimeTableDto.TeamScheduleDto.builder()
+                    .id(schedule.getId())
+                    .body(schedule.getBody())
+                    .name(schedule.getName())
+                    .timeData(this.convertTimeDataToString(schedule))
+                    .build());
+        }
+
+        return ret;
+    }
+
+    public List<Schedule> getTeamScheduleList(Long teamId){
+        Team team = teamRepository.findById(teamId).get();
+
+        Time_Table timeTable = team.getTimeTable();
+        final List<Schedule> scheduleList = timeTable.getScheduleList();
+
+        return scheduleList;
+    }
 
     public TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId,LocalDate startDate, LocalDate endDate){
         Member member = memberRepository.findById(memberId).get();
@@ -74,7 +188,6 @@ public class TimeTableService {
 
     private TimeTableDto.TimeTableInfo calcTimeTableDataPerWeek( final LocalDate startDate, final LocalDate endDate ,final long[] weekScheduleData, final List<Schedule> scheduleList){
         final int dayNum = (int) Duration.between(startDate.atStartOfDay(),endDate.atStartOfDay()).toDays() +1;
-        log.info("Day-- " + dayNum);
         final int startDayOfWeek = startDate.getDayOfWeek().getValue() -1; //월요일부터 0~6까지 정수
 
         List<Long> bitDataPerDays = new ArrayList<>();
@@ -118,6 +231,7 @@ public class TimeTableService {
                                     .name(schedule.getName())
                                     .body(schedule.getBody())
                                     .timeData(this.convertLongToBooleanList(weekBits[day]))
+                                    .timeStringData(this.bitTimeDataToStringData(weekBits[day]))
                                     .build());
                 }
         }
@@ -141,6 +255,7 @@ public class TimeTableService {
                             .name(schedule.getName())
                             .body(schedule.getBody())
                             .timeData(this.convertLongToBooleanList(timeBitData))
+                            .timeStringData(this.bitTimeDataToStringData(timeBitData))
                             .build());
 
             Long targetBits = bitDataPerDays.get(afterDayNumFromStart);

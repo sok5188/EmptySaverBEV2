@@ -33,6 +33,16 @@ public class TimeTableDto {
 
         @Builder.Default
         private List<Boolean> timeData = new ArrayList<>();
+        private String timeStringData;
+    }
+
+    @Data
+    @Builder
+    public static class TeamScheduleDto{
+        private Long id;
+        private String name;
+        private String body;
+        private String timeData;
     }
 
     @Data
