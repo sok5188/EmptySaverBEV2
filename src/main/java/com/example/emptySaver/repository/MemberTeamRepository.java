@@ -6,7 +6,6 @@ import com.example.emptySaver.domain.entity.Team;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +21,8 @@ public interface MemberTeamRepository extends JpaRepository<MemberTeam,Long> {
     List<MemberTeam> findWithTeamByMember(Member member);
 
     int countByTeam(Team team);
+
+    Optional<MemberTeam> findFirstByMemberAndTeam(Member member, Team team);
 
 
 }

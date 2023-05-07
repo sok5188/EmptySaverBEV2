@@ -29,11 +29,20 @@ public class MemberTeam {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
+    private boolean isBelong;
+
+    private String relationSubject;
+
     public void initMemberTeam(Member member, Team team, Member owner){
         this.member=member;
         this.team=team;
         member.getMemberTeam().add(this);
         team.getTeamMembers().add(this);
         this.joinDate=LocalDateTime.now();
+        isBelong=false;
+    }
+
+    public void addMemberToTeam(){
+        this.isBelong=true;
     }
 }
