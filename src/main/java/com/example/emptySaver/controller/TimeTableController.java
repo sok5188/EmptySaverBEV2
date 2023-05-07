@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/timetable")
@@ -46,7 +48,7 @@ public class TimeTableController {
             name = "SchedulePostDto",
             description = "가장 중요한 부분은 periodicType설정 임다. <br/ >" +
                     " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br/ >" +
-                    "periodicTimeStringList = [\"화,0.5-1.5\",\"화,18-19\",\"금,19-24\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. 30분은 0.5로 표긴한다. <br/ >" +
+                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br/ >" +
                     "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br/ >" +
                     "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
 
@@ -85,15 +87,19 @@ public class TimeTableController {
     }
 
     @PostMapping("/team/saveSchedule")
-    @Operation(summary = "timetable에 스케줄 저장", description = "로그인 한 유저가 스케줄 정보를 timetable에 추가")
+    @Operation(summary = "Team의 스케줄 저장", description = "그룹장으로 유저인 스케줄 정보를 추가")
     @Parameter(
-            name = "SchedulePostDto",
-            description = "가장 중요한 부분은 periodicType설정 임다. <br/ >" +
+            name = "groupId",
+            description = "uri에 스캐줄을 추가할 그룹의 ID를 담는다."
+    )
+    @Parameter(
+            name = "schedulePostData",
+            description = "body에 담습니다. <br/ >" +
+                    "가장 중요한 부분은 periodicType설정 임다. <br/ >" +
                     " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br/ >" +
-                    "periodicTimeStringList = [\"화,0:30-1:30\",\"화,18-19\",\"금,19-24\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br/ >" +
+                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다.  <br/ >" +
                     "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br/ >" +
                     "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
-
     )
     public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
         Long currentMemberId = memberService.getCurrentMemberId();
@@ -106,7 +112,18 @@ public class TimeTableController {
 
         //log.info("build: " + schedulePostData.toString());
         timeTableService.saveScheduleByTeam(groupId, schedulePostData);
-        return new ResponseEntity<>("Schedule saved for member", HttpStatus.OK);
+        return new ResponseEntity<>("Schedule saved for group", HttpStatus.OK);
+    }
+
+    @PostMapping("/team/getScheduleList")
+    @Operation(summary = "Team의 스케줄들을 받아오기", description = "그룹의 id로 스케줄 정보를 받아옴")
+    @Parameter(
+            name = "groupId",
+            description = "uri에 스캐줄을 검색할 그룹의 ID를 담는다."
+    )
+    public ResponseEntity<List<TimeTableDto.TeamScheduleDto>> getTeamScheduleList(final @RequestParam Long groupId){
+        List<TimeTableDto.TeamScheduleDto> teamScheduleList = timeTableService.getTeamScheduleList(groupId);
+        return new ResponseEntity<>(teamScheduleList, HttpStatus.OK);
     }
 
 }
