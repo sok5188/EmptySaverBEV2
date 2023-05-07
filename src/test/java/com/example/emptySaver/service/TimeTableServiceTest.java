@@ -73,6 +73,8 @@ class TimeTableServiceTest {
             System.out.println("======");
             for (TimeTableDto.ScheduleDto scheduleDto: ss) {
                 System.out.println(scheduleDto);
+
+                System.out.println(scheduleDto.getTimeStringData());
                 //System.out.println("bits: "+ Long.toBinaryString(scheduleDto.getTimeBitData()));
             }
         }
