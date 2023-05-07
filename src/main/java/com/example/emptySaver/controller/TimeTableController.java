@@ -24,8 +24,8 @@ public class TimeTableController {
     @Operation(summary = "TimeTable 정보 가져오기", description = "로그인 한 유저, 자신의 timeTable의 정보를 가져옴")
     @Parameter(
             name = "requestForm",
-            description = "startDate와 endDate는 날짜 정보만을 필요로 한다.\n" +
-                    " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.\n" +
+            description = "startDate와 endDate는 날짜 정보만을 필요로 한다.<br/ >" +
+                    " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.<br/ >" +
                     " 형식에 맞추지 않으면 오류"
 
     )
@@ -41,10 +41,10 @@ public class TimeTableController {
     @Operation(summary = "timetable에 스케줄 저장", description = "로그인 한 유저가 스케줄 정보를 timetable에 추가")
     @Parameter(
             name = "SchedulePostDto",
-            description = "가장 중요한 부분은 periodicType설정 임다. \n" +
-                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. \n" +
-                    "periodicTimeStringList = [\"화,0.5-1.5\",\"화,18-19\",\"금,19-24\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. 30분은 0.5로 표긴한다. \n" +
-                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. \n" +
+            description = "가장 중요한 부분은 periodicType설정 임다. <br/ >" +
+                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br/ >" +
+                    "periodicTimeStringList = [\"화,0.5-1.5\",\"화,18-19\",\"금,19-24\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. 30분은 0.5로 표긴한다. <br/ >" +
+                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br/ >" +
                     "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
 
     )
@@ -59,8 +59,8 @@ public class TimeTableController {
     @Operation(summary = "특정 스케줄 변경", description = "특정 스케줄을 scheduleId를 이용해서 변경")
     @Parameter(
             name = "scheduleId",
-            description = "body가 아닌 uri에 담아서 보내기." +
-                    "반드시 db에 존재하는 scheduleId 이어야 하므로,\n " +
+            description = "body가 아닌 uri에 담아서 보내기.<br/ >" +
+                    "반드시 db에 존재하는 scheduleId 이어야 하므로, " +
                     "getMemberTimeTable로 얻은 정보에서 scheduleId 추출해 사용."
     )
     public ResponseEntity<String> updateSchedule(final @RequestParam Long scheduleId, final @RequestBody TimeTableDto.SchedulePostDto updateData){
@@ -72,17 +72,13 @@ public class TimeTableController {
     @Operation(summary = "특정 스케줄 삭제", description = "특정 스케줄을 id로 지움, 따라서 id는 절대 변경 안되도록")
     @Parameter(
             name = "scheduleId",
-            description = "body가 아닌 uri에 담아서 보내기." +
-                    "반드시 db에 존재하는 scheduleId 이어야 하므로,\n " +
+            description = "body가 아닌 uri에 담아서 보내기. <br/ >" +
+                    "반드시 db에 존재하는 scheduleId 이어야 하므로, " +
                     "getMemberTimeTable로 얻은 정보에서 scheduleId 추출해 사용."
     )
     public ResponseEntity<String> deleteSchedule(final @RequestParam Long scheduleId){
         timeTableService.deleteScheduleInTimeTable(scheduleId);
         return new ResponseEntity<>("Schedule deleted, id: " + scheduleId, HttpStatus.OK);
     }
-
-    //찬민이형이 말한 형식대로 전달
-    //LocalTimeData 변환
-    //Group의 TimeTable 접근
 
 }
