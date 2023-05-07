@@ -39,7 +39,7 @@ class TimeTableServiceTest {
     private TeamRepository teamRepository;
 
     private TimeTableDto.SchedulePostDto getTempSchedulePostDto(){
-        List<String> timeList = Arrays.asList("화,0.5-1.5","화,8.5-9.5","금,19-24");
+        List<String> timeList = Arrays.asList("화,0:30-1:30","화,08:30-09:30","금,19:00-24:00");
         //long[] weekData = {0,100,100,100,0,0,0};
         TimeTableDto.SchedulePostDto periodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("true").periodicTimeStringList(timeList).build();
         return periodicSchedule;
@@ -86,11 +86,11 @@ class TimeTableServiceTest {
         member.setTimeTable(savedTable);
         Member savedMember = memberRepository.save(member);
 
-        List<String> timeList1 = Arrays.asList("화,0.5-1.5","화,18-19","금,19-24");
+        List<String> timeList1 = Arrays.asList("화,00:30-01:30","화,18:00-19:00","금,19:00-24:00");
         TimeTableDto.SchedulePostDto periodicSchedule1 = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("true").periodicTimeStringList(timeList1).build();
         timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule1);
 
-        List<String> timeList2 = Arrays.asList("금,14-17","수,18-18.5");
+        List<String> timeList2 = Arrays.asList("금,14:00-17:00","수,18:00-18:30");
         TimeTableDto.SchedulePostDto periodicSchedule2 = TimeTableDto.SchedulePostDto.builder().name("z스톤").periodicType("true").periodicTimeStringList(timeList2).build();
         timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule2);
 
@@ -166,7 +166,7 @@ class TimeTableServiceTest {
         Long scheduleId = savedMember.getTimeTable().getScheduleList().get(0).getId();
 
         //long[] newWeekData = {100,0,0,0,0,100,0};
-        List<String> timeList = Arrays.asList("금,14-17","수,18-18.5");
+        List<String> timeList = Arrays.asList("금,14:00-17:00","수,18:00-18:30");
         TimeTableDto.SchedulePostDto newPeriodicSchedule = TimeTableDto.SchedulePostDto.builder().name("킹스톤").periodicType("true").periodicTimeStringList(timeList).build();
 
         timeTableService.updateScheduleInTimeTable(scheduleId, newPeriodicSchedule);

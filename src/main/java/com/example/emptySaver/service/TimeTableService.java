@@ -222,14 +222,28 @@ public class TimeTableService {
                 .scheduleListPerDays(scheduleListPerDays).build();
     }
 
+    private float timeStringToFloat(String time){
+
+        String[] split = time.split(":");
+        float timeVar = Float.parseFloat(split[0]);
+
+        float minute = Float.parseFloat(split[1]);
+        if (minute >= 30f){
+            timeVar += 0.5f;
+        }
+
+        return timeVar;
+    }
+
     private long[] convertTimeStringsToBitsArray(List<String> periodicTimeStringList){
         long[] bitsArray = {0,0,0,0,0,0,0};
         for (String time: periodicTimeStringList) {
             String[] splitData = time.split(",");
             Integer dayNumber = dayToIntMap.get(splitData[0]);
             String[] duration = splitData[1].split("-");
-            int startIdx = (int) (Float.parseFloat(duration[0])*2);
-            int endIdx = (int) (Float.parseFloat(duration[1])*2);
+
+            int startIdx = (int) (this.timeStringToFloat(duration[0])*2);
+            int endIdx = (int) (this.timeStringToFloat(duration[1])*2);
 
             long moveBit =(1l << startIdx);
             for (int i = startIdx; i <endIdx ; i++) {

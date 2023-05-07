@@ -3,7 +3,6 @@ package com.example.emptySaver.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +33,15 @@ public class TimeDataSuperUltraConverter {
     private String idxToTimeString(int idx){
         StringBuilder stringBuilder = new StringBuilder();
         int div = idx / 2;
+
+        if(div<10)
+            stringBuilder.append(0);
         stringBuilder.append(div);
 
         if (idx % 2>0)
             stringBuilder.append(":30");
+        else
+            stringBuilder.append(":00");
 
         return stringBuilder.toString();
     }
@@ -59,7 +63,6 @@ public class TimeDataSuperUltraConverter {
             return stringBuilder.append(EMPTY).toString();
 
         int start = timeIdxList.get(0), end = timeIdxList.get(0) +1;
-
         for (int i = 0; i < timeIdxList.size()-1; i++) {
             if(timeIdxList.get(i) +1 == timeIdxList.get(i+1)){
                 end = timeIdxList.get(i+1) +1;
