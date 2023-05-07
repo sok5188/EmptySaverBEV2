@@ -6,7 +6,7 @@ import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.ScheduleRepository;
 import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
-import com.example.emptySaver.utils.TimeDataToBitConverter;
+import com.example.emptySaver.utils.TimeDataSuperUltraConverter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class TimeTableService {
     @PersistenceContext
     private final EntityManager em;
 
-    private final TimeDataToBitConverter bitConverter;
+    private final TimeDataSuperUltraConverter timeDataConverter;
     private final TimeTableRepository timeTableRepository;
     private final ScheduleRepository scheduleRepository;
     private final MemberService memberService;
@@ -34,101 +34,51 @@ public class TimeTableService {
 
     private Map<String,Integer> dayToIntMap = Map.of("월",0, "화", 1,"수",2,"목",3,"금",4,"토",5,"일",6);
 
-    private String idxToTimeString(int idx){
-        StringBuilder stringBuilder = new StringBuilder();
-        int div = idx / 2;
-        stringBuilder.append(div);
+    @Transactional
+    public void saveScheduleByTeam(final Long teamId,final TimeTableDto.SchedulePostDto schedulePostDto){
+        Team team = teamRepository.findById(teamId).get();
+        Time_Table timeTable = team.getTimeTable();
 
-        if (idx % 2>0)
-            stringBuilder.append(":30");
+        Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
 
-        return stringBuilder.toString();
-    }
+        schedule.setTimeTable(timeTable);
+        Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
 
-    private String bitTimeDataToStringData(long bitTimeData){
+        List<Schedule> scheduleList = timeTable.getScheduleList();
+        scheduleList.add(savedSchedule);
+        timeTable.calcAllWeekScheduleData();
 
-        StringBuilder stringBuilder = new StringBuilder();
-        long moveBit = 1;
-
-        List<Integer> timeIdxList = new ArrayList<>();
-        for (int idx = 0; idx < 48; idx++) {
-            if((bitTimeData & moveBit) >0){
-                timeIdxList.add(idx);
-            }
-            moveBit <<=1;
-        }
-
-        if (timeIdxList.isEmpty())
-            return stringBuilder.append("no data").toString();
-
-        int start = timeIdxList.get(0), end = timeIdxList.get(0) +1;
-
-        for (int i = 0; i < timeIdxList.size()-1; i++) {
-            if(timeIdxList.get(i) +1 == timeIdxList.get(i+1)){
-                end = timeIdxList.get(i+1) +1;
-            }else{
-                stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) +",");
-                start = end=timeIdxList.get(i+1);
-                end++;
-            }
-        }
-        stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) );
-
-        return stringBuilder.toString();
-    }
-
-
-    private String bitTimeDataArrayToStringData(long[] bitTimeData){
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int day = 0; day < bitTimeData.length; day++) {
-            long moveBit = 1;
-
-            List<Integer> timeIdxList = new ArrayList<>();
-            for (int idx = 0; idx < 48; idx++) {
-                if((bitTimeData[day] & moveBit) >0){
-                    timeIdxList.add(idx);
-                }
-                moveBit <<=1;
-            }
-
-            if (timeIdxList.isEmpty())
-                return stringBuilder.append("no data").toString();
-
-            int start = timeIdxList.get(0), end = timeIdxList.get(0) +1;
-
-            for (int i = 0; i < timeIdxList.size()-1; i++) {
-                if(timeIdxList.get(i) +1 == timeIdxList.get(i+1)){
-                    end = timeIdxList.get(i+1) +1;
-                }else{
-                    stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) +",");
-                    start = end=timeIdxList.get(i);
-                    end++;
-                }
-            }
-            stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) );
-
-        }
-        return stringBuilder.toString();
+        log.info("add Schedule id: "+ savedSchedule.getId() + " to Team id: " + team.getId());
     }
 
     private String convertTimeDataToString(final Schedule schedule){
         StringBuilder stringBuilder = new StringBuilder();
         if (schedule instanceof Periodic_Schedule) {
             Periodic_Schedule periodicSchedule = (Periodic_Schedule) schedule;
-            periodicSchedule.getWeekScheduleData();
+            String ret = timeDataConverter.bitTimeDataArrayToStringData(periodicSchedule.getWeekScheduleData());
+            stringBuilder.append(ret);
+        }else{
+            Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
+            stringBuilder.append(nonPeriodicSchedule.getStartTime().toString());
+            stringBuilder.append(" ~ ");
+            stringBuilder.append(nonPeriodicSchedule.getEndTime().toString());
         }
 
-        return null;
+        return stringBuilder.toString().replace("T"," ");
     }
 
-    private List<TimeTableDto.TeamScheduleDto> convertSchedulesToTeamScheduleDtos(final List<Schedule> scheduleList){
+    private List<TimeTableDto.TeamScheduleDto> convertSchedulesToTeamScheduleDtoList(final List<Schedule> scheduleList){
         List<TimeTableDto.TeamScheduleDto> ret = new ArrayList<>();
 
-        for (final Schedule schedule: scheduleList) {
+        for (Schedule schedule: scheduleList) {
+            boolean periodicType = true;
+            if(schedule instanceof Non_Periodic_Schedule)
+                periodicType = false;
+
             ret.add(TimeTableDto.TeamScheduleDto.builder()
                     .id(schedule.getId())
                     .body(schedule.getBody())
+                    .periodicType(periodicType)
                     .name(schedule.getName())
                     .timeData(this.convertTimeDataToString(schedule))
                     .build());
@@ -137,13 +87,15 @@ public class TimeTableService {
         return ret;
     }
 
-    public List<Schedule> getTeamScheduleList(Long teamId){
+    public List<TimeTableDto.TeamScheduleDto> getTeamScheduleList(final Long teamId){
         Team team = teamRepository.findById(teamId).get();
 
         Time_Table timeTable = team.getTimeTable();
-        final List<Schedule> scheduleList = timeTable.getScheduleList();
+        List<Schedule> scheduleList = timeTable.getScheduleList();
+        log.info("size: "+scheduleList.size());
+        List<TimeTableDto.TeamScheduleDto> teamScheduleDtoList = this.convertSchedulesToTeamScheduleDtoList(scheduleList);
 
-        return scheduleList;
+        return teamScheduleDtoList;
     }
 
     public TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId,LocalDate startDate, LocalDate endDate){
@@ -231,7 +183,7 @@ public class TimeTableService {
                                     .name(schedule.getName())
                                     .body(schedule.getBody())
                                     .timeData(this.convertLongToBooleanList(weekBits[day]))
-                                    .timeStringData(this.bitTimeDataToStringData(weekBits[day]))
+                                    .timeStringData(timeDataConverter.bitTimeDataToStringData(weekBits[day]))
                                     .build());
                 }
         }
@@ -245,7 +197,7 @@ public class TimeTableService {
 
         for (Non_Periodic_Schedule schedule: nonPeriodicScheduleList ) {
             LocalDateTime scheduleStartTime = schedule.getStartTime();
-            Long timeBitData = bitConverter.convertTimeToBit(scheduleStartTime, schedule.getEndTime());
+            Long timeBitData = timeDataConverter.convertTimeToBit(scheduleStartTime, schedule.getEndTime());
             LocalDate startLocalDate = LocalDate.of(scheduleStartTime.getYear(), scheduleStartTime.getMonth(), scheduleStartTime.getDayOfMonth());
             int afterDayNumFromStart = (int) Duration.between(startDate.atStartOfDay(),startLocalDate.atStartOfDay()).toDays();
 
@@ -255,7 +207,7 @@ public class TimeTableService {
                             .name(schedule.getName())
                             .body(schedule.getBody())
                             .timeData(this.convertLongToBooleanList(timeBitData))
-                            .timeStringData(this.bitTimeDataToStringData(timeBitData))
+                            .timeStringData(timeDataConverter.bitTimeDataToStringData(timeBitData))
                             .build());
 
             Long targetBits = bitDataPerDays.get(afterDayNumFromStart);
@@ -270,14 +222,28 @@ public class TimeTableService {
                 .scheduleListPerDays(scheduleListPerDays).build();
     }
 
+    private float timeStringToFloat(String time){
+
+        String[] split = time.split(":");
+        float timeVar = Float.parseFloat(split[0]);
+
+        float minute = Float.parseFloat(split[1]);
+        if (minute >= 30f){
+            timeVar += 0.5f;
+        }
+
+        return timeVar;
+    }
+
     private long[] convertTimeStringsToBitsArray(List<String> periodicTimeStringList){
         long[] bitsArray = {0,0,0,0,0,0,0};
         for (String time: periodicTimeStringList) {
             String[] splitData = time.split(",");
             Integer dayNumber = dayToIntMap.get(splitData[0]);
             String[] duration = splitData[1].split("-");
-            int startIdx = (int) (Float.parseFloat(duration[0])*2);
-            int endIdx = (int) (Float.parseFloat(duration[1])*2);
+
+            int startIdx = (int) (this.timeStringToFloat(duration[0])*2);
+            int endIdx = (int) (this.timeStringToFloat(duration[1])*2);
 
             long moveBit =(1l << startIdx);
             for (int i = startIdx; i <endIdx ; i++) {

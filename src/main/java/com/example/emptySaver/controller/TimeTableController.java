@@ -1,6 +1,8 @@
 package com.example.emptySaver.controller;
 
 import com.example.emptySaver.domain.dto.TimeTableDto;
+import com.example.emptySaver.domain.entity.Team;
+import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.service.MemberService;
 import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class TimeTableController {
     private final TimeTableService timeTableService;
     private final MemberService memberService;
+    private final TeamRepository teamRepository;
 
     @PostMapping("/getTimeTable")
     @Operation(summary = "TimeTable 정보 가져오기", description = "로그인 한 유저, 자신의 timeTable의 정보를 가져옴")
@@ -79,6 +82,31 @@ public class TimeTableController {
     public ResponseEntity<String> deleteSchedule(final @RequestParam Long scheduleId){
         timeTableService.deleteScheduleInTimeTable(scheduleId);
         return new ResponseEntity<>("Schedule deleted, id: " + scheduleId, HttpStatus.OK);
+    }
+
+    @PostMapping("/team/saveSchedule")
+    @Operation(summary = "timetable에 스케줄 저장", description = "로그인 한 유저가 스케줄 정보를 timetable에 추가")
+    @Parameter(
+            name = "SchedulePostDto",
+            description = "가장 중요한 부분은 periodicType설정 임다. <br/ >" +
+                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br/ >" +
+                    "periodicTimeStringList = [\"화,0:30-1:30\",\"화,18-19\",\"금,19-24\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br/ >" +
+                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br/ >" +
+                    "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
+
+    )
+    public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        Team team = teamRepository.findById(groupId).get();
+
+        if(!currentMemberId.equals(team.getOwner().getId())){   //group owner만 가능하도록
+            log.info("request member is not Group owner");
+            return new ResponseEntity<>("request member is not Group owner", HttpStatus.BAD_REQUEST);
+        }
+
+        //log.info("build: " + schedulePostData.toString());
+        timeTableService.saveScheduleByTeam(groupId, schedulePostData);
+        return new ResponseEntity<>("Schedule saved for member", HttpStatus.OK);
     }
 
 }

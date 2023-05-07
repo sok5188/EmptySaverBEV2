@@ -3,8 +3,9 @@ package com.example.emptySaver.service;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.repository.MemberRepository;
+import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
-import com.example.emptySaver.utils.TimeDataToBitConverter;
+import com.example.emptySaver.utils.TimeDataSuperUltraConverter;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +26,7 @@ class TimeTableServiceTest {
     private EntityManager em;
 
     @Autowired
-    private TimeDataToBitConverter bitConverter;
+    private TimeDataSuperUltraConverter bitConverter;
     @Autowired
     private TimeTableService timeTableService;
     @Autowired
@@ -35,9 +35,11 @@ class TimeTableServiceTest {
     private MemberRepository memberRepository;
     @Autowired
     private TimeTableRepository timeTableRepository;
+    @Autowired
+    private TeamRepository teamRepository;
 
     private TimeTableDto.SchedulePostDto getTempSchedulePostDto(){
-        List<String> timeList = Arrays.asList("화,0.5-1.5","화,8.5-9.5","금,19-24");
+        List<String> timeList = Arrays.asList("화,0:30-1:30","화,08:30-09:30","금,19:00-24:00");
         //long[] weekData = {0,100,100,100,0,0,0};
         TimeTableDto.SchedulePostDto periodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("true").periodicTimeStringList(timeList).build();
         return periodicSchedule;
@@ -52,6 +54,30 @@ class TimeTableServiceTest {
     }
 
     @Test
+    void 팀의_스케줄_받아오기(){
+        Time_Table timeTable = Time_Table.builder().title("let go").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
+        Time_Table savedTable = timeTableRepository.save(timeTable);
+
+        Team team = new Team();
+        team.setTimeTable(savedTable);
+        Team savedTeam = teamRepository.save(team);
+
+        Team findTeam = teamRepository.findById(savedTeam.getId()).get();
+
+        TimeTableDto.SchedulePostDto schedulePostDto = getTempSchedulePostDto();
+        TimeTableDto.SchedulePostDto nonPeriodicSchedulePostDto = getNonPeriodicSchedulePostDto();
+        timeTableService.saveScheduleByTeam(findTeam.getId(),schedulePostDto);
+        timeTableService.saveScheduleByTeam(findTeam.getId(),nonPeriodicSchedulePostDto);
+
+        List<TimeTableDto.TeamScheduleDto> teamScheduleList = timeTableService.getTeamScheduleList(findTeam.getId());
+
+        assertThat(teamScheduleList.size()).isEqualTo(2);
+
+        System.out.println(teamScheduleList.get(0).getTimeData());
+        System.out.println(teamScheduleList.get(1).getTimeData());
+    }
+
+    @Test
     void TimeTableDto받아오기(){
         Time_Table timeTable = Time_Table.builder().title("육사시미").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
         Time_Table savedTable = timeTableRepository.save(timeTable);
@@ -60,11 +86,11 @@ class TimeTableServiceTest {
         member.setTimeTable(savedTable);
         Member savedMember = memberRepository.save(member);
 
-        List<String> timeList1 = Arrays.asList("화,0.5-1.5","화,18-19","금,19-24");
+        List<String> timeList1 = Arrays.asList("화,00:30-01:30","화,18:00-19:00","금,19:00-24:00");
         TimeTableDto.SchedulePostDto periodicSchedule1 = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("true").periodicTimeStringList(timeList1).build();
         timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule1);
 
-        List<String> timeList2 = Arrays.asList("금,14-17","수,18-18.5");
+        List<String> timeList2 = Arrays.asList("금,14:00-17:00","수,18:00-18:30");
         TimeTableDto.SchedulePostDto periodicSchedule2 = TimeTableDto.SchedulePostDto.builder().name("z스톤").periodicType("true").periodicTimeStringList(timeList2).build();
         timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule2);
 
@@ -140,7 +166,7 @@ class TimeTableServiceTest {
         Long scheduleId = savedMember.getTimeTable().getScheduleList().get(0).getId();
 
         //long[] newWeekData = {100,0,0,0,0,100,0};
-        List<String> timeList = Arrays.asList("금,14-17","수,18-18.5");
+        List<String> timeList = Arrays.asList("금,14:00-17:00","수,18:00-18:30");
         TimeTableDto.SchedulePostDto newPeriodicSchedule = TimeTableDto.SchedulePostDto.builder().name("킹스톤").periodicType("true").periodicTimeStringList(timeList).build();
 
         timeTableService.updateScheduleInTimeTable(scheduleId, newPeriodicSchedule);

@@ -42,6 +42,7 @@ public class TimeTableDto {
         private Long id;
         private String name;
         private String body;
+        private boolean periodicType;
         private String timeData;
     }
 
