@@ -1,10 +1,12 @@
 package com.example.emptySaver.controller;
 
 import com.example.emptySaver.domain.dto.GroupDto;
+import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.service.GroupService;
 import com.example.emptySaver.service.MemberService;
+import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.util.List;
 public class GroupController {
     private final GroupService groupService;
     private final MemberService memberService;
+    private final TimeTableService timeTableService;
 
     @PostMapping("/make")
     @Operation(summary = "그룹 추가", description = "그룹을 추가하는 API")
@@ -158,7 +161,15 @@ public class GroupController {
     }
 
 
-
+    @GetMapping("/getMemberTimeTable")
+    @Operation(summary = "그룹원 시간표 조회하기", description = "그룹원 시간표를 조회하는 API")
+    public ResponseEntity<TimeTableDto.TimeTableInfo> getGroupMemberTimeTable(final @RequestParam Long groupMemberId , @RequestBody TimeTableDto.TimeTableRequestForm requestForm){
+        //Long currentMemberId = memberService.getCurrentMemberId();
+        //log.info("build: " + requestForm.toString());
+        TimeTableDto.TimeTableInfo timeTableInfo
+                = timeTableService.getMemberTimeTableByDayNum(groupMemberId, requestForm.getStartDate(), requestForm.getEndDate());
+        return new ResponseEntity<>(timeTableInfo, HttpStatus.OK);
+    }
 
 
     //TODO : 그룹 일정 생성 API, 그룹 일정 수정 API (미래 일정만 가능하게), 그룹 일정 삭제 API

@@ -32,7 +32,6 @@ public class TimeTableController {
             description = "startDate와 endDate는 날짜 정보만을 필요로 한다.<br/ >" +
                     " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.<br/ >" +
                     " 형식에 맞추지 않으면 오류"
-
     )
     public ResponseEntity<TimeTableDto.TimeTableInfo> getMemberTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
         Long currentMemberId = memberService.getCurrentMemberId();

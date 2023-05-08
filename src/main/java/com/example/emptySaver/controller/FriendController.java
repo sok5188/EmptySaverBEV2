@@ -1,7 +1,9 @@
 package com.example.emptySaver.controller;
 
 import com.example.emptySaver.domain.dto.FriendDto;
+import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.service.FriendService;
+import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +19,20 @@ import java.util.List;
 @Slf4j
 public class FriendController {
     private final FriendService friendService;
+    private final TimeTableService timeTableService;
+
+    @GetMapping("/getFriendTimeTable")
+    @Operation(summary = "친구 시간표 조회하기", description = "회원의 친구의 시간표를 조회하는 API")
+    public ResponseEntity<TimeTableDto.TimeTableInfo> getFriendTimeTable(final @RequestParam Long friendMemberId ,@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
+        //Long currentMemberId = memberService.getCurrentMemberId();
+        log.info("build: " + requestForm.toString());
+        TimeTableDto.TimeTableInfo timeTableInfo
+                = timeTableService.getMemberTimeTableByDayNum(friendMemberId, requestForm.getStartDate(), requestForm.getEndDate());
+        return new ResponseEntity<>(timeTableInfo, HttpStatus.OK);
+    }
+
     @GetMapping("/getList")
-    @Operation(summary = "진구목록", description = "회원의 친구 목록을 조회하는 API")
+    @Operation(summary = "친구목록", description = "회원의 친구 목록을 조회하는 API")
     public ResponseEntity<FriendDto.res> getFriend(){
         List<FriendDto.FriendInfo> friendList = friendService.getFriendList();
         return new ResponseEntity<>(new FriendDto.res<>(friendList), HttpStatus.OK);
