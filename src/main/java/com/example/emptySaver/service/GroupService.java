@@ -5,13 +5,11 @@ import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.domain.entity.MemberTeam;
 import com.example.emptySaver.domain.entity.Team;
+import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.domain.entity.category.Category;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
-import com.example.emptySaver.repository.CategoryRepository;
-import com.example.emptySaver.repository.MemberRepository;
-import com.example.emptySaver.repository.MemberTeamRepository;
-import com.example.emptySaver.repository.TeamRepository;
+import com.example.emptySaver.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +31,7 @@ public class GroupService {
     private final MemberRepository memberRepository;
     private final MemberTeamRepository memberTeamRepository;
     private final MemberService memberService;
+    private final TimeTableRepository timeTableRepository;
 
     @Transactional
     public void addGroup(GroupDto.GroupInfo groupInfo){
@@ -48,10 +47,14 @@ public class GroupService {
                 .ifPresent(t-> {throw new BaseException(BaseResponseStatus.INVALID_MAKE_TEAM_ATTEMPT);});
 
 
+        Time_Table timeTable = Time_Table.builder().build();
+        timeTableRepository.save(timeTable);
+
         Team team = Team.builder().name(groupInfo.getGroupName()).oneLineInfo(groupInfo.getOneLineInfo())
                 .description(groupInfo.getGroupDescription()).maxMember(groupInfo.getMaxMember())
                 .isPublic(groupInfo.getIsPublic()).category(categoryByLabel).owner(member)
                 .build();
+        team.setTimeTable(timeTable);
         teamRepository.save(team);
         MemberTeam mt=new MemberTeam();
         mt.initMemberTeam(member,team,member);
