@@ -127,6 +127,10 @@ public class GroupService {
                     .build());
         });
     }
+    public List<Long> getMyOwnGroupId(){
+        Member member = memberService.getMember();
+        return teamRepository.findByOwner(member).stream().map(t->t.getId()).collect(Collectors.toList());
+    }
     //TODO : 추후 지연로딩 관련 부분 수정해야 할 지점.. (이상해..) 컬렉션 페치조인이 잘 안되는 건가..?
     // 그거 말고도 좀 주의가 필요하다..
     public List<GroupDto.SimpleGroupRes> getMyGroup(){
@@ -180,7 +184,7 @@ public class GroupService {
         withMemberByTeam.forEach(mt-> {
             if(!mt.isBelong()&&mt.getRelationSubject().equals(subject)){
                 result.add(GroupDto.InviteInfo.builder()
-                                .groupId(groupId).memberTeamId(mt.getId()).memberId(mt.getMember().getId())
+                                .groupId(groupId).groupName(team.getName()).memberTeamId(mt.getId()).memberId(mt.getMember().getId())
                                 .memberName(mt.getMember().getName()).inviteDate(mt.getJoinDate())
                         .build()
                 );
