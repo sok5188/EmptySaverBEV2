@@ -76,6 +76,7 @@ public class GroupDto {
         private Long memberTeamId;
         private Long memberId;
         private Long groupId;
+        private String groupName;
         private String memberName;
         private LocalDateTime inviteDate;
     }
