@@ -23,6 +23,10 @@ mail:
   id: ${mail.id}
   password: ${mail.password}
 
+portal:
+  id: ${portal.id}
+  password: ${portal.password}
+
 
 
 
