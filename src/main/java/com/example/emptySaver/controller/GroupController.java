@@ -73,10 +73,16 @@ public class GroupController {
         groupService.deleteMemberFromGroup(currentMemberId,groupId);
         return new ResponseEntity<>("delete Me",HttpStatus.OK);
     }
-    @GetMapping("/getCategoryTeam/{label}")
-    @Operation(summary = "해당 카테고리의 팀 찾기", description = "특정 카테고리(상위)의 그룹 목록을 반환하는 API")
-    public ResponseEntity<GroupDto.res> getCategoryTeam(@PathVariable String label){
+    @GetMapping("/getLabelTeam/{label}")
+    @Operation(summary = "해당 라벨의 팀 찾기", description = "특정 라벨(하위)의 그룹 목록을 반환하는 API")
+    public ResponseEntity<GroupDto.res> getLabelTeam(@PathVariable String label){
         GroupDto.res res=new GroupDto.res(groupService.getGroupByType(label));
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+    @GetMapping("/getCategoryTeam/{categoryName}")
+    @Operation(summary = "해당 카테고리의 팀 찾기", description = "특정 카테고리(상위)의 그룹 목록을 반환하는 API")
+    public ResponseEntity<GroupDto.res> getCategoryTeam(@PathVariable String categoryName){
+        GroupDto.res res=new GroupDto.res(groupService.getGroupByCategoryName(categoryName));
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
     @GetMapping("/getAllGroup")

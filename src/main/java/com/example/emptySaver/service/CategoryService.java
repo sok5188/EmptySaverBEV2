@@ -55,9 +55,6 @@ public class CategoryService {
     public CategoryDto.res getAllCategories() {
         return allCategory;
     }
-//    private <T> List<String> getNameListByEnumValues(T[] enumValues) {
-//        //enumValues.
-//    }
     public Category getCategoryByLabel(String label){
         if(!labelMap.containsKey(label))
             throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
@@ -103,4 +100,17 @@ public class CategoryService {
             throw new BaseException(BaseResponseStatus.INVALID_CATEGORY_ID);
         }
     }
+    public List<Category> getCategoryByName(String name){
+
+        if(name.equals("game")){
+            return categoryRepository.findAllGame();
+        }else if(name.equals("movie"))
+            return categoryRepository.findAllMovie();
+        else if(name.equals("sports"))
+            return categoryRepository.findAllSports();
+        else if(name.equals("study"))
+            return categoryRepository.findAllStudy();
+        else throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
+    }
+
 }

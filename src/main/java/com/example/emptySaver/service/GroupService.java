@@ -113,6 +113,13 @@ public class GroupService {
         setSimpleGroupRes(byCategory, result);
         return result;
     }
+    public List<GroupDto.SimpleGroupRes> getGroupByCategoryName(String categoryName){
+        List<Category> categoryByName = categoryService.getCategoryByName(categoryName);
+        List<Team> byCategory = teamRepository.findWithCategoryByCategoryIn(categoryByName);
+        List<GroupDto.SimpleGroupRes> result = new ArrayList<>();
+        setSimpleGroupRes(byCategory, result);
+        return result;
+    }
 
     private void setSimpleGroupRes(List<Team> byCategory, List<GroupDto.SimpleGroupRes> result) {
 
