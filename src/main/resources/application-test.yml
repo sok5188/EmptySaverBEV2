@@ -24,3 +24,7 @@ jwt:
 mail:
   id: testFakeID
   password: testFakePassword
+
+portal:
+  id: fake
+  password: fake
