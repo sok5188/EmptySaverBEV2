@@ -52,7 +52,8 @@ public class GroupService {
 
         Team team = Team.builder().name(groupInfo.getGroupName()).oneLineInfo(groupInfo.getOneLineInfo())
                 .description(groupInfo.getGroupDescription()).maxMember(groupInfo.getMaxMember())
-                .isPublic(groupInfo.getIsPublic()).category(categoryByLabel).owner(member)
+                .isPublic(groupInfo.getIsPublic()).isAnonymous(groupInfo.getIsAnonymous())
+                .category(categoryByLabel).owner(member)
                 .build();
         team.setTimeTable(timeTable);
         teamRepository.save(team);
@@ -103,19 +104,23 @@ public class GroupService {
 
     public List<GroupDto.SimpleGroupRes> getAllGroup(){
         List<GroupDto.SimpleGroupRes> result=new ArrayList<>();
-        setSimpleGroupRes(teamRepository.findAll(),result);
+        //익명인 경우 조회되지 않게 한다. 즉, isPublic이 true인 경우만 리턴됨
+        setSimpleGroupRes(teamRepository.findAll().stream().filter(team -> team.isPublic()).collect(Collectors.toList()),result);
         return result;
     }
     public List<GroupDto.SimpleGroupRes> getGroupByType(String label){
         Category categoryByLabel = categoryService.getCategoryByLabel(label);
-        List<Team> byCategory = teamRepository.findByCategory(categoryByLabel);
+        //익명인 경우 조회되지 않게 한다.
+        List<Team> byCategory = teamRepository.findByCategory(categoryByLabel).stream().filter(team -> team.isPublic()).collect(Collectors.toList());
+
         List<GroupDto.SimpleGroupRes> result = new ArrayList<>();
         setSimpleGroupRes(byCategory, result);
         return result;
     }
     public List<GroupDto.SimpleGroupRes> getGroupByCategoryName(String categoryName){
         List<Category> categoryByName = categoryService.getCategoryByName(categoryName);
-        List<Team> byCategory = teamRepository.findWithCategoryByCategoryIn(categoryByName);
+        //익명인 경우 조회되지 않게 한다.
+        List<Team> byCategory = teamRepository.findWithCategoryByCategoryIn(categoryByName).stream().filter(team -> team.isPublic()).collect(Collectors.toList());
         List<GroupDto.SimpleGroupRes> result = new ArrayList<>();
         setSimpleGroupRes(byCategory, result);
         return result;
@@ -132,7 +137,7 @@ public class GroupService {
                                             .collect(Collectors.toList()).size()
                             )
                     )
-                    .maxMember(team.getMaxMember()).isPublic(team.isPublic())
+                    .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
                     .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                     .build());
         });
@@ -144,6 +149,7 @@ public class GroupService {
     //TODO : 추후 지연로딩 관련 부분 수정해야 할 지점.. (이상해..) 컬렉션 페치조인이 잘 안되는 건가..?
     // 그거 말고도 좀 주의가 필요하다..
     public List<GroupDto.SimpleGroupRes> getMyGroup(){
+        //익명여부 상관 없이 조회된다.
         List<Team> all = teamRepository.findAll();
         Member member = memberService.getMember();
         List<Team> teamList = memberTeamRepository
@@ -217,7 +223,7 @@ public class GroupService {
                         );
                     }
                 });
-        GroupDto.GroupMemberRes res= new GroupDto.GroupMemberRes<>(result,team.isPublic());
+        GroupDto.GroupMemberRes res= new GroupDto.GroupMemberRes<>(result,team.isAnonymous());
         return res;
     }
 
@@ -226,7 +232,8 @@ public class GroupService {
         return GroupDto.DetailGroupRes.builder()
                 .groupId(groupId).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
                 .groupDescription(team.getDescription()).nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
-                .maxMember(team.getMaxMember()).isPublic(team.isPublic()).categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
+                .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
+                .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                 .build();
     }
 
@@ -265,5 +272,10 @@ public class GroupService {
             throw new BaseException(BaseResponseStatus.ALREADY_BELONG_ERROR);
         memberTeam.addMemberToTeam();
         return member.getName();
+    }
+
+    public boolean checkPublic(Long groupId) {
+        Team teamById = this.getTeamById(groupId);
+        return teamById.isPublic();
     }
 }

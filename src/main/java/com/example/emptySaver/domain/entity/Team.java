@@ -23,14 +23,16 @@ public class Team {
 
     private Long maxMember;
     private boolean isPublic;
+    private boolean isAnonymous;
     @Builder
     public Team(String name, String oneLineInfo, String description
-            , Long maxMember, boolean isPublic, Category category, Member owner) {
+            , Long maxMember, boolean isPublic, boolean isAnonymous,Category category, Member owner) {
         this.name = name;
         this.oneLineInfo = oneLineInfo;
         this.description = description;
         this.maxMember = maxMember;
         this.isPublic = isPublic;
+        this.isAnonymous= isAnonymous;
         this.category=category;
         this.owner = owner;
         category.getCategoryTeamList().add(this);

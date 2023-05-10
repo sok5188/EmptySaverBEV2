@@ -17,4 +17,16 @@ public class CategoryDto {
         private String type;
         private T result;
     }
+    @Data
+    @AllArgsConstructor
+    public static class categoryInfo{
+        private String type;
+        private String name;
+    }
+    @Data
+    @AllArgsConstructor
+    public static class labelInfo{
+        private String key;
+        private String name;
+    }
 }

@@ -37,6 +37,8 @@ jobs:
           jwt.token-validity-in-seconds: ${{secrets.JWT_TOKEN_VALIDITY}}
           mail.id: ${{secrets.MAIL_ID}}
           mail.password: ${{secrets.MAIL_PASSWORD}}
+          portal.id: ${{secrets.PORTAL_ID}}
+          portal.password: ${{secrets.PORTAL_PASSWORD}}
 
       - name: create-json
         id: create-json
