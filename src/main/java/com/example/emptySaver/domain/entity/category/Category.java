@@ -13,11 +13,12 @@ import java.util.List;
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn
 @Entity
 public abstract class Category {
 
     @Id@GeneratedValue
-    @Column(name = "id")
+    @Column(name = "category_id")
     private Long id;
 //   추후 카테고리로 회원을 찾아야 하는 경우 사용
 //    @OneToMany(mappedBy = "category")

@@ -5,6 +5,7 @@ import com.example.emptySaver.domain.entity.NonSubject;
 import com.example.emptySaver.domain.entity.Recruiting;
 import com.example.emptySaver.repository.NonSubjectRepository;
 import com.example.emptySaver.repository.RecruitingRepository;
+//import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
@@ -15,6 +16,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,9 +50,20 @@ public class CrawlService {
         //깃헙올라갈때 빌드 오류 방지
         if(id.equals("fake"))
             return;
-        //어차피 몇개 안되니까 그냥 쫙 밀고 새로 추가하자.
-        recruitingRepository.deleteAll();
-        nonSubjectRepository.deleteAll();
+        this.InitCrawl();
+        this.CrawlRecruiting();
+        this.CrawlNonSubject();
+    }
+
+    @Scheduled(cron = "0 0 5 * * *")
+    @Transactional
+    public void ScheduleCrawl() throws IOException {
+        log.info("Schedule Called Crawl Uostory!");
+        this.InitCrawl();
+        this.CrawlRecruiting();
+        this.CrawlNonSubject();
+    }
+    public void InitCrawl() throws IOException{
         log.info("crawl construct start");
         formData.put("_enpass_login_","submit");
         formData.put("langKnd","ko");
@@ -66,7 +79,7 @@ public class CrawlService {
         first= Jsoup.connect("https://uostory.uos.ac.kr/index.jsp").method(Connection.Method.GET)
                 .followRedirects(false)
                 .userAgent(userAgent).headers(sameHeader).execute()
-                ;
+        ;
 
         Connection.Response response=Jsoup.connect("https://portal.uos.ac.kr/user/loginProcess.face").userAgent(userAgent).timeout(5000).data(formData)
                 .method(Connection.Method.POST).headers(sameHeader).execute();
@@ -91,11 +104,11 @@ public class CrawlService {
         System.out.println("Now in logon");
         Connection.Response logon = Jsoup.connect("https://uostory.uos.ac.kr/site/member/logon").method(Connection.Method.GET).followRedirects(true)
                 .userAgent(userAgent).headers(sameHeader).header("Referer", String.valueOf(indexJSPWithTicket.url())).cookie("JSESSIONID",first.cookie("JSESSIONID")).execute();
-        this.CrawlRecruiting();
-        this.CrawlNonSubject();
     }
-    @Transactional
+
+//    @Transactional
     public void CrawlRecruiting() throws IOException {
+        recruitingRepository.deleteAll();
         boolean isFin=false;
         int i=1;
         List<Recruiting> recruitingList=new ArrayList<>();
@@ -158,8 +171,9 @@ public class CrawlService {
         recruitingRepository.saveAll(recruitingList);
 
     }
-    @Transactional
+//    @Transactional
     public void CrawlNonSubject() throws IOException {
+        nonSubjectRepository.deleteAll();
         List<NonSubject> nonSubjectList=new ArrayList<>();
 
         for(int i=1;i<10;i++){

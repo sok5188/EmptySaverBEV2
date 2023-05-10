@@ -81,6 +81,7 @@ public class CategoryService {
 
     public String getLabelByCategory(Category category){
         log.info("now get label by category, id and class : "+category.getId()+ " / "+ category.getClass());
+
         if(category instanceof Game){
             Game game = (Game) category;
             return game.getGameGenre().getLabel();
