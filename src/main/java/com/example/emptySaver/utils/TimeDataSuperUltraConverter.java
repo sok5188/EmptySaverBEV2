@@ -1,5 +1,9 @@
 package com.example.emptySaver.utils;
 
+import com.example.emptySaver.domain.entity.Non_Periodic_Schedule;
+import com.example.emptySaver.domain.entity.Periodic_Schedule;
+import com.example.emptySaver.domain.entity.Schedule;
+import com.example.emptySaver.service.TimeTableService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +18,16 @@ public class TimeDataSuperUltraConverter {
     private static final String EMPTY = "empty";
 
     private Map<Integer,String> intToDayMap = Map.of(0,"월",1, "화", 2,"수",3,"목",4,"금",5,"토",6,"일");
+
+    public boolean checkBitsIsBelongToLocalDataTime(long targetBits, LocalDateTime startTime, LocalDateTime endTime){
+        Long timeBits = this.convertTimeToBit(startTime, endTime);
+
+        long andOpRes = timeBits & targetBits;
+
+        if(andOpRes != targetBits)  //시간에 속한다면 targetBits가 그대로 남아야함
+            return false;
+        return true;
+    }
 
     public Long convertTimeToBit(LocalDateTime startTime, LocalDateTime endTime){
         Long retBits = 0l;
@@ -93,4 +107,37 @@ public class TimeDataSuperUltraConverter {
         return builtString.substring(0,builtString.length()-1);
     }
 
+    public List<Boolean> convertLongToBooleanList(Long bits){
+        List<Boolean> bitList = new ArrayList<>();
+        long moveBit = 1l;
+
+        for (int i = 0; i < 48 ; i++) {
+            long andOpResult = bits & moveBit;
+            boolean result = false;
+
+            if(andOpResult >0l)
+                result = true;
+
+            bitList.add(result);
+            moveBit <<= 1;
+        }
+
+        return bitList;
+    }
+
+    public String convertScheduleTimeDataToString(final Schedule schedule){
+        StringBuilder stringBuilder = new StringBuilder();
+        if (schedule instanceof Periodic_Schedule) {
+            Periodic_Schedule periodicSchedule = (Periodic_Schedule) schedule;
+            String ret = bitTimeDataArrayToStringData(periodicSchedule.getWeekScheduleData());
+            stringBuilder.append(ret);
+        }else{
+            Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
+            stringBuilder.append(nonPeriodicSchedule.getStartTime().toString());
+            stringBuilder.append(" ~ ");
+            stringBuilder.append(nonPeriodicSchedule.getEndTime().toString());
+        }
+
+        return stringBuilder.toString().replace("T"," ");
+    }
 }

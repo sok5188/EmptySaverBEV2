@@ -1,11 +1,9 @@
 package com.example.emptySaver.service;
 
+import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
-import com.example.emptySaver.repository.MemberRepository;
-import com.example.emptySaver.repository.ScheduleRepository;
-import com.example.emptySaver.repository.TeamRepository;
-import com.example.emptySaver.repository.TimeTableRepository;
+import com.example.emptySaver.repository.*;
 import com.example.emptySaver.utils.TimeDataSuperUltraConverter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -26,22 +24,77 @@ public class TimeTableService {
     private final EntityManager em;
 
     private final TimeDataSuperUltraConverter timeDataConverter;
-    private final TimeTableRepository timeTableRepository;
     private final ScheduleRepository scheduleRepository;
-    private final MemberService memberService;
+    private final PeriodicScheduleRepository periodicScheduleRepository;
+    private final NonPeriodicScheduleRepository nonPeriodicScheduleRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
 
+    private final GroupService groupService;
+
     private Map<String,Integer> dayToIntMap = Map.of("월",0, "화", 1,"수",2,"목",3,"금",4,"토",5,"일",6);
 
+    private List<TimeTableDto.SearchedScheduleDto> convertScheduleListToSearchedScheduleDtoList(List<Schedule> scheduleList){
+        List<TimeTableDto.SearchedScheduleDto> retList = new ArrayList<>();
+
+        for (Schedule schedule : scheduleList) {
+            TimeTableDto.SearchedScheduleDto build = TimeTableDto.SearchedScheduleDto.builder()
+                    .id(schedule.getId())
+                    .name(schedule.getName())
+                    .body(schedule.getBody())
+                    //.groupInfo(groupService.getGroupDetails(schedule.getTimeTable().getTeam().getId()))
+                    .timeData(this.timeDataConverter.convertScheduleTimeDataToString(schedule))
+                    .periodicType(false)
+                    .build();
+            Team team = schedule.getTimeTable().getTeam();
+            GroupDto.DetailGroupRes groupBuild = GroupDto.DetailGroupRes.builder()
+                    .groupId(team.getId()).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
+                    .groupDescription(team.getDescription())//.nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
+                    .maxMember(team.getMaxMember()).isPublic(team.isPublic())//.categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
+                    .build();
+
+            build.setGroupInfo(groupBuild);
+
+            if (schedule instanceof Periodic_Schedule)
+                build.setPeriodicType(true);
+
+            retList.add(build);
+        }
+
+        return retList;
+    }
+
+    public List<TimeTableDto.SearchedScheduleDto> getSearchedScheduleDtoList(final TimeTableDto.ScheduleSearchRequestForm searchForm){
+        int dayOfWeek = searchForm.getEndTime().getDayOfWeek().getValue() -1;
+
+        List<Schedule> includedScheduleList = new ArrayList<>();
+
+        List<Periodic_Schedule> periodicScheduleList = periodicScheduleRepository.findByPublicType(true);
+        for (Periodic_Schedule periodicSchedule : periodicScheduleList) {
+            if(timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
+                    ,searchForm.getStartTime(), searchForm.getEndTime()))
+                includedScheduleList.add(periodicSchedule);
+
+        }
+
+        List<Non_Periodic_Schedule> nonPeriodicScheduleList = nonPeriodicScheduleRepository.findByPublicTypeAndStartTimeBetween(true, searchForm.getStartTime(), searchForm.getEndTime());
+        for (Non_Periodic_Schedule nonPeriodicSchedule : nonPeriodicScheduleList) {
+            if(nonPeriodicSchedule.getEndTime().isBefore(searchForm.getEndTime().plusMinutes(1)))
+                includedScheduleList.add(nonPeriodicSchedule);
+        }
+
+        return this.convertScheduleListToSearchedScheduleDtoList(includedScheduleList);
+    }
+
     @Transactional
-    public void saveScheduleByTeam(final Long teamId,final TimeTableDto.SchedulePostDto schedulePostDto){
+    public void saveScheduleByTeam(final Long teamId,final boolean isPublicTypeSchedule,final TimeTableDto.SchedulePostDto schedulePostDto){
         Team team = teamRepository.findById(teamId).get();
         Time_Table timeTable = team.getTimeTable();
 
         Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
-
         schedule.setTimeTable(timeTable);
+        schedule.setPublicType(isPublicTypeSchedule);
+
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
 
         List<Schedule> scheduleList = timeTable.getScheduleList();
@@ -49,22 +102,6 @@ public class TimeTableService {
         timeTable.calcAllWeekScheduleData();
 
         log.info("add Schedule id: "+ savedSchedule.getId() + " to Team id: " + team.getId());
-    }
-
-    private String convertTimeDataToString(final Schedule schedule){
-        StringBuilder stringBuilder = new StringBuilder();
-        if (schedule instanceof Periodic_Schedule) {
-            Periodic_Schedule periodicSchedule = (Periodic_Schedule) schedule;
-            String ret = timeDataConverter.bitTimeDataArrayToStringData(periodicSchedule.getWeekScheduleData());
-            stringBuilder.append(ret);
-        }else{
-            Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
-            stringBuilder.append(nonPeriodicSchedule.getStartTime().toString());
-            stringBuilder.append(" ~ ");
-            stringBuilder.append(nonPeriodicSchedule.getEndTime().toString());
-        }
-
-        return stringBuilder.toString().replace("T"," ");
     }
 
     private List<TimeTableDto.TeamScheduleDto> convertSchedulesToTeamScheduleDtoList(final List<Schedule> scheduleList){
@@ -80,7 +117,7 @@ public class TimeTableService {
                     .body(schedule.getBody())
                     .periodicType(periodicType)
                     .name(schedule.getName())
-                    .timeData(this.convertTimeDataToString(schedule))
+                    .timeData(this.timeDataConverter.convertScheduleTimeDataToString(schedule))
                     .build());
         }
 
@@ -109,29 +146,11 @@ public class TimeTableService {
         return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,scheduleList);
     }
 
-    private List<Boolean> convertLongToBooleanList(Long bits){
-        List<Boolean> bitList = new ArrayList<>();
-        long moveBit = 1l;
-
-        for (int i = 0; i < 48 ; i++) {
-            long andOpResult = bits & moveBit;
-            boolean result = false;
-
-            if(andOpResult >0l)
-                result = true;
-
-            bitList.add(result);
-            moveBit <<= 1;
-        }
-
-        return bitList;
-    }
-
     private List<List<Boolean>> convertLongListToBitListsPerDay(List<Long> bitDataPerDays){
         List<List<Boolean>> bitListsPerDay = new ArrayList<>();
 
         for (Long bits: bitDataPerDays) {
-            List<Boolean> bitList = convertLongToBooleanList(bits);
+            List<Boolean> bitList = timeDataConverter.convertLongToBooleanList(bits);
             bitListsPerDay.add(bitList);
         }
 
@@ -182,7 +201,7 @@ public class TimeTableService {
                                     .id(schedule.getId())
                                     .name(schedule.getName())
                                     .body(schedule.getBody())
-                                    .timeData(this.convertLongToBooleanList(weekBits[day]))
+                                    .timeData(this.timeDataConverter.convertLongToBooleanList(weekBits[day]))
                                     .timeStringData(timeDataConverter.bitTimeDataToStringData(weekBits[day]))
                                     .build());
                 }
@@ -206,7 +225,7 @@ public class TimeTableService {
                             .id(schedule.getId())
                             .name(schedule.getName())
                             .body(schedule.getBody())
-                            .timeData(this.convertLongToBooleanList(timeBitData))
+                            .timeData(this.timeDataConverter.convertLongToBooleanList(timeBitData))
                             .timeStringData(timeDataConverter.bitTimeDataToStringData(timeBitData))
                             .build());
 

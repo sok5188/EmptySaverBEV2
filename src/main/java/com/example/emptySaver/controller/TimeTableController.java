@@ -25,12 +25,23 @@ public class TimeTableController {
     private final MemberService memberService;
     private final TeamRepository teamRepository;
 
+    @PostMapping("/findSchedule")
+    @Operation(summary = "시간내의 스케줄 정보 찾기", description = "일단은 시간만 활용해서 공개 스케줄을 검색해옴")
+    @Parameter(
+            name ="requestForm",
+            description = "yyyy-mm-dd'T'hh:mm:ss 형식으로 보내기"
+    )
+    public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> searchSchedule(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
+        List<TimeTableDto.SearchedScheduleDto> searchedScheduleDtoList = timeTableService.getSearchedScheduleDtoList(requestForm);
+        return new ResponseEntity<>(searchedScheduleDtoList, HttpStatus.OK);
+    }
+
     @PostMapping("/getTimeTable")
     @Operation(summary = "TimeTable 정보 가져오기", description = "로그인 한 유저, 자신의 timeTable의 정보를 가져옴")
     @Parameter(
             name = "requestForm",
-            description = "startDate와 endDate는 날짜 정보만을 필요로 한다.<br/ >" +
-                    " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.<br/ >" +
+            description = "startDate와 endDate는 날짜 정보만을 필요로 한다.<br>" +
+                    " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.<br>" +
                     " 형식에 맞추지 않으면 오류"
     )
     public ResponseEntity<TimeTableDto.TimeTableInfo> getMemberTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
@@ -45,11 +56,12 @@ public class TimeTableController {
     @Operation(summary = "timetable에 스케줄 저장", description = "로그인 한 유저가 스케줄 정보를 timetable에 추가")
     @Parameter(
             name = "SchedulePostDto",
-            description = "가장 중요한 부분은 periodicType설정 임다. <br/ >" +
-                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br/ >" +
-                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br/ >" +
-                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br/ >" +
-                    "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
+            description = "가장 중요한 부분은 periodicType설정 임다. <br>" +
+                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
+                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br>" +
+                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
+                    "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다. <br>"+
+                    "새로 추가된 "
 
     )
     public ResponseEntity<String> addMemberSchedule(@RequestBody TimeTableDto.SchedulePostDto schedulePostData){
@@ -63,7 +75,7 @@ public class TimeTableController {
     @Operation(summary = "특정 스케줄 변경", description = "특정 스케줄을 scheduleId를 이용해서 변경")
     @Parameter(
             name = "scheduleId",
-            description = "body가 아닌 uri에 담아서 보내기.<br/ >" +
+            description = "body가 아닌 uri에 담아서 보내기.<br>" +
                     "반드시 db에 존재하는 scheduleId 이어야 하므로, " +
                     "getMemberTimeTable로 얻은 정보에서 scheduleId 추출해 사용."
     )
@@ -76,7 +88,7 @@ public class TimeTableController {
     @Operation(summary = "특정 스케줄 삭제", description = "특정 스케줄을 id로 지움, 따라서 id는 절대 변경 안되도록")
     @Parameter(
             name = "scheduleId",
-            description = "body가 아닌 uri에 담아서 보내기. <br/ >" +
+            description = "body가 아닌 uri에 담아서 보내기. <br>" +
                     "반드시 db에 존재하는 scheduleId 이어야 하므로, " +
                     "getMemberTimeTable로 얻은 정보에서 scheduleId 추출해 사용."
     )
@@ -93,14 +105,23 @@ public class TimeTableController {
     )
     @Parameter(
             name = "schedulePostData",
-            description = "body에 담습니다. <br/ >" +
-                    "가장 중요한 부분은 periodicType설정 임다. <br/ >" +
-                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br/ >" +
-                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다.  <br/ >" +
-                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br/ >" +
+            description = "body에 담습니다. <br>" +
+                    "팀의 스케줄 저장은 멤버의 스케줄 저장과 단 하나가 다름니다.<br>" +
+                    "" +
+                    "또한 중요한 부분은 periodicType설정 임다. <br>" +
+                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
+                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다.  <br>" +
+                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
                     "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
     )
-    public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
+    @Parameter(
+            name = "isPublicTypeSchedule",
+            description = "이 파라미터가 바로 멤버의 스케줄 저장과 다른 부분입니다.<br>" +
+                    "이 파라미터를 true(문자열도 괜찮)로 넘기면 공개 스케줄로서 저장됩니다.<br>" +
+                    "공개 스케줄을 스케줄 검색을 통해 모든 유저에게 보일 수 있습니다."
+
+    )
+    public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId,final @RequestParam boolean isPublicTypeSchedule, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
         Long currentMemberId = memberService.getCurrentMemberId();
         Team team = teamRepository.findById(groupId).get();
 
@@ -110,7 +131,7 @@ public class TimeTableController {
         }
 
         //log.info("build: " + schedulePostData.toString());
-        timeTableService.saveScheduleByTeam(groupId, schedulePostData);
+        timeTableService.saveScheduleByTeam(groupId, isPublicTypeSchedule,schedulePostData);
         return new ResponseEntity<>("Schedule saved for group", HttpStatus.OK);
     }
 
