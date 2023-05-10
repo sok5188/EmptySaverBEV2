@@ -25,8 +25,8 @@ public class SubjectController {
     @Operation(summary = "강의 검색", description = "검색 데이터 form을 작성해 보내면 반환해줌")
     @Parameter(
             name = "searchData",
-            description = "일단 간단한 검색만 구현했습니다. <br />" +
-                    "강의 이름(name)으로 검색시, 해당 이름이 들어간 모든 강의가 검색됩니다.  <br/ >" +
+            description = "일단 간단한 검색만 구현했습니다. <br>" +
+                    "강의 이름(name)으로 검색시, 해당 이름이 들어간 모든 강의가 검색됩니다.  <br>" +
                     "강의 이름(name)을 담으면, department(학과)와 grade(학년)정보는 담지 않아도 됩니다." +
                     "반대로 강의 이름 대신 다른걸로 검색할때는 department(학과)와 grade(학년)정보 두가지 모두 담아서 보내야합니다."
     )
@@ -36,7 +36,7 @@ public class SubjectController {
     }
 
     @PostMapping("/saveSubjectToMember")
-    @Operation(summary = "강의 검색", description = "로그인한 상태에서 강의를 자신의 스케줄로 추가")
+    @Operation(summary = "강의를 스케줄로 저장하기", description = "로그인한 상태에서 강의를 자신의 스케줄로 추가")
     @Parameter(
             name = "subjectId",
             description = "subjectId 검색된 강의의 Id를 그대로 사용해서 Uri에 담아주세요. <br />" +
