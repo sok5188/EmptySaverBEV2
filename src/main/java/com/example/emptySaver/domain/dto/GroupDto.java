@@ -17,7 +17,7 @@ public class GroupDto {
     @AllArgsConstructor
     public static class GroupMemberRes<T>{
         private T data;
-        private Boolean isPublic;
+        private Boolean isAnonymous;
     }
     @Data
     @Builder
@@ -31,6 +31,7 @@ public class GroupDto {
         private Long maxMember;
 
         private Boolean isPublic;
+        private Boolean isAnonymous;
 
         private String categoryLabel;
 
@@ -46,6 +47,7 @@ public class GroupDto {
         private Long maxMember;
 
         private Boolean isPublic;
+        private Boolean isAnonymous;
 
         private String categoryLabel;
     }
@@ -66,6 +68,7 @@ public class GroupDto {
         private Long maxMember;
 
         private Boolean isPublic;
+        private Boolean isAnonymous;
 
         private String categoryLabel;
     }

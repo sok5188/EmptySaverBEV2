@@ -35,6 +35,7 @@ public enum BaseResponseStatus {
     NOT_BELONG_ERROR(false,2235,"해당 그룹에 속해야 요청할 수 있습니다."),
     ALREADY_BELONG_ERROR(false,2235,"이미 해당 그룹에 속해있습니다."),
     NOT_ALONE_ERROR(false,2236,"해당 그룹에 혼자가 아닙니다."),
+    NOT_PUBLIC_ERROR(false,2237,"비공개 그룹 입니다."),
 
 
 
