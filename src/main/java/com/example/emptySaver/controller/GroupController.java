@@ -74,19 +74,19 @@ public class GroupController {
         return new ResponseEntity<>("delete Me",HttpStatus.OK);
     }
     @GetMapping("/getLabelTeam/{label}")
-    @Operation(summary = "해당 라벨의 팀 찾기", description = "특정 라벨(하위)의 그룹 목록을 반환하는 API")
+    @Operation(summary = "해당 라벨의 팀 찾기", description = "특정 라벨(하위)의 그룹 목록을 반환하는 API(공개그룹만)")
     public ResponseEntity<GroupDto.res> getLabelTeam(@PathVariable String label){
         GroupDto.res res=new GroupDto.res(groupService.getGroupByType(label));
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
     @GetMapping("/getCategoryTeam/{categoryName}")
-    @Operation(summary = "해당 카테고리의 팀 찾기", description = "특정 카테고리(상위)의 그룹 목록을 반환하는 API")
+    @Operation(summary = "해당 카테고리의 팀 찾기", description = "특정 카테고리(상위)의 그룹 목록을 반환하는 API(공개그룹만)")
     public ResponseEntity<GroupDto.res> getCategoryTeam(@PathVariable String categoryName){
         GroupDto.res res=new GroupDto.res(groupService.getGroupByCategoryName(categoryName));
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
     @GetMapping("/getAllGroup")
-    @Operation(summary = "전체 그룹 조회", description = "서비스 내 모든 그룹 리스트 반환하는 API")
+    @Operation(summary = "전체 그룹 조회", description = "서비스 내 모든 그룹 리스트 반환하는 API(공개그룹만)")
     public ResponseEntity<GroupDto.res> getAllGroup(){
         List<GroupDto.SimpleGroupRes> allGroup = groupService.getAllGroup();
         GroupDto.res res=new GroupDto.res<>(allGroup);
@@ -107,8 +107,10 @@ public class GroupController {
         return new ResponseEntity<>(groupService.getGroupMembers(groupId),HttpStatus.OK);
     }
     @GetMapping("/getGroupDetail/{groupId}")
-    @Operation(summary = "그룹 상세 조회 페이지",description = "그룹의 상세정보를 조회하는 API")
+    @Operation(summary = "그룹 상세 조회 페이지",description = "그룹의 상세정보를 조회하는 API(비공개 그룹은 그룹원만 조회 가능)")
     public ResponseEntity<GroupDto.DetailGroupRes> getGroupDetail(@PathVariable Long groupId){
+        if(!groupService.checkBelong(groupId)&&!groupService.checkPublic(groupId))
+            throw new BaseException(BaseResponseStatus.NOT_PUBLIC_ERROR);
         return new ResponseEntity<>(groupService.getGroupDetails(groupId),HttpStatus.OK);
     }
 
@@ -129,6 +131,8 @@ public class GroupController {
     public ResponseEntity<String> sendRequestFromMember(@PathVariable Long groupId){
         if(groupService.checkBelong(groupId))
             return new ResponseEntity<>("이미 가입되어 있습니다.",HttpStatus.BAD_REQUEST);
+        if(!groupService.checkPublic(groupId))
+            return new ResponseEntity<>("비공개 그룹입니다.",HttpStatus.BAD_REQUEST);
         Long currentMemberId = memberService.getCurrentMemberId();
         String s = groupService.addMemberToTeam(currentMemberId, groupId,"member");
         return new ResponseEntity<>("가입신청을 넣었습니다.",HttpStatus.OK);
@@ -152,6 +156,8 @@ public class GroupController {
     public ResponseEntity<GroupDto.res> getReceiveGroupList(@PathVariable Long groupId){
         if(!groupService.checkOwner(groupId))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
+        if(!groupService.checkPublic(groupId))
+            throw new BaseException(BaseResponseStatus.NOT_PUBLIC_ERROR);
         List<GroupDto.InviteInfo> inviteMemberList = groupService.getInviteMemberList(groupId,"member");
         GroupDto.res res=new GroupDto.res(inviteMemberList);
         return new ResponseEntity<>(res,HttpStatus.OK);
