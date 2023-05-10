@@ -22,34 +22,31 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private static CategoryDto.res allCategory;
     private static final Map<String,String> labelMap=new HashMap<>();
+    private static final Map<String,List<String>> categoryMap=new HashMap<>();
     @PostConstruct
     public void setAllCategories() {
-            List<CategoryDto.categoryType> typeList=new ArrayList<>();
-            typeList.add(new CategoryDto.categoryType<>("game",
-                    Arrays.stream(GameType.values()).map(t-> t.getLabel())
-                        .collect(Collectors.toList())
-            ));
-            labelMap.putAll(Arrays.stream(GameType.values()).collect(Collectors.toMap(GameType::getLabel,GameType::getKey)));
+        List<CategoryDto.categoryType> typeList=new ArrayList<>();
+        List<String> gameCollect = Arrays.stream(GameType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
+        categoryMap.put("game",gameCollect);
+        typeList.add(new CategoryDto.categoryType<>("game", gameCollect));
+        labelMap.putAll(Arrays.stream(GameType.values()).collect(Collectors.toMap(GameType::getLabel,GameType::getKey)));
 
-            typeList.add(new CategoryDto.categoryType<>("movie",
-                    Arrays.stream(MovieType.values()).map(t-> t.getLabel())
-                            .collect(Collectors.toList())
-                    ));
-            labelMap.putAll(Arrays.stream(MovieType.values()).collect(Collectors.toMap(MovieType::getLabel,MovieType::getKey)));
+        List<String> movieCollect = Arrays.stream(MovieType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
+        categoryMap.put("movie",movieCollect);
+        typeList.add(new CategoryDto.categoryType<>("movie",movieCollect));
+        labelMap.putAll(Arrays.stream(MovieType.values()).collect(Collectors.toMap(MovieType::getLabel,MovieType::getKey)));
 
-            typeList.add(new CategoryDto.categoryType<>("sports",
-                    Arrays.stream(SportsType.values()).map(t-> t.getLabel())
-                            .collect(Collectors.toList())
-            ));
-            labelMap.putAll(Arrays.stream(SportsType.values()).collect(Collectors.toMap(SportsType::getLabel,SportsType::getKey)));
+        List<String> sportsCollect = Arrays.stream(SportsType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
+        categoryMap.put("sports",sportsCollect);
+        typeList.add(new CategoryDto.categoryType<>("sports", sportsCollect));
+        labelMap.putAll(Arrays.stream(SportsType.values()).collect(Collectors.toMap(SportsType::getLabel,SportsType::getKey)));
 
-            typeList.add(new CategoryDto.categoryType<>("study",
-                    Arrays.stream(StudyType.values()).map(t-> t.getLabel())
-                            .collect(Collectors.toList())
-                    ));
-            labelMap.putAll(Arrays.stream(StudyType.values()).collect(Collectors.toMap(StudyType::getLabel,StudyType::getKey)));
+        List<String> studyCollect = Arrays.stream(StudyType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
+        categoryMap.put("study",studyCollect);
+        typeList.add(new CategoryDto.categoryType<>("study", studyCollect));
+        labelMap.putAll(Arrays.stream(StudyType.values()).collect(Collectors.toMap(StudyType::getLabel,StudyType::getKey)));
 
-            allCategory=new CategoryDto.res(typeList);
+        allCategory=new CategoryDto.res(typeList);
     }
 
     public CategoryDto.res getAllCategories() {
@@ -111,6 +108,20 @@ public class CategoryService {
         else if(name.equals("study"))
             return categoryRepository.findAllStudy();
         else throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
+    }
+    public List<CategoryDto.categoryInfo> getCategoryNames(){
+        List<CategoryDto.categoryInfo> result = new ArrayList<>();
+        result.add(new CategoryDto.categoryInfo("game","게임"));
+        result.add(new CategoryDto.categoryInfo("movie","영화"));
+        result.add(new CategoryDto.categoryInfo("sports","스포츠"));
+        result.add(new CategoryDto.categoryInfo("study","스터디"));
+        return result;
+    }
+    public CategoryDto.categoryType getLabelInfoByCategoryName(String type){
+        if(!categoryMap.containsKey(type))
+            throw new BaseException(BaseResponseStatus.INVALID_CATEGORY_ID);
+        List<String> labelList = categoryMap.get(type);
+        return new CategoryDto.categoryType(type,labelList);
     }
 
 }
