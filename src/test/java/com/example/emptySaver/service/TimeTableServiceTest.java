@@ -1,5 +1,6 @@
 package com.example.emptySaver.service;
 
+import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.repository.MemberRepository;
@@ -7,6 +8,7 @@ import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
 import com.example.emptySaver.utils.TimeDataSuperUltraConverter;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,6 +33,7 @@ class TimeTableServiceTest {
     private TimeTableService timeTableService;
     @Autowired
     private MemberService memberService;
+
     @Autowired
     private MemberRepository memberRepository;
     @Autowired
@@ -39,7 +42,7 @@ class TimeTableServiceTest {
     private TeamRepository teamRepository;
 
     private TimeTableDto.SchedulePostDto getTempSchedulePostDto(){
-        List<String> timeList = Arrays.asList("화,0:30-1:30","화,08:30-09:30","금,19:00-24:00");
+        List<String> timeList = Arrays.asList("화,0:30-1:30","화,08:30-09:30","금,19:00-24:00","일,08:00-09:30");
         //long[] weekData = {0,100,100,100,0,0,0};
         TimeTableDto.SchedulePostDto periodicSchedule = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("true").periodicTimeStringList(timeList).build();
         return periodicSchedule;
@@ -51,6 +54,60 @@ class TimeTableServiceTest {
                 .endTime(LocalDateTime.of(2023,05,07,9,30,0))
                 .build();
         return nonPeriodicSchedule;
+    }
+
+    @Transactional
+    private Long saveTeamAndTimeTable(){
+
+        Time_Table timeTable = Time_Table.builder().title("let go").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
+        Time_Table savedTable = timeTableRepository.save(timeTable);
+
+
+        Team team = new Team();
+        team.setTimeTable(savedTable);
+        Team savedTeam = teamRepository.save(team);
+        return savedTeam.getId();
+    }
+
+    @DisplayName("스케줄 추천은 아니지만 아무튼 검색하기")
+    @Test
+    //@Transactional(readOnly = true)
+    void searchSchedule(){
+        /*
+        Team team = new Team();
+        //team.setTimeTable(savedTable);
+        Team savedTeam = teamRepository.save(team);
+
+
+        Time_Table timeTable = Time_Table.builder().title("let go").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
+        timeTable.setTeam(team);
+        Time_Table savedTable = timeTableRepository.save(timeTable);
+        */
+        Long teamId = this.saveTeamAndTimeTable();
+        Team findTeam = teamRepository.findById(teamId).get();
+
+        //assertThat(findTeam.getId()).isEqualTo(findTeam.getTimeTable().getTeam().getId()); //일단 연관관계 확인
+
+        TimeTableDto.SchedulePostDto schedulePostDto = getTempSchedulePostDto();
+        TimeTableDto.SchedulePostDto nonPeriodicSchedulePostDto = getNonPeriodicSchedulePostDto();
+        timeTableService.saveScheduleByTeam(findTeam.getId(),true,schedulePostDto);
+        timeTableService.saveScheduleByTeam(findTeam.getId(),true,nonPeriodicSchedulePostDto);
+
+        LocalDateTime searchStart = LocalDateTime.of(2023, 05, 07, 8, 00, 0);
+        LocalDateTime searchEnd = LocalDateTime.of(2023, 05, 07, 9, 30, 0);
+
+
+        TimeTableDto.ScheduleSearchRequestForm searchRequestForm = TimeTableDto.ScheduleSearchRequestForm.builder()
+                .startTime(searchStart)
+                .endTime(searchEnd)
+                .build();
+
+        List<TimeTableDto.SearchedScheduleDto> searchedScheduleDtoList = timeTableService.getSearchedScheduleDtoList(searchRequestForm);
+        assertThat(searchedScheduleDtoList.size()).isEqualTo(2);
+        for (TimeTableDto.SearchedScheduleDto searchedScheduleDto : searchedScheduleDtoList) {
+            System.out.println(searchedScheduleDto);
+        }
+
     }
 
     @Test
@@ -66,8 +123,8 @@ class TimeTableServiceTest {
 
         TimeTableDto.SchedulePostDto schedulePostDto = getTempSchedulePostDto();
         TimeTableDto.SchedulePostDto nonPeriodicSchedulePostDto = getNonPeriodicSchedulePostDto();
-        timeTableService.saveScheduleByTeam(findTeam.getId(),schedulePostDto);
-        timeTableService.saveScheduleByTeam(findTeam.getId(),nonPeriodicSchedulePostDto);
+        timeTableService.saveScheduleByTeam(findTeam.getId(),false,schedulePostDto);
+        timeTableService.saveScheduleByTeam(findTeam.getId(),false,nonPeriodicSchedulePostDto);
 
         List<TimeTableDto.TeamScheduleDto> teamScheduleList = timeTableService.getTeamScheduleList(findTeam.getId());
 

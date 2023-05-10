@@ -25,6 +25,14 @@ public class TimeTableController {
     private final MemberService memberService;
     private final TeamRepository teamRepository;
 
+    @PostMapping("/findSchedule")
+    @Operation(summary = "시간내의 스케줄 정보 찾기", description = "일단은 시간만 활용해서 공개 스케줄을 검색해옴")
+    @Parameter
+    public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> searchSchedule(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
+        List<TimeTableDto.SearchedScheduleDto> searchedScheduleDtoList = timeTableService.getSearchedScheduleDtoList(requestForm);
+        return new ResponseEntity<>(searchedScheduleDtoList, HttpStatus.OK);
+    }
+
     @PostMapping("/getTimeTable")
     @Operation(summary = "TimeTable 정보 가져오기", description = "로그인 한 유저, 자신의 timeTable의 정보를 가져옴")
     @Parameter(
@@ -100,7 +108,7 @@ public class TimeTableController {
                     "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br/ >" +
                     "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
     )
-    public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
+    public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId,final @RequestParam boolean isPublicTypeSchedule, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
         Long currentMemberId = memberService.getCurrentMemberId();
         Team team = teamRepository.findById(groupId).get();
 
@@ -110,7 +118,7 @@ public class TimeTableController {
         }
 
         //log.info("build: " + schedulePostData.toString());
-        timeTableService.saveScheduleByTeam(groupId, schedulePostData);
+        timeTableService.saveScheduleByTeam(groupId, isPublicTypeSchedule,schedulePostData);
         return new ResponseEntity<>("Schedule saved for group", HttpStatus.OK);
     }
 

@@ -2,6 +2,7 @@ package com.example.emptySaver.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 
 @NoArgsConstructor
@@ -19,6 +20,9 @@ public class Schedule {
     private Long id;
     private String name;
     private String body;
+
+    @ColumnDefault("false")
+    private boolean publicType;
 
     @ManyToOne
     @JoinColumn(name = "time_table_id")

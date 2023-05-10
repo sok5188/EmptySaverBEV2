@@ -48,6 +48,18 @@ public class TimeTableDto {
 
     @Data
     @Builder
+    public static class SearchedScheduleDto{
+        private Long id;
+        private String name;
+        private String body;
+        private boolean periodicType;
+
+        private GroupDto.DetailGroupRes groupInfo;
+        private String timeData;
+    }
+
+    @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SchedulePostDto{
@@ -75,4 +87,17 @@ public class TimeTableDto {
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate endDate;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ScheduleSearchRequestForm{
+        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime startTime;    //only for Non_Periodic
+        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime endTime;      //only for Non_Periodic
+    }
+
+
 }
