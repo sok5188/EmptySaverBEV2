@@ -72,9 +72,8 @@ public class FriendService {
             throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
 
         Member target = memberRepository.findFirstByEmail(friendEmail).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_EMAIL));
-        List<Friend> withFriendByOwner = friendRepository.findWithFriendMemberByOwner(member);
-        boolean present = withFriendByOwner.stream().filter(friend -> friend.getFriendMember().equals(target)).findAny().isPresent();
-        if(present){
+        Optional<Friend> opt = friendRepository.findFirstByOwnerAndFriendMember(member, target);
+        if(opt.isPresent()){
             //이미 친구 요청을 보냈거나 이미 친구이다.
             throw new BaseException(BaseResponseStatus.DUPLICATE_FRIEND_REQUEST);
         }else{
@@ -89,6 +88,9 @@ public class FriendService {
     public void removeFriend(Long friendId, boolean forceFlag){
         Friend friend = getFriend(friendId);
         Member member = getMember();
+        //해당 관계의 주인만 삭제를 시도할 수 있다. (물론 진짜 친구 삭제면 양방향으로 다 삭제되긴 한다.)
+        if(!friend.getOwner().equals(member))
+            throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
         if(!forceFlag){
             //이미 친구관계이고 강제 삭제가 아닌경우
             if(friend.isFriend()|| !friend.getFriendMember().equals(member))
@@ -97,8 +99,7 @@ public class FriendService {
         }else {
             //양방향 삭제해야 함
             friendRepository.delete(friend);
-            List<Friend> withFriendByOwner = friendRepository.findWithFriendMemberByOwner(member);
-            Optional<Friend> opt = withFriendByOwner.stream().filter(fr -> fr.getFriendMember().equals(friend.getOwner())).findAny();
+            Optional<Friend> opt = friendRepository.findFirstByOwnerAndFriendMember(friend.getFriendMember(), member);
             if(opt.isPresent())
                 friendRepository.delete(opt.get());
         }
@@ -107,6 +108,9 @@ public class FriendService {
     public void approveFriend(Long friendId) {
         //즉, b가 owner고 a가 friendMember인 friend의 id를 받아 true로 바꾸고 a가 owner고 b가 friendMember인 friend가 있다면 true로 바꿈
         Friend friend = getFriend(friendId);
+        //이미 친구 수락된 상태면 오류 던지고 바로 돌아가자.
+        if(friend.isFriend())
+            throw new BaseException(BaseResponseStatus.DUPLICATE_FRIEND_REQUEST);
         friend.setFriend(true);
 
         Member b = friend.getOwner();
@@ -116,10 +120,10 @@ public class FriendService {
         System.out.println("a :"+a.getId());
         if(a.getId().equals(b.getId()))
             throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
-        List<Friend> byOwner = friendRepository.findWithFriendMemberByOwner(a);
+//        List<Friend> byOwner = friendRepository.findWithFriendMemberByOwner(a);
         //a가 주인인 friend 중에 b가 friendMember인게 있는ㄴ지 확인한다.
-        Optional<Friend> opt = byOwner.stream().filter(fr -> fr.getFriendMember().equals(b)).findAny();
-
+//        Optional<Friend> opt = byOwner.stream().filter(fr -> fr.getFriendMember().equals(b)).findAny();
+        Optional<Friend> opt = friendRepository.findFirstByOwnerAndFriendMember(a, b);
         //있다면 true로 바꿈 (이미 true여도 상관없이 바꾼다)
         if(opt.isPresent()){
             log.info("a가 b에게 보낸 요청 존재");
