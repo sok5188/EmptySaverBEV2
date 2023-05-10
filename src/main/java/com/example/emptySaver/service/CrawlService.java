@@ -55,7 +55,7 @@ public class CrawlService {
         this.CrawlNonSubject();
     }
 
-    @Scheduled(cron = "0 0 5 * * *")
+    @Scheduled(cron = "0 0 5 * * *",zone = "Asia/Seoul")
     @Transactional
     public void ScheduleCrawl() throws IOException {
         log.info("Schedule Called Crawl Uostory!");
