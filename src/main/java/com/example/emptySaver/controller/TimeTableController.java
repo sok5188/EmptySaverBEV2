@@ -160,6 +160,7 @@ public class TimeTableController {
 
         //log.info("build: " + schedulePostData.toString());
         timeTableService.saveScheduleByTeam(groupId, isPublicTypeSchedule,schedulePostData);
+        timeTableService.saveScheduleInTimeTable(currentMemberId, schedulePostData);
         return new ResponseEntity<>("Schedule saved for group", HttpStatus.OK);
     }
 
