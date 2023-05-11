@@ -37,6 +37,7 @@ public class GroupService {
     private final MemberTeamRepository memberTeamRepository;
     private final MemberService memberService;
     private final TimeTableRepository timeTableRepository;
+    private final FCMService fcmService;
 
     @Transactional
     public void addGroup(GroupDto.GroupInfo groupInfo){
@@ -68,8 +69,10 @@ public class GroupService {
         memberTeamRepository.save(mt);
     }
 
+
     @Transactional
     public String addMemberToTeam(Long memberId, Long teamId,String subject){
+        //가입신청 or 그룹초대에 사용되는 메소드
         Member member = getMemberById(memberId);
         Team team = getTeamById(teamId);
 
@@ -81,6 +84,16 @@ public class GroupService {
         //그룹에서 보낸 초대는 group, 회원이 보낸 신청은 member
         mt.setRelationSubject(subject);
         memberTeamRepository.save(mt);
+        if(subject.equals("member")){
+            //멤버가 그룹에 가인 신청을 하는 경우
+            fcmService.sendMessageToMember(team.getOwner().getId(),team.getName()+ " 가입 신청 알림 입니다."
+                    ,member.getNickname()+"님이 회원님의 그룹 " + team.getName() + " 에 가입 신청을 하였습니다."
+                    );
+        }else{
+            //그룹장이 회원에게 초대를 보내는 경우
+            fcmService.sendMessageToMember(memberId,team.getName()+" 그룹의 초대가 왔습니다",
+                    team.getName()+ " 에서 회원님에게 가입 권유를 보냈습니다");
+        }
         return member.getUsername();
     }
     public Member getMemberById(Long id){
@@ -152,8 +165,9 @@ public class GroupService {
         Member member = memberService.getMember();
         return teamRepository.findByOwner(member).stream().map(t->t.getId()).collect(Collectors.toList());
     }
-    //TODO : 추후 지연로딩 관련 부분 수정해야 할 지점.. (이상해..) 컬렉션 페치조인이 잘 안되는 건가..?
-    // 그거 말고도 좀 주의가 필요하다..
+    //TODO : (추후 지연로딩 관련 부분 수정해야 할 지점.. (이상해..) 컬렉션 페치조인이 잘 안되는 건가..?
+    // 그거 말고도 좀 주의가 필요하다..)
+    // 트랜잭션 범위 문제인데, 뭐 나중에 수정하던가..
     public List<GroupDto.SimpleGroupRes> getMyGroup(){
         //익명여부 상관 없이 조회된다.
         List<Team> all = teamRepository.findAll();
@@ -266,7 +280,7 @@ public class GroupService {
     }
     @Transactional
     public String acceptMember(Long memberId, Long groupId){
-
+        //TODO: 만약 뭐 여기서도 가입 승인 Or 가입 권유 ok응답 이렇게 가입되는 경우 요청자에게 알림을 보내는게 좋을까??
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
         Team team = teamRepository.findById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));

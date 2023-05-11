@@ -24,6 +24,7 @@ import java.util.Optional;
 public class FriendService {
     private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
+    private final FCMService fcmService;
     private Member getMember() {
         String userName = SecurityUtil.getCurrentUsername().orElseThrow(() -> new BaseException(BaseResponseStatus.FAILED_TO_LOGIN));
         Member user = memberRepository.findFirstByUsername(userName).orElseThrow(() -> new BaseException(BaseResponseStatus.FAILED_TO_LOGIN));
@@ -80,6 +81,7 @@ public class FriendService {
             Friend friend= new Friend();
             friend.addFriendRequest(member,target);
             friendRepository.save(friend);
+            fcmService.sendMessageToMember(target.getId(), "친구 추가 요청이 왔습니다",member.getNickname()+"님이 회원님과 친구를 맺고 싶어 합니다.");
         }
 
     }
@@ -106,6 +108,9 @@ public class FriendService {
     }
     @Transactional
     public void approveFriend(Long friendId) {
+        //TODO: 처음 친구요청을 보낸사람에게 친구가 되었다고 알려주는게 필요한가 ?
+
+
         //즉, b가 owner고 a가 friendMember인 friend의 id를 받아 true로 바꾸고 a가 owner고 b가 friendMember인 friend가 있다면 true로 바꿈
         Friend friend = getFriend(friendId);
         //이미 친구 수락된 상태면 오류 던지고 바로 돌아가자.
