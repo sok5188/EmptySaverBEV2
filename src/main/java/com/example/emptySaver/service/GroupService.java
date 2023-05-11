@@ -10,6 +10,8 @@ import com.example.emptySaver.domain.entity.category.Category;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GroupService {
+
+    @PersistenceContext
+    private final EntityManager em;
     private final CategoryRepository categoryRepository;
     private final TeamRepository teamRepository;
     private final CategoryService categoryService;
@@ -129,6 +134,7 @@ public class GroupService {
     private void setSimpleGroupRes(List<Team> byCategory, List<GroupDto.SimpleGroupRes> result) {
 
         byCategory.forEach(team -> {
+            System.out.println("team.getCategory().getClass() = " + team.getCategory().getClass());
             result.add(GroupDto.SimpleGroupRes.builder().groupName(team.getName())
                     .groupId(team.getId()).oneLineInfo(team.getOneLineInfo())
                     .nowMember(
@@ -161,6 +167,7 @@ public class GroupService {
 
         List<Team> collect=new ArrayList<>();
         for (Team team : all) {
+            System.out.println("team.getCategory().getClass() = " + team.getCategory().getClass());
             if(teamList.contains(team)) {
                 collect.add(team);
             }
@@ -226,9 +233,11 @@ public class GroupService {
         GroupDto.GroupMemberRes res= new GroupDto.GroupMemberRes<>(result,team.isAnonymous());
         return res;
     }
-
     public GroupDto.DetailGroupRes getGroupDetails(Long groupId){
-        Team team = teamRepository.findWithCategoryById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        em.flush();
+        em.clear();
+        Team team = teamRepository.findFirstWithCategoryById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        log.info("!!!!!!!!:"+team.getCategory().getClass());
         return GroupDto.DetailGroupRes.builder()
                 .groupId(groupId).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
                 .groupDescription(team.getDescription()).nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))

@@ -74,13 +74,14 @@ public class CategoryService {
         List<Study> allStudy = categoryRepository.findAllStudy();
         Optional<Study> studyOptional = allStudy.stream().filter(m -> m.getStudyType().getLabel().equals(label)).findAny();
         if(studyOptional.isPresent())
-            return movieOptional.get();
+            return studyOptional.get();
 
         throw new BaseException(BaseResponseStatus.INVALID_LABEL_NAME);
     }
 
     public String getLabelByCategory(Category category){
         log.info("now get label by category, id and class : "+category.getId()+ " / "+ category.getClass());
+
         if(category instanceof Game){
             Game game = (Game) category;
             return game.getGameGenre().getLabel();

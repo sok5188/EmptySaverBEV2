@@ -58,20 +58,20 @@ public class FriendController {
         friendService.requestFriend(friendEmail);
         return new ResponseEntity<>("send friend request",HttpStatus.OK);
     }
-    @PostMapping("/add/{friendEmail}")
-    @Operation(summary = "친구 요청 승인", description = "친구 신청을 유저가 승인하는 경우 해당 친구 id를 인자로 해 유저의 친구목록에 추가하는 API")
+    @PostMapping("/add/{friendId}")
+    @Operation(summary = "친구 요청 승인", description = "친구 목록, 요청 목록같은 list들에서 같이 리턴된 friendId값 (!! friendMemberId아님 !!)을 이용해 해당 친구 관계를 승인하는 API")
     public ResponseEntity<String> addFriend(@PathVariable Long friendId){
         friendService.approveFriend(friendId);
         return new ResponseEntity<>("approve friend request",HttpStatus.OK);
     }
-    @DeleteMapping("/deny/{friendEmail}")
-    @Operation(summary = "친구 요청 거절", description = "받은 친구 요청을 거절하는 API")
+    @DeleteMapping("/deny/{friendId}")
+    @Operation(summary = "친구 요청 거절", description = "친구 목록, 요청 목록같은 list들에서 같이 리턴된 friendId값 (!! friendMemberId아님 !!)을 이용해 받은 친구 요청을 거절하는 API")
     public ResponseEntity<String> denyFriendRequest(@PathVariable Long friendId){
         friendService.removeFriend(friendId,false);
         return new ResponseEntity<>("deny friend request",HttpStatus.OK);
     }
-    @DeleteMapping("/delete/{friendEmail}")
-    @Operation(summary = "친구 삭제", description = "친구를 삭제하는 API")
+    @DeleteMapping("/delete/{friendId}")
+    @Operation(summary = "친구 삭제", description = "친구 목록, 요청 목록같은 list들에서 같이 리턴된 friendId값 (!! friendMemberId아님 !!)을 이용해 친구관계를 삭제하는 API (## 추가로 만약 친구 요청을 취소하고 싶으면 여기로 보내면 됨)")
     public ResponseEntity<String> deleteFriend(@PathVariable Long friendId){
         friendService.removeFriend(friendId,true);
         return new ResponseEntity<>("delete friend request",HttpStatus.OK);
