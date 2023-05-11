@@ -2,6 +2,7 @@ package com.example.emptySaver.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 @Setter
 @Entity
 @ToString
+@DynamicUpdate
 public class Member {
     @Id
     @GeneratedValue
