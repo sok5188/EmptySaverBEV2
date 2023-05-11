@@ -135,6 +135,38 @@ public class TimeTableService {
         return teamScheduleDtoList;
     }
 
+    public TimeTableDto.MemberAllTimeTableInfo getMemberAllTimeTableInfo(Long memberId,LocalDate startDate, LocalDate endDate){
+        TimeTableDto.TimeTableInfo memberTimeTable = this.getMemberTimeTableByDayNum(memberId, startDate, endDate);
+        List<TimeTableDto.GroupTimeTableInfo> groupOfMemberTimeTableList = this.getGroupOfMemberTimeTableList(memberId, startDate, endDate);
+
+        return TimeTableDto.MemberAllTimeTableInfo.builder()
+                .memberTimeTable(memberTimeTable)
+                .groupTimeTableList(groupOfMemberTimeTableList)
+                .build();
+    }
+
+    private List<TimeTableDto.GroupTimeTableInfo> getGroupOfMemberTimeTableList(Long memberId,LocalDate startDate, LocalDate endDate){
+        List<TimeTableDto.GroupTimeTableInfo> groupTimeTableInfoList = new ArrayList<>();
+
+        Member member = memberRepository.findById(memberId).get();
+
+        List<Team> groupList = new ArrayList<>();
+        for (MemberTeam team : member.getMemberTeam()) {
+            groupList.add(team.getTeam());
+        }
+
+        for (Team team : groupList) {
+            Time_Table teamTimeTable = team.getTimeTable();
+            TimeTableDto.TimeTableInfo timeTableInfo = this.calcTimeTableDataPerWeek(startDate, endDate, teamTimeTable.getWeekScheduleData(), teamTimeTable.getScheduleList());
+            groupTimeTableInfoList.add(TimeTableDto.GroupTimeTableInfo.builder()
+                    .groupId(team.getId())
+                    .timeTableInfo(timeTableInfo)
+                    .build());
+        }
+
+        return groupTimeTableInfoList;
+    }
+
     public TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId,LocalDate startDate, LocalDate endDate){
         Member member = memberRepository.findById(memberId).get();
 

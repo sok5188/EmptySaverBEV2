@@ -7,6 +7,7 @@ import com.example.emptySaver.service.MemberService;
 import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class TimeTableController {
     private final MemberService memberService;
     private final TeamRepository teamRepository;
 
-    @PostMapping("/saveGroupSchedule")
+    @PostMapping("/team/saveGroupSchedule")
     @Operation(summary = "그룹의 스케줄을 멤버가 저장", description = "그룹의 스케줄이 저장되면, 수락 거절을 진행-> 수락시 scheduleId로 저장 요청")
     @Parameter(
             name ="scheduleId",
@@ -46,6 +47,21 @@ public class TimeTableController {
     public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> searchSchedule(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
         List<TimeTableDto.SearchedScheduleDto> searchedScheduleDtoList = timeTableService.getSearchedScheduleDtoList(requestForm);
         return new ResponseEntity<>(searchedScheduleDtoList, HttpStatus.OK);
+    }
+
+    @PostMapping("/getMemberAndGroupTimeTable")
+    @Operation(summary = "자신과 자신의 그룹의 TimeTable 정보 가져오기", description = "로그인 한 유저, 자신과 자신의 그룹의 timeTable의 정보를 가져옴")
+    @Parameter(
+            name = "requestForm",
+            description = "startDate와 endDate는 날짜 정보만을 필요로 한다.<br>" +
+                    " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.<br>" +
+                    " 형식에 맞추지 않으면 오류"
+    )
+    @ApiResponse(responseCode = "200", description = "list의 첫번째 원소가 ")
+    public ResponseEntity<TimeTableDto.MemberAllTimeTableInfo> getMemberAndGroupTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        TimeTableDto.MemberAllTimeTableInfo memberAllTimeTableInfo = timeTableService.getMemberAllTimeTableInfo(currentMemberId, requestForm.getStartDate(), requestForm.getEndDate());
+        return new ResponseEntity<>(memberAllTimeTableInfo, HttpStatus.OK);
     }
 
     @PostMapping("/getTimeTable")
