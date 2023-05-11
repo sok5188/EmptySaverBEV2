@@ -25,6 +25,18 @@ public class TimeTableController {
     private final MemberService memberService;
     private final TeamRepository teamRepository;
 
+    @PostMapping("/saveGroupSchedule")
+    @Operation(summary = "그룹의 스케줄을 멤버가 저장", description = "그룹의 스케줄이 저장되면, 수락 거절을 진행-> 수락시 scheduleId로 저장 요청")
+    @Parameter(
+            name ="scheduleId",
+            description = "group schedule 저장시 멤버에게 알림으로 날라간 scheduleId를 담아 요청"
+    )
+    public ResponseEntity<String> saveGroupSchedule(final @RequestParam Long scheduleId){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        timeTableService.saveScheduleInDB(currentMemberId, scheduleId);
+        return new ResponseEntity<>("Group Schedule saved for member", HttpStatus.OK);
+    }
+
     @PostMapping("/findSchedule")
     @Operation(summary = "시간내의 스케줄 정보 찾기", description = "일단은 시간만 활용해서 공개 스케줄을 검색해옴")
     @Parameter(
