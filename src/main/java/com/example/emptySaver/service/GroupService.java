@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GroupService {
-
     @PersistenceContext
     private final EntityManager em;
     private final CategoryRepository categoryRepository;
