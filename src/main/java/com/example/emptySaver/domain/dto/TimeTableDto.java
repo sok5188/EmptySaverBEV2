@@ -50,7 +50,6 @@ public class TimeTableDto {
     @Builder
     public static class GroupTimeTableInfo{
         private Long groupId;
-        @Builder.Default
         private TimeTableInfo timeTableInfo;
     }
 
