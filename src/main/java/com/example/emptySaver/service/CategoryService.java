@@ -74,7 +74,7 @@ public class CategoryService {
         List<Study> allStudy = categoryRepository.findAllStudy();
         Optional<Study> studyOptional = allStudy.stream().filter(m -> m.getStudyType().getLabel().equals(label)).findAny();
         if(studyOptional.isPresent())
-            return movieOptional.get();
+            return studyOptional.get();
 
         throw new BaseException(BaseResponseStatus.INVALID_LABEL_NAME);
     }
