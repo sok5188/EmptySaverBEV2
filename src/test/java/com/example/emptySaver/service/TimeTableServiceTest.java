@@ -33,6 +33,8 @@ class TimeTableServiceTest {
     private TimeTableService timeTableService;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private GroupService groupService;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -69,20 +71,18 @@ class TimeTableServiceTest {
         return savedTeam.getId();
     }
 
+    @DisplayName("멤버 자신과 자신의 그룹의 timetable가져오기")
+    @Test
+    void getMemberAndGroupTimeTable(){
+        Long teamId = this.saveTeamAndTimeTable();
+        Team team = teamRepository.findById(teamId).get();
+        //team.setM
+    }
+
     @DisplayName("스케줄 추천은 아니지만 아무튼 검색하기")
     @Test
     //@Transactional(readOnly = true)
     void searchSchedule(){
-        /*
-        Team team = new Team();
-        //team.setTimeTable(savedTable);
-        Team savedTeam = teamRepository.save(team);
-
-
-        Time_Table timeTable = Time_Table.builder().title("let go").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
-        timeTable.setTeam(team);
-        Time_Table savedTable = timeTableRepository.save(timeTable);
-        */
         Long teamId = this.saveTeamAndTimeTable();
         Team findTeam = teamRepository.findById(teamId).get();
 

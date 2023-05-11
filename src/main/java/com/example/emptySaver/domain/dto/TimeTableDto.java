@@ -48,6 +48,22 @@ public class TimeTableDto {
 
     @Data
     @Builder
+    public static class GroupTimeTableInfo{
+        private Long groupId;
+        @Builder.Default
+        private TimeTableInfo timeTableInfo;
+    }
+
+    @Data
+    @Builder
+    public static class MemberAllTimeTableInfo{
+        private TimeTableInfo memberTimeTable;
+        @Builder.Default
+        private List<GroupTimeTableInfo> groupTimeTableList= new ArrayList<>();
+    }
+
+    @Data
+    @Builder
     public static class SearchedScheduleDto{
         private Long id;
         private String name;
