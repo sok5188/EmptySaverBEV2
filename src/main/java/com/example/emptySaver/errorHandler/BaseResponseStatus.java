@@ -37,7 +37,7 @@ public enum BaseResponseStatus {
     NOT_ALONE_ERROR(false,2236,"해당 그룹에 혼자가 아닙니다."),
     NOT_PUBLIC_ERROR(false,2237,"비공개 그룹 입니다."),
 
-
+    NOT_EXIST_SCHEDULE_ID(false, 2500,"존재하지 않는 schedule id 입니다."),
 
     /**
      * 3000 : Response 오류

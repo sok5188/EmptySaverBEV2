@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,6 +33,12 @@ public class FCMService {
             firebaseMessaging.send(message);
         } catch (FirebaseMessagingException e) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_SEND_NOTIFICATION);
+        }
+    }
+
+    public void sendMessageToMemberList(List<Long> memberIdList, String title, String body){
+        for (Long memberId : memberIdList) {
+            this.sendMessageToMember(memberId,title,body);
         }
     }
 }
