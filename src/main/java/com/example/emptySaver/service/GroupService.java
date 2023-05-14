@@ -1,11 +1,9 @@
 package com.example.emptySaver.service;
 
 import com.example.emptySaver.domain.dto.AuthDto;
+import com.example.emptySaver.domain.dto.CommentDto;
 import com.example.emptySaver.domain.dto.GroupDto;
-import com.example.emptySaver.domain.entity.Member;
-import com.example.emptySaver.domain.entity.MemberTeam;
-import com.example.emptySaver.domain.entity.Team;
-import com.example.emptySaver.domain.entity.Time_Table;
+import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.domain.entity.category.Category;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
@@ -37,6 +35,7 @@ public class GroupService {
     private final MemberService memberService;
     private final TimeTableRepository timeTableRepository;
     private final FCMService fcmService;
+    private final BoardService boardService;
 
     @Transactional
     public void addGroup(GroupDto.GroupInfo groupInfo){
@@ -250,12 +249,13 @@ public class GroupService {
         em.flush();
         em.clear();
         Team team = teamRepository.findFirstWithCategoryById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
-        log.info("!!!!!!!!:"+team.getCategory().getClass());
+        List<CommentDto.CommentRes> detailComments = boardService.getDetailComments(groupId);
         return GroupDto.DetailGroupRes.builder()
                 .groupId(groupId).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
                 .groupDescription(team.getDescription()).nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
                 .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
                 .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
+                .commentList(detailComments)
                 .build();
     }
 
@@ -300,4 +300,9 @@ public class GroupService {
         Team teamById = this.getTeamById(groupId);
         return teamById.isPublic();
     }
+
+
+
+
+
 }

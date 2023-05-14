@@ -1,5 +1,6 @@
 package com.example.emptySaver.controller;
 
+import com.example.emptySaver.domain.dto.CommentDto;
 import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.errorHandler.BaseException;
@@ -14,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -184,7 +184,6 @@ public class GroupController {
     }
 
 
-    //TODO : 그룹 일정 생성 API, 그룹 일정 수정 API (미래 일정만 가능하게), 그룹 일정 삭제 API
-    // 공지사항 부분?
-    // 일정 생성 시 알림 전송 기능 필요
+    //TODO : 그룹 일정 수정 API (미래 일정만 가능하게, 삭제 후 새로 생성하든 뭐..), 그룹 일정 삭제 API
+    // 공지사항 및 그룹 상세 페이지 댓글 알림.. (게시자 및 댓글 작성자들..)
 }

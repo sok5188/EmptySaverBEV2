@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class GroupDto {
     @Data
@@ -71,6 +72,8 @@ public class GroupDto {
         private Boolean isAnonymous;
 
         private String categoryLabel;
+
+        private List<CommentDto.CommentRes> commentList;
     }
 
     @Data
@@ -83,4 +86,6 @@ public class GroupDto {
         private String memberName;
         private LocalDateTime inviteDate;
     }
+
+
 }
