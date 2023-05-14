@@ -8,6 +8,7 @@ import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.SubjectRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
+import com.example.emptySaver.service.impl.TimeTableServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

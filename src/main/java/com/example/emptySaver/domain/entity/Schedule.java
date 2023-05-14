@@ -24,6 +24,10 @@ public class Schedule {
     @ColumnDefault("false")
     private boolean publicType;
 
+    @ColumnDefault("false")
+    private boolean groupType;      //그룹에 의해 추가된 경우
+    private Long originScheduleId;  //그룹 스케줄 원본의 id
+
     @ManyToOne
     @JoinColumn(name = "time_table_id")
     @ToString.Exclude

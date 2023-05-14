@@ -39,7 +39,7 @@ public enum BaseResponseStatus {
     INVALID_COMMENT_ID(false,2238,"유효하지 않은 댓글 ID입니다."),
     INVALID_POST_ID(false,2239,"유효하지 않은 게시글 ID입니다."),
 
-
+    NOT_EXIST_SCHEDULE_ID(false, 2500,"존재하지 않는 schedule id 입니다."),
 
     /**
      * 3000 : Response 오류

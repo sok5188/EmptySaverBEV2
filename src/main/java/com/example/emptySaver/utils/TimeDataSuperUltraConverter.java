@@ -3,7 +3,6 @@ package com.example.emptySaver.utils;
 import com.example.emptySaver.domain.entity.Non_Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Schedule;
-import com.example.emptySaver.service.TimeTableService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -139,5 +138,18 @@ public class TimeDataSuperUltraConverter {
         }
 
         return stringBuilder.toString().replace("T"," ");
+    }
+
+    public float timeStringToFloat(String time){
+
+        String[] split = time.split(":");
+        float timeVar = Float.parseFloat(split[0]);
+
+        float minute = Float.parseFloat(split[1]);
+        if (minute >= 30f){
+            timeVar += 0.5f;
+        }
+
+        return timeVar;
     }
 }

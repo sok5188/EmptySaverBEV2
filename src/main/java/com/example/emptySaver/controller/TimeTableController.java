@@ -159,9 +159,30 @@ public class TimeTableController {
         }
 
         //log.info("build: " + schedulePostData.toString());
-        timeTableService.saveScheduleByTeam(groupId, isPublicTypeSchedule,schedulePostData);
-        timeTableService.saveScheduleInTimeTable(currentMemberId, schedulePostData);
+        timeTableService.saveScheduleByTeam(groupId, currentMemberId,isPublicTypeSchedule,schedulePostData);
         return new ResponseEntity<>("Schedule saved for group", HttpStatus.OK);
+    }
+
+    @PostMapping("/team/updateSchedule")
+    @Operation(summary = "Team의 스케줄 업데이트", description = "그룹의 id, 스케줄 id, 업데이트 내용으로 요청<br>모든 팀원들에게 반영됨")
+    @Parameter(
+            name = "scheduleId",
+            description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
+    )
+    public ResponseEntity<String> updateTeamSchedule(final @RequestParam Long teamId,final @RequestParam Long scheduleId,@RequestBody TimeTableDto.SchedulePostDto updatePostData){
+        timeTableService.updateTeamSchedule(teamId,scheduleId,updatePostData);
+        return new ResponseEntity<>("team schedule updated", HttpStatus.OK);
+    }
+
+    @PostMapping("/team/deleteSchedule")
+    @Operation(summary = "Team의 스케줄 삭제", description = "그룹의 id, 스케줄 id로 삭제요청<br>모든 팀원들의 timetable에서 삭제됨")
+    @Parameter(
+            name = "scheduleId",
+            description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
+    )
+    public ResponseEntity<String> deleteTeamSchedule(final @RequestParam Long teamId,final @RequestParam Long scheduleId){
+        timeTableService.deleteTeamSchedule(teamId,scheduleId);
+        return new ResponseEntity<>("team schedule deleted", HttpStatus.OK);
     }
 
     @PostMapping("/team/getScheduleList")
