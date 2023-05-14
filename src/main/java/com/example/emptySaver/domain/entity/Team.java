@@ -59,4 +59,8 @@ public class Team {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "time_table_id")
     private Time_Table timeTable;
+
+    @OneToMany(mappedBy = "team")
+    private List<Post> teamPosts = new ArrayList<>();
+
 }

@@ -58,4 +58,8 @@ public class Member {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "time_table_id")
     private Time_Table timeTable;
+
+    @OneToMany(mappedBy = "member")
+    @ToString.Exclude
+    private List<Comment> comments=new ArrayList<>();
 }
