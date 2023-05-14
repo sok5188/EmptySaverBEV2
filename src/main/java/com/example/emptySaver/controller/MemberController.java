@@ -58,6 +58,12 @@ public class MemberController {
         return new ResponseEntity<AuthDto.MemberInfo>(memberService.getMemberInfo(),HttpStatus.OK);
     }
 
+//    @GetMapping("/getMyCommentList")
+//    @Operation(summary = "자신의 댓글 조회", description = "자신이 작성한 댓글 조회")
+//    public ResponseEntity<sexo> getMyCommentList(){
+//
+//    }
+
 
 
     private static void expireCookie(HttpServletResponse response,String name) {

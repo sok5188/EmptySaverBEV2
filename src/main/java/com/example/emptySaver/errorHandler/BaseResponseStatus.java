@@ -36,6 +36,8 @@ public enum BaseResponseStatus {
     ALREADY_BELONG_ERROR(false,2235,"이미 해당 그룹에 속해있습니다."),
     NOT_ALONE_ERROR(false,2236,"해당 그룹에 혼자가 아닙니다."),
     NOT_PUBLIC_ERROR(false,2237,"비공개 그룹 입니다."),
+    INVALID_COMMENT_ID(false,2238,"유효하지 않은 댓글 ID입니다."),
+    INVALID_POST_ID(false,2239,"유효하지 않은 게시글 ID입니다."),
 
 
 
