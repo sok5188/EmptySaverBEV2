@@ -6,7 +6,9 @@ import com.example.emptySaver.domain.entity.Recruiting;
 import com.example.emptySaver.repository.NonSubjectRepository;
 import com.example.emptySaver.repository.RecruitingRepository;
 //import jakarta.transaction.Transactional;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -53,6 +55,8 @@ public class CrawlService {
         this.InitCrawl();
         this.CrawlRecruiting();
         this.CrawlNonSubject();
+        //TODO : 밑에 주석 풀고 확인하십셔
+//        this.CrawlMovie();
     }
 
     @Scheduled(cron = "0 0 5 * * *",zone = "Asia/Seoul")
@@ -62,6 +66,8 @@ public class CrawlService {
         this.InitCrawl();
         this.CrawlRecruiting();
         this.CrawlNonSubject();
+        //TODO : 얘도 처리되면 주석풀어주십셔
+//        this.CrawlMovie();
     }
     public void InitCrawl() throws IOException{
         log.info("crawl construct start");
@@ -255,4 +261,64 @@ public class CrawlService {
                 .build()));
         return result;
     }
+
+    public void CrawlMovie() throws IOException {
+        Document document = Jsoup.connect("https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=%EB%A1%AF%EB%8D%B0%EC%8B%9C%EB%84%A4%EB%A7%88+%EC%B2%AD%EB%9F%89%EB%A6%AC+%EC%83%81%EC%98%81")
+                .userAgent(userAgent).headers(sameHeader).get();
+        Elements select = document.select("#main_pack > section.sc_new.cs_movie_house > div > div.api_cs_wrap._theater_search_container > div._wrap_single_type > div.movie_content._wrap_time_table > div > div.list_tbl_box > table > tbody");
+        Elements trs = select.select("tr");
+        List<TmpMovie> movieList = new ArrayList<>();
+        for (Element tr : trs) {
+            Elements a = tr.select("th > a");
+            String href = a.attr("href");
+            // TODO : 영화 상세 정보 URL
+            String movieInfoUrl="https://search.naver.com/search.naver"+href;
+            String title=a.text();
+
+            Elements divs = tr.select("td > div");
+            List<RoomInfo> roomInfoList = new ArrayList<>();
+            for (Element div : divs) {
+                //TODO: 상영관 정보 ex, (2관) -> () 는 사용할거면 지워야할듯
+                String movieRoomNum = div.select("span.place").text();
+                System.out.println("span = " + movieRoomNum);
+
+
+                Elements as = div.select("a");
+                List<MovieTimeInfo> movieTimeInfoList = new ArrayList<>();
+                for (Element target : as) {
+                    // TODO : 해당 상영관에서 해당 영화가 상영되는 시간 및 예매 페이지 href
+                    movieTimeInfoList.add(new MovieTimeInfo(target.text(),target.attr("href")));
+                }
+                roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
+            }
+            TmpMovie tmpMovie = new TmpMovie(title, movieInfoUrl, roomInfoList);
+            movieList.add(tmpMovie);
+        }
+        for (TmpMovie tmpMovie : movieList) {
+            System.out.println("---------Movie Info-------");
+            System.out.println(tmpMovie);
+        }
+    }
+
+    @Builder
+    @ToString
+    static class TmpMovie{
+        String title;
+        String movieUrl;
+        List<RoomInfo> roomInfoList;
+    }
+    @Builder
+    @ToString
+    static class RoomInfo{
+        String movieRoomNum;
+        List<MovieTimeInfo> timeInfoList;
+    }
+    @Builder
+    @ToString
+    static class MovieTimeInfo{
+        String time;
+        String reservationUrl;
+    }
+
+
 }
