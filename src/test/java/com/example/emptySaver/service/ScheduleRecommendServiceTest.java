@@ -64,6 +64,8 @@ class ScheduleRecommendServiceTest {
         return periodicSchedule;
     }
 
+
+
     @Transactional
     @DisplayName("추천 동작 확인")
     @Test

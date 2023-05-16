@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -27,6 +28,16 @@ public class TimeTableController {
     private final MemberService memberService;
     private final TeamRepository teamRepository;
     private final ScheduleRecommendService scheduleRecommendService;
+
+    @PostMapping("/team/findEmptyTime")
+    @Operation(summary = "팀원들의 빈시간 정보 받기", description = "그룹의 멤버들의 스케줄를 분석해서, 모든 멤버가 겹치지 않는 시간을 문자열 정보로 넘김<br>" +
+            "startTime과 endTime은 년,월,일 까지만 확실히 적고, 시간은 00:00:00처럼 채워만 두세요.(가능은 한 시간으로)")
+    public ResponseEntity<List<String>> getEmptyTimeOfTeam(@RequestParam Long teamId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
+        List<String> emptyDataList = scheduleRecommendService.findEmptyTimeOfTeam(teamId,
+                searchForm.getStartTime().toLocalDate(), searchForm.getEndTime().toLocalDate());
+
+        return new ResponseEntity<>(emptyDataList, HttpStatus.OK);
+    }
 
     @PostMapping("/recommendSchedule")
     @Operation(summary = "시간표 정보로 스케줄 추천받기", description = "멤버의 시간표를 분석해서, 범위 내에서 겹치지 않는 스케줄을 찾아줌")
