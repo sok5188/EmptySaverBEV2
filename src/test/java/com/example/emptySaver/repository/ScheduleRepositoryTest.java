@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,49 @@ class ScheduleRepositoryTest {
     @BeforeEach
     void beforeEach(){
         scheduleRepository.deleteAll();
+    }
+
+
+    @DisplayName("비주기 스케줄 정렬해서 검색하기")
+    @Test
+    void sortNonPeriodicSchedule(){
+        LocalDateTime startDate1 = LocalDateTime.of(2023, 4, 30,10,0);
+        LocalDateTime endDate1 = LocalDateTime.of(2023, 4, 30,12,30);
+        Non_Periodic_Schedule schedule1 = new Non_Periodic_Schedule();
+        schedule1.setName("2");
+        schedule1.setPublicType(true);
+        schedule1.setStartTime(startDate1);
+        schedule1.setEndTime(endDate1);
+
+        scheduleRepository.save(schedule1);
+
+        LocalDateTime startDate2 = LocalDateTime.of(2023, 4, 30,9,0);
+        LocalDateTime endDate2 = LocalDateTime.of(2023, 4, 30,12,40);
+        Non_Periodic_Schedule schedule2 = new Non_Periodic_Schedule();
+        schedule2.setName("1");
+        schedule2.setPublicType(true);
+        schedule2.setStartTime(startDate2);
+        schedule2.setEndTime(endDate2);
+
+
+        scheduleRepository.save(schedule2);
+
+        LocalDateTime startDate3 = LocalDateTime.of(2023, 5, 30,9,0);
+        LocalDateTime endDate3 = LocalDateTime.of(2023, 5, 30,12,40);
+        Non_Periodic_Schedule schedule3 = new Non_Periodic_Schedule();
+        schedule3.setName("3");
+        schedule3.setPublicType(true);
+        schedule3.setStartTime(startDate3);
+        schedule3.setEndTime(endDate3);
+
+        scheduleRepository.save(schedule3);
+
+        List<Non_Periodic_Schedule> sortByPublicTypeAndStartTimeBetween = nonPeriodicScheduleRepository.findSortByPublicTypeAndStartTimeBetween(true, startDate2, endDate3, Sort.by(Sort.Direction.ASC, "startTime", "endTime"));
+
+        for (Non_Periodic_Schedule nonPeriodicSchedule : sortByPublicTypeAndStartTimeBetween) {
+            System.out.println(nonPeriodicSchedule);
+        }
+
     }
 
     @DisplayName("LocalDateTime으로_queryMethod활용하기")

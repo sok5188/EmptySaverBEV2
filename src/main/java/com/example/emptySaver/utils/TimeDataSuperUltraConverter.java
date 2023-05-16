@@ -21,7 +21,7 @@ public class TimeDataSuperUltraConverter {
     public boolean checkBitsIsBelongToLocalDataTime(long targetBits, LocalDateTime startTime, LocalDateTime endTime){
         Long timeBits = this.convertTimeToBit(startTime, endTime);
 
-        long andOpRes = timeBits & targetBits;
+        long andOpRes = targetBits & timeBits;
 
         if(andOpRes != targetBits)  //시간에 속한다면 targetBits가 그대로 남아야함
             return false;
@@ -43,7 +43,7 @@ public class TimeDataSuperUltraConverter {
         return retBits;
     }
 
-    private String idxToTimeString(int idx){
+    private String bitIdxToTimeString(int idx){
         StringBuilder stringBuilder = new StringBuilder();
         int div = idx / 2;
 
@@ -80,12 +80,12 @@ public class TimeDataSuperUltraConverter {
             if(timeIdxList.get(i) +1 == timeIdxList.get(i+1)){
                 end = timeIdxList.get(i+1) +1;
             }else{
-                stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) +", ");
+                stringBuilder.append(this.bitIdxToTimeString(start) +"-" + this.bitIdxToTimeString(end) +", ");
                 start = end=timeIdxList.get(i+1);
                 end++;
             }
         }
-        stringBuilder.append(this.idxToTimeString(start) +"-" + this.idxToTimeString(end) );
+        stringBuilder.append(this.bitIdxToTimeString(start) +"-" + this.bitIdxToTimeString(end) );
 
         return stringBuilder.toString();
     }
