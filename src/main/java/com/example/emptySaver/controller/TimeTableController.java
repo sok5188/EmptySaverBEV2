@@ -4,6 +4,7 @@ import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.Team;
 import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.service.MemberService;
+import com.example.emptySaver.service.ScheduleRecommendService;
 import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,6 +26,14 @@ public class TimeTableController {
     private final TimeTableService timeTableService;
     private final MemberService memberService;
     private final TeamRepository teamRepository;
+    private final ScheduleRecommendService scheduleRecommendService;
+
+    @PostMapping("/recommendSchedule")
+    @Operation(summary = "시간표 정보로 스케줄 추천받기", description = "멤버의 시간표를 분석해서, 범위 내에서 겹치지 않는 스케줄을 찾아줌")
+    public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> getRecommendScheduleToMember(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
+        List<TimeTableDto.SearchedScheduleDto> recommendScheduleList = scheduleRecommendService.getRecommendScheduleList(requestForm);
+        return new ResponseEntity<>(recommendScheduleList, HttpStatus.OK);
+    }
 
     @PostMapping("/team/saveGroupSchedule")
     @Operation(summary = "그룹의 스케줄을 멤버가 저장", description = "그룹의 스케줄이 저장되면, 수락 거절을 진행-> 수락시 scheduleId로 저장 요청")

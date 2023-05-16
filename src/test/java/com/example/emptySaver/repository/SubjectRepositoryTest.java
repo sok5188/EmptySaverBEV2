@@ -1,8 +1,11 @@
 package com.example.emptySaver.repository;
 
+import com.example.emptySaver.domain.entity.Non_Periodic_Schedule;
+import com.example.emptySaver.domain.entity.Schedule;
 import com.example.emptySaver.domain.entity.Subject;
 import com.example.emptySaver.utils.UosSubjectAutoSaver;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
