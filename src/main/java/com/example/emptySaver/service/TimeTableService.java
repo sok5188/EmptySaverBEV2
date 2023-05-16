@@ -1,6 +1,7 @@
 package com.example.emptySaver.service;
 
 import com.example.emptySaver.domain.dto.TimeTableDto;
+import com.example.emptySaver.domain.entity.Schedule;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -8,6 +9,8 @@ import java.util.List;
 
 public interface TimeTableService {
     List<TimeTableDto.SearchedScheduleDto> getSearchedScheduleDtoList(TimeTableDto.ScheduleSearchRequestForm searchForm);
+
+    List<TimeTableDto.SearchedScheduleDto> convertScheduleListToSearchedScheduleDtoList(List<Schedule> scheduleList);
 
     @Transactional
     void saveScheduleByTeam(Long teamId, final Long OwnerId,boolean isPublicTypeSchedule, TimeTableDto.SchedulePostDto schedulePostDto);

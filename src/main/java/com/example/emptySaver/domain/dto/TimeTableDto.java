@@ -1,5 +1,6 @@
 package com.example.emptySaver.domain.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -107,9 +108,13 @@ public class TimeTableDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "스케줄을 찾기위한 형식")
     public static class ScheduleSearchRequestForm{
+        @Schema(description = "찾는 시작 시점, yyyy-mm-dd'T'hh:mm:ss 형식으로 보내기")
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime startTime;    //only for Non_Periodic
+
+        @Schema(description = "찾는 끝 시점, yyyy-mm-dd'T'hh:mm:ss 형식으로 보내기")
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime endTime;      //only for Non_Periodic
     }

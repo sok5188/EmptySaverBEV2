@@ -1,11 +1,13 @@
 package com.example.emptySaver.service;
 
+import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.repository.*;
 import com.example.emptySaver.utils.TimeDataSuperUltraConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,12 +23,19 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ScheduleRecommendService {
+    private final MemberService memberService;
+    private final TimeTableService timeTableService;
+
     private final TimeDataSuperUltraConverter timeDataConverter;
     private final PeriodicScheduleRepository periodicScheduleRepository;
     private final MemberRepository memberRepository;
-    private final TeamRepository teamRepository;
     private final NonPeriodicScheduleRepository nonPeriodicScheduleRepository;
 
+    public List<TimeTableDto.SearchedScheduleDto> getRecommendScheduleList(final TimeTableDto.ScheduleSearchRequestForm requestForm){
+        Member member = memberService.getMember();
+        List<Schedule> recommendByMemberTimeTable = this.getRecommendByMemberTimeTable(member.getId(), requestForm.getStartTime(), requestForm.getEndTime());
+        return timeTableService.convertScheduleListToSearchedScheduleDtoList(recommendByMemberTimeTable);
+    }
 
     private List<Periodic_Schedule> getPeriodicScheduleListNotOverlap(final long[] memberWeekData){
         long[] notWeekData = {0,0,0,0,0,0,0};

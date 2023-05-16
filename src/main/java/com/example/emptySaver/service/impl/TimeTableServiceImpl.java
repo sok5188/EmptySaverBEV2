@@ -52,7 +52,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         return scheduleOptional.get();
     }
 
-    private List<TimeTableDto.SearchedScheduleDto> convertScheduleListToSearchedScheduleDtoList(List<Schedule> scheduleList){
+    @Override
+    public List<TimeTableDto.SearchedScheduleDto> convertScheduleListToSearchedScheduleDtoList(List<Schedule> scheduleList){
         List<TimeTableDto.SearchedScheduleDto> retList = new ArrayList<>();
 
         for (Schedule schedule : scheduleList) {
