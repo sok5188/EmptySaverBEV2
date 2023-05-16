@@ -77,7 +77,7 @@ public class ScheduleRecommendService {
             LocalDate date = startDate.plusDays(i);
             stringBuilder.append(date.toString());
             stringBuilder.append(": ");
-            stringBuilder.append(timeDataConverter.bitTimeDataToStringData(~filledWeekTimeBit[i]));
+            stringBuilder.append(timeDataConverter.bitTimeDataToStringData(~filledFinalBits[i]));
             emptyStringDataList.add(stringBuilder.toString());
         }
 
