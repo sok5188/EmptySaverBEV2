@@ -5,6 +5,8 @@ import com.example.emptySaver.config.jwt.TokenProvider;
 import com.example.emptySaver.domain.dto.AuthDto;
 import com.example.emptySaver.domain.dto.AuthDto.LoginForm;
 import com.example.emptySaver.domain.dto.AuthDto.SignInForm;
+import com.example.emptySaver.errorHandler.BaseException;
+import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.service.MailService;
 import com.example.emptySaver.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +37,6 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
 
-    //TODO: 클라이언트에서 firebase토큰 발급받아서 그걸 유저에 저장해야 한다.
     @PostMapping("/login")
     @Operation(summary = "Login", description = "로그인 성공 시 인증헤더에 접근토큰, 쿠키에 갱신토큰 심어준다.")
     public ResponseEntity<String> login(@RequestBody LoginForm loginDTO, HttpServletResponse response){
@@ -70,8 +71,8 @@ public class AuthController {
             System.out.println(e.getCause());
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
+            throw new BaseException(BaseResponseStatus.INVALID_PASSWORD);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     @PostMapping("/sendEmail/{email}")
     @Operation(summary = "이메일 인증 코드 전송", description = "해당 이메일로 인증 코드를 전송하고 코드를 반환해주는 API")
