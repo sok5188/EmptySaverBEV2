@@ -3,6 +3,7 @@ package com.example.emptySaver.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,5 +52,22 @@ public class Time_Table {
     private void addWeekScheduleData(long[] otherScheduleData){
         for (int i=0; i<otherScheduleData.length ; ++i)
             this.weekScheduleData[i] |= otherScheduleData[i];
+    }
+
+    public List<Non_Periodic_Schedule> getNonPeriodicScheduleInBound(final LocalDateTime start, final LocalDateTime end){
+        LocalDateTime startTime = start.minusMinutes(1);
+        LocalDateTime endTime = end.plusMinutes(1);
+
+        List<Non_Periodic_Schedule> nonPeriodicScheduleList = new ArrayList<>();
+        for (Schedule schedule: this.scheduleList) {
+            if (schedule instanceof  Periodic_Schedule)
+                continue;
+            Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule)schedule;
+            if(nonPeriodicSchedule.getStartTime().isAfter(startTime)
+                    && nonPeriodicSchedule.getEndTime().isBefore(endTime))
+                nonPeriodicScheduleList.add(nonPeriodicSchedule);
+        }
+
+        return nonPeriodicScheduleList;
     }
 }

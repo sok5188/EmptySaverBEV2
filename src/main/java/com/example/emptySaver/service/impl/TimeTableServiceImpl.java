@@ -497,5 +497,4 @@ public class TimeTableServiceImpl implements TimeTableService {
         log.info("delete team Schedule "+ scheduleId);
     }
 
-
 }
