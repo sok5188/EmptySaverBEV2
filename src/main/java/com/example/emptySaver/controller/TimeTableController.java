@@ -119,7 +119,7 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule saved for member", HttpStatus.OK);
     }
 
-    @PostMapping("/updateSchedule")
+    @PutMapping("/updateSchedule")
     @Operation(summary = "특정 스케줄 변경", description = "특정 스케줄을 scheduleId를 이용해서 변경")
     @Parameter(
             name = "scheduleId",
@@ -132,7 +132,7 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule update, id: " +scheduleId, HttpStatus.OK);
     }
 
-    @PostMapping("/deleteSchedule")
+    @DeleteMapping("/deleteSchedule")
     @Operation(summary = "특정 스케줄 삭제", description = "특정 스케줄을 id로 지움, 따라서 id는 절대 변경 안되도록")
     @Parameter(
             name = "scheduleId",
@@ -183,7 +183,7 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule saved for group", HttpStatus.OK);
     }
 
-    @PostMapping("/team/updateSchedule")
+    @PutMapping("/team/updateSchedule")
     @Operation(summary = "Team의 스케줄 업데이트", description = "그룹의 id, 스케줄 id, 업데이트 내용으로 요청<br>모든 팀원들에게 반영됨")
     @Parameter(
             name = "scheduleId",
@@ -202,7 +202,7 @@ public class TimeTableController {
         return new ResponseEntity<>("team schedule updated", HttpStatus.OK);
     }
 
-    @PostMapping("/team/deleteSchedule")
+    @DeleteMapping("/team/deleteSchedule")
     @Operation(summary = "Team의 스케줄 삭제", description = "그룹의 id, 스케줄 id로 삭제요청<br>모든 팀원들의 timetable에서 삭제됨")
     @Parameter(
             name = "scheduleId",
@@ -221,7 +221,7 @@ public class TimeTableController {
         return new ResponseEntity<>("team schedule deleted", HttpStatus.OK);
     }
 
-    @PostMapping("/team/getScheduleList")
+    @GetMapping("/team/getScheduleList")
     @Operation(summary = "Team의 스케줄들을 받아오기", description = "그룹의 id로 스케줄 정보를 받아옴")
     @Parameter(
             name = "groupId",
