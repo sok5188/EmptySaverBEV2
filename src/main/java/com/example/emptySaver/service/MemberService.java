@@ -4,10 +4,14 @@ import com.example.emptySaver.config.jwt.SecurityUtil;
 import com.example.emptySaver.domain.dto.AuthDto;
 import com.example.emptySaver.domain.dto.AuthDto.SignInForm;
 import com.example.emptySaver.domain.entity.Member;
+import com.example.emptySaver.domain.entity.MemberTeam;
+import com.example.emptySaver.domain.entity.Team;
 import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.MemberRepository;
+import com.example.emptySaver.repository.MemberTeamRepository;
+import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,6 +30,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final TimeTableRepository timeTableRepository;
     private final BCryptPasswordEncoder encoder;
+    private final TeamRepository teamRepository;
+    private final MemberTeamRepository memberTeamRepository;
 
     @Transactional
     public SignInForm join(SignInForm signInForm){
@@ -72,6 +79,18 @@ public class MemberService {
     @Transactional
     public void deleteMember(Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_DELETE_ATTEMPT));
+        List<Team> byOwner = teamRepository.findByOwner(member);
+        byOwner.stream().forEach(team -> {
+            List<MemberTeam> memberByTeam = memberTeamRepository.findWithMemberByTeam(team);
+            if(memberByTeam.size()==1){
+                //그룹장인 자신만 존재 -> 그룹삭제
+                teamRepository.delete(team);
+            }else{
+                //다른 회원 존재-> 그룹장 위임
+                MemberTeam memberTeam = memberByTeam.stream().filter(mt -> !mt.getMember().equals(member)).findAny().orElseThrow(() -> new BaseException(BaseResponseStatus.RESPONSE_ERROR));
+                team.setOwner(memberTeam.getMember());
+            }
+        });
         memberRepository.delete(member);
     }
     public String makeRandomString(){
