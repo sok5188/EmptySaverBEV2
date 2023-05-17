@@ -67,7 +67,7 @@ public class GroupController {
     @DeleteMapping("/deleteMe/{groupId}")
     @Operation(summary = "자신을 그룹에서 삭제 + 초대 거절", description = "속한 그룹에서 자신이 탈퇴하거나 받은 초대를 거절하는 API")
     public ResponseEntity<String> deleteMember(@PathVariable Long groupId){
-        if(!groupService.checkAlone(groupId))
+        if(groupService.checkOwner(groupId)&&!groupService.checkAlone(groupId))
             throw new BaseException(BaseResponseStatus.NOT_ALONE_ERROR);
         Long currentMemberId = memberService.getCurrentMemberId();
         groupService.deleteMemberFromGroup(currentMemberId,groupId);
@@ -181,6 +181,17 @@ public class GroupController {
         TimeTableDto.TimeTableInfo timeTableInfo
                 = timeTableService.getMemberTimeTableByDayNum(groupMemberId, requestForm.getStartDate(), requestForm.getEndDate());
         return new ResponseEntity<>(timeTableInfo, HttpStatus.OK);
+    }
+    @GetMapping("/isOwner/{groupId}")
+    @Operation(summary = "그룹장 확인", description = "해당 그룹의 그룹장인지 확인하는 API")
+    public ResponseEntity<Boolean> checkOwner(@PathVariable Long groupId){
+        return new ResponseEntity<>(groupService.checkOwner(groupId),HttpStatus.OK);
+    }
+    @PutMapping("/changeOwner")
+    @Operation(summary = "그룹의 그룹장을 변경", description = "그룹의 그룹장이 다른 회원을 그룹장으로 임명하는 API")
+    public ResponseEntity<String> changeOwner(@RequestBody GroupDto.memberGroupReq req){
+        String name = groupService.changeOwner(req);
+        return new ResponseEntity<>("New Owner : "+name,HttpStatus.OK);
     }
 
 

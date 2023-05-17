@@ -18,4 +18,7 @@ public interface CategoryRepository<T extends Category> extends JpaRepository<T,
     List<Study> findAllStudy();
     @Override
     Optional<T> findById(Long categoryId);
+
+    @Query("from Etc")
+    List<Etc> findAllEtc();
 }
