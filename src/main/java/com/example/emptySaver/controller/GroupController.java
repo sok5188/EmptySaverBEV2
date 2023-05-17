@@ -182,6 +182,11 @@ public class GroupController {
                 = timeTableService.getMemberTimeTableByDayNum(groupMemberId, requestForm.getStartDate(), requestForm.getEndDate());
         return new ResponseEntity<>(timeTableInfo, HttpStatus.OK);
     }
+    @GetMapping("/isOwner/{groupId}")
+    @Operation(summary = "그룹장 확인", description = "해당 그룹의 그룹장인지 확인하는 API")
+    public ResponseEntity<Boolean> checkOwner(@PathVariable Long groupId){
+        return new ResponseEntity<>(groupService.checkOwner(groupId),HttpStatus.OK);
+    }
 
 
     //TODO : 그룹 일정 수정 API (미래 일정만 가능하게, 삭제 후 새로 생성하든 뭐..), 그룹 일정 삭제 API
