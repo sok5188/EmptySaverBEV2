@@ -32,8 +32,8 @@ public class TimeTableController {
     @PostMapping("/team/findEmptyTime")
     @Operation(summary = "팀원들의 빈시간 정보 받기", description = "그룹의 멤버들의 스케줄를 분석해서, 모든 멤버가 겹치지 않는 시간을 문자열 정보로 넘김<br>" +
             "startTime과 endTime은 년,월,일 까지만 확실히 적고, 시간은 00:00:00처럼 채워만 두세요.(가능은 한 시간으로)")
-    public ResponseEntity<List<String>> getEmptyTimeOfTeam(@RequestParam Long teamId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
-        List<String> emptyDataList = scheduleRecommendService.findEmptyTimeOfTeam(teamId,
+    public ResponseEntity<List<String>> getEmptyTimeOfTeam(@RequestParam Long groupId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
+        List<String> emptyDataList = scheduleRecommendService.findEmptyTimeOfTeam(groupId,
                 searchForm.getStartTime().toLocalDate(), searchForm.getEndTime().toLocalDate());
 
         return new ResponseEntity<>(emptyDataList, HttpStatus.OK);
@@ -119,7 +119,7 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule saved for member", HttpStatus.OK);
     }
 
-    @PostMapping("/updateSchedule")
+    @PutMapping("/updateSchedule")
     @Operation(summary = "특정 스케줄 변경", description = "특정 스케줄을 scheduleId를 이용해서 변경")
     @Parameter(
             name = "scheduleId",
@@ -132,7 +132,7 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule update, id: " +scheduleId, HttpStatus.OK);
     }
 
-    @PostMapping("/deleteSchedule")
+    @DeleteMapping("/deleteSchedule")
     @Operation(summary = "특정 스케줄 삭제", description = "특정 스케줄을 id로 지움, 따라서 id는 절대 변경 안되도록")
     @Parameter(
             name = "scheduleId",
@@ -183,29 +183,45 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule saved for group", HttpStatus.OK);
     }
 
-    @PostMapping("/team/updateSchedule")
+    @PutMapping("/team/updateSchedule")
     @Operation(summary = "Team의 스케줄 업데이트", description = "그룹의 id, 스케줄 id, 업데이트 내용으로 요청<br>모든 팀원들에게 반영됨")
     @Parameter(
             name = "scheduleId",
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
     )
-    public ResponseEntity<String> updateTeamSchedule(final @RequestParam Long teamId,final @RequestParam Long scheduleId,@RequestBody TimeTableDto.SchedulePostDto updatePostData){
-        timeTableService.updateTeamSchedule(teamId,scheduleId,updatePostData);
+    public ResponseEntity<String> updateTeamSchedule(final @RequestParam Long groupId,final @RequestParam Long scheduleId,@RequestBody TimeTableDto.SchedulePostDto updatePostData){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        Team team = teamRepository.findById(groupId).get();
+
+        if(!currentMemberId.equals(team.getOwner().getId())){   //group owner만 가능하도록
+            log.info("request member is not Group owner");
+            return new ResponseEntity<>("request member is not Group owner", HttpStatus.BAD_REQUEST);
+        }
+
+        timeTableService.updateTeamSchedule(groupId,scheduleId,updatePostData);
         return new ResponseEntity<>("team schedule updated", HttpStatus.OK);
     }
 
-    @PostMapping("/team/deleteSchedule")
+    @DeleteMapping("/team/deleteSchedule")
     @Operation(summary = "Team의 스케줄 삭제", description = "그룹의 id, 스케줄 id로 삭제요청<br>모든 팀원들의 timetable에서 삭제됨")
     @Parameter(
             name = "scheduleId",
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
     )
-    public ResponseEntity<String> deleteTeamSchedule(final @RequestParam Long teamId,final @RequestParam Long scheduleId){
-        timeTableService.deleteTeamSchedule(teamId,scheduleId);
+    public ResponseEntity<String> deleteTeamSchedule(final @RequestParam Long groupId,final @RequestParam Long scheduleId){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        Team team = teamRepository.findById(groupId).get();
+
+        if(!currentMemberId.equals(team.getOwner().getId())){   //group owner만 가능하도록
+            log.info("request member is not Group owner");
+            return new ResponseEntity<>("request member is not Group owner", HttpStatus.BAD_REQUEST);
+        }
+
+        timeTableService.deleteTeamSchedule(groupId,scheduleId);
         return new ResponseEntity<>("team schedule deleted", HttpStatus.OK);
     }
 
-    @PostMapping("/team/getScheduleList")
+    @GetMapping("/team/getScheduleList")
     @Operation(summary = "Team의 스케줄들을 받아오기", description = "그룹의 id로 스케줄 정보를 받아옴")
     @Parameter(
             name = "groupId",
