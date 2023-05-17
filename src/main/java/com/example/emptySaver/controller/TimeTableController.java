@@ -32,8 +32,8 @@ public class TimeTableController {
     @PostMapping("/team/findEmptyTime")
     @Operation(summary = "팀원들의 빈시간 정보 받기", description = "그룹의 멤버들의 스케줄를 분석해서, 모든 멤버가 겹치지 않는 시간을 문자열 정보로 넘김<br>" +
             "startTime과 endTime은 년,월,일 까지만 확실히 적고, 시간은 00:00:00처럼 채워만 두세요.(가능은 한 시간으로)")
-    public ResponseEntity<List<String>> getEmptyTimeOfTeam(@RequestParam Long teamId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
-        List<String> emptyDataList = scheduleRecommendService.findEmptyTimeOfTeam(teamId,
+    public ResponseEntity<List<String>> getEmptyTimeOfTeam(@RequestParam Long groupId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
+        List<String> emptyDataList = scheduleRecommendService.findEmptyTimeOfTeam(groupId,
                 searchForm.getStartTime().toLocalDate(), searchForm.getEndTime().toLocalDate());
 
         return new ResponseEntity<>(emptyDataList, HttpStatus.OK);
@@ -189,8 +189,16 @@ public class TimeTableController {
             name = "scheduleId",
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
     )
-    public ResponseEntity<String> updateTeamSchedule(final @RequestParam Long teamId,final @RequestParam Long scheduleId,@RequestBody TimeTableDto.SchedulePostDto updatePostData){
-        timeTableService.updateTeamSchedule(teamId,scheduleId,updatePostData);
+    public ResponseEntity<String> updateTeamSchedule(final @RequestParam Long groupId,final @RequestParam Long scheduleId,@RequestBody TimeTableDto.SchedulePostDto updatePostData){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        Team team = teamRepository.findById(groupId).get();
+
+        if(!currentMemberId.equals(team.getOwner().getId())){   //group owner만 가능하도록
+            log.info("request member is not Group owner");
+            return new ResponseEntity<>("request member is not Group owner", HttpStatus.BAD_REQUEST);
+        }
+
+        timeTableService.updateTeamSchedule(groupId,scheduleId,updatePostData);
         return new ResponseEntity<>("team schedule updated", HttpStatus.OK);
     }
 
@@ -200,8 +208,16 @@ public class TimeTableController {
             name = "scheduleId",
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
     )
-    public ResponseEntity<String> deleteTeamSchedule(final @RequestParam Long teamId,final @RequestParam Long scheduleId){
-        timeTableService.deleteTeamSchedule(teamId,scheduleId);
+    public ResponseEntity<String> deleteTeamSchedule(final @RequestParam Long groupId,final @RequestParam Long scheduleId){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        Team team = teamRepository.findById(groupId).get();
+
+        if(!currentMemberId.equals(team.getOwner().getId())){   //group owner만 가능하도록
+            log.info("request member is not Group owner");
+            return new ResponseEntity<>("request member is not Group owner", HttpStatus.BAD_REQUEST);
+        }
+
+        timeTableService.deleteTeamSchedule(groupId,scheduleId);
         return new ResponseEntity<>("team schedule deleted", HttpStatus.OK);
     }
 
