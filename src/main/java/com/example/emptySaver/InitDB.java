@@ -3,6 +3,7 @@ package com.example.emptySaver;
 import com.example.emptySaver.domain.entity.category.*;
 //import com.example.emptySaver.repository.CategoryRepository;
 import com.example.emptySaver.repository.CategoryRepository;
+import com.example.emptySaver.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -33,15 +34,19 @@ public class InitDB {
     @RequiredArgsConstructor
     static class InitCategory {
         private final CategoryRepository categoryRepository;
+        private final CategoryService categoryService;
         //데이터가 있으면 false -> 없으면 TRue
         public boolean checkUpdate(){
-            return !(categoryRepository.count()>0);
+            if(categoryRepository.count()<categoryService.getLabelCount())
+                return true;
+            else return false;
         }
         public void intiCategoryInfo(){
             saveGame();
             saveMovie();
             saveSports();
             saveStudy();
+            saveEtc();
         }
 
         private void saveGame() {
@@ -79,6 +84,15 @@ public class InitDB {
                 studyList.add(study);
             });
             categoryRepository.saveAll(studyList);
+        }
+        private void saveEtc(){
+            List<Etc> etcList = new ArrayList<>();
+            Arrays.stream(EtcType.values()).forEach(t->{
+                Etc etc=new Etc();
+                etc.setEtcType(t);
+                etcList.add(etc);
+            });
+            categoryRepository.saveAll(etcList);
         }
     }
 

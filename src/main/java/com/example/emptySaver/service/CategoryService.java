@@ -46,7 +46,16 @@ public class CategoryService {
         typeList.add(new CategoryDto.categoryType<>("study", studyCollect));
         labelMap.putAll(Arrays.stream(StudyType.values()).collect(Collectors.toMap(StudyType::getLabel,StudyType::getKey)));
 
+        List<String> etcCollect=new ArrayList<>();
+        etcCollect.add("자율");
+        categoryMap.put("etc",etcCollect);
+        typeList.add(new CategoryDto.categoryType<>("etc",etcCollect));
+        labelMap.putAll(Arrays.stream(EtcType.values()).collect(Collectors.toMap(EtcType::getLabel,EtcType::getKey)));
+
         allCategory=new CategoryDto.res(typeList);
+    }
+    public Integer getLabelCount(){
+        return labelMap.size();
     }
 
     public CategoryDto.res getAllCategories() {
@@ -76,6 +85,11 @@ public class CategoryService {
         if(studyOptional.isPresent())
             return studyOptional.get();
 
+        List<Etc> allEtc = categoryRepository.findAllEtc();
+        Optional<Etc> etcOptional = allEtc.stream().filter(e -> e.getEtcType().getLabel().equals(label)).findAny();
+        if(etcOptional.isPresent())
+            return etcOptional.get();
+
         throw new BaseException(BaseResponseStatus.INVALID_LABEL_NAME);
     }
 
@@ -94,7 +108,11 @@ public class CategoryService {
         }else if(category instanceof Study){
             Study study= (Study) category;
             return study.getStudyType().getLabel();
-        }else{
+        }else if(category instanceof Etc){
+            Etc etc=(Etc) category;
+            return etc.getEtcType().getLabel();
+        }
+        else{
             throw new BaseException(BaseResponseStatus.INVALID_CATEGORY_ID);
         }
     }
@@ -108,6 +126,8 @@ public class CategoryService {
             return categoryRepository.findAllSports();
         else if(name.equals("study"))
             return categoryRepository.findAllStudy();
+        else if(name.equals("etc"))
+            return categoryRepository.findAllEtc();
         else throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
     }
     public List<CategoryDto.categoryInfo> getCategoryNames(){
@@ -116,6 +136,7 @@ public class CategoryService {
         result.add(new CategoryDto.categoryInfo("movie","영화"));
         result.add(new CategoryDto.categoryInfo("sports","스포츠"));
         result.add(new CategoryDto.categoryInfo("study","스터디"));
+        result.add(new CategoryDto.categoryInfo("etc","자율"));
         return result;
     }
     public CategoryDto.categoryType getLabelInfoByCategoryName(String type){
