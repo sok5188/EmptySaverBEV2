@@ -302,7 +302,14 @@ public class GroupService {
     }
 
 
+    @Transactional
+    public String changeOwner(GroupDto.memberGroupReq req) {
 
-
-
+        if(!this.checkOwner(req.getGroupId()))
+            throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
+        Member target = getMemberById(req.getMemberId());
+        Team team = getTeamById(req.getGroupId());
+        team.setOwner(target);
+        return target.getName();
+    }
 }
