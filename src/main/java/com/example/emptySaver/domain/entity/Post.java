@@ -2,6 +2,8 @@ package com.example.emptySaver.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,10 +24,7 @@ public class Post {
     private String title;
     @Column(nullable = false)
     private String content;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    private String memberName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
@@ -37,8 +36,8 @@ public class Post {
     private List<Comment> commentList = new ArrayList<>();
 
     @Builder(builderMethodName = "init")
-    public Post(Member member, Team team,String title, String content){
-        this.member=member;
+    public Post(String memberName, Team team,String title, String content){
+        this.memberName=memberName;
         this.team=team;
         this.title=title;
         this.content=content;

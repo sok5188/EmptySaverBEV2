@@ -3,6 +3,8 @@ package com.example.emptySaver.domain.entity;
 import com.example.emptySaver.domain.entity.category.Category;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,7 +52,6 @@ public class Team {
     private List<MemberTeam> teamMembers=new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    //@OnDelete(action = OnDeleteAction.CASCADE)
     private Member owner;
 
     private LocalDateTime createTime;

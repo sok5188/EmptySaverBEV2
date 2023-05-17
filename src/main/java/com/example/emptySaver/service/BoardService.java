@@ -126,11 +126,12 @@ public class BoardService {
             log.info("is parent?:"+(comment.getParentComment()==null));
             if(comment.getParentComment()==null){
                 CommentDto.CommentInfo parent = CommentDto.CommentInfo.builder().commentId(comment.getId()).text(comment.getText()).dateTime(comment.getDate())
-                        .isOwner(comment.getMember().equals(post.getMember())).build();
+                        .isOwner(comment.getMember().equals(post.getTeam().getOwner())).build();
                 List<CommentDto.CommentInfo> childList=new ArrayList<>();
                 comment.getChildComment().forEach(child->childList.add(
                         CommentDto.CommentInfo.builder().commentId(child.getId()).text(child.getText())
-                                .dateTime(child.getDate()).isOwner(child.getMember().equals(post.getMember())).build()
+                                .dateTime(child.getDate()).isOwner(child.getMember()
+                                        .equals(post.getTeam().getOwner())).build()
                 ));
                 result.add(CommentDto.CommentRes.builder().parent(parent).childList(childList).build());
             }
@@ -148,22 +149,22 @@ public class BoardService {
         //TODO: 지연로딩 될 지점 (아마)
         if(!team.getOwner().equals(member))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
-        Post build = Post.init().member(member).team(team).title(req.getTitle()).content(req.getContent()).build();
+        Post build = Post.init().memberName(member.getName()).team(team).title(req.getTitle()).content(req.getContent()).build();
         postRepository.save(build);
     }
     @Transactional
     public void deletePost(Long postId){
         Member member = memberService.getMember();
-        Post post = postRepository.findWithMemberById(postId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_POST_ID));
-        if(!post.getMember().equals(member))
+        Post post = postRepository.findWithTeamById(postId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_POST_ID));
+        if(!post.getTeam().getOwner().equals(member))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
         postRepository.delete(post);
     }
     @Transactional
     public void updatePost(PostDto.PostUpdateReq req){
         Member member = memberService.getMember();
-        Post post = postRepository.findWithMemberById(req.getPostId()).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_POST_ID));
-        if(!post.getMember().equals(member))
+        Post post = postRepository.findWithTeamById(req.getPostId()).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_POST_ID));
+        if(!post.getTeam().getOwner().equals(member))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
         if(req.getTitle()!=null)
             post.setTitle(req.getTitle());
