@@ -138,9 +138,12 @@ public class TimeTableServiceImpl implements TimeTableService {
         List<MemberTeam> teamMembers = team.getTeamMembers();
         for (MemberTeam teamMember : teamMembers) {     //그룹원들  id 긁어오기
             if(!OwnerId.equals(teamMember.getMember().getId()))
-            memberIdList.add(teamMember.getMember().getId());
+                memberIdList.add(teamMember.getMember().getId());
         }
 
+        schedulePostDto.setGroupId(teamId);
+        schedulePostDto.setGroupName(team.getName());
+        schedulePostDto.setGroupType(true);
         Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
         schedule.setGroupType(true);
         schedule.setTimeTable(teamTimeTable);
@@ -148,7 +151,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
         savedSchedule.setOriginScheduleId(savedSchedule.getId());   //원본id 저장
-
+        log.info("team savedSchedule: "+ savedSchedule.getGroupName());
 
         List<Schedule> scheduleList = teamTimeTable.getScheduleList();
         scheduleList.add(savedSchedule);
@@ -289,11 +292,15 @@ public class TimeTableServiceImpl implements TimeTableService {
             long[] weekBits = schedule.getWeekScheduleData();
             for(int day =0; day< WEEK_MOD ; ++day)
                 if(weekBits[day] >0) {  //Dto Convert
+                    log.info("return: schedule.getGroupId: "+schedule.getGroupId());
                     weekRoutines.get(day).add(
                             TimeTableDto.ScheduleDto.builder()
                                     .id(schedule.getId())
                                     .name(schedule.getName())
                                     .body(schedule.getBody())
+                                    .groupType(schedule.isGroupType())
+                                    .groupId(schedule.getGroupId())
+                                    .groupName(schedule.getGroupName())
                                     .timeData(this.timeDataConverter.convertLongToBooleanList(weekBits[day]))
                                     .timeStringData(timeDataConverter.bitTimeDataToStringData(weekBits[day]))
                                     .build());
@@ -318,6 +325,9 @@ public class TimeTableServiceImpl implements TimeTableService {
                             .id(schedule.getId())
                             .name(schedule.getName())
                             .body(schedule.getBody())
+                            .groupType(schedule.isGroupType())
+                            .groupId(schedule.getGroupId())
+                            .groupName(schedule.getGroupName())
                             .timeData(this.timeDataConverter.convertLongToBooleanList(timeBitData))
                             .timeStringData(timeDataConverter.bitTimeDataToStringData(timeBitData))
                             .build());
@@ -360,6 +370,9 @@ public class TimeTableServiceImpl implements TimeTableService {
             periodicSchedule.setWeekScheduleData(this.convertTimeStringsToBitsArray(schedulePostData.getPeriodicTimeStringList()));
             periodicSchedule.setName(schedulePostData.getName());
             periodicSchedule.setBody(schedulePostData.getBody());
+            periodicSchedule.setGroupId(schedulePostData.getGroupId());
+            periodicSchedule.setGroupType(schedulePostData.getGroupType());
+            periodicSchedule.setGroupName(schedulePostData.getGroupName());
             log.info("build Periodic Schedule " + periodicSchedule.toString());
             return periodicSchedule;
         }
@@ -368,6 +381,9 @@ public class TimeTableServiceImpl implements TimeTableService {
         nonPeriodicSchedule.setStartTime(schedulePostData.getStartTime());
         nonPeriodicSchedule.setEndTime(schedulePostData.getEndTime());
         nonPeriodicSchedule.setBody(schedulePostData.getBody());
+        nonPeriodicSchedule.setGroupId(schedulePostData.getGroupId());
+        nonPeriodicSchedule.setGroupType(schedulePostData.getGroupType());
+        nonPeriodicSchedule.setGroupName(schedulePostData.getGroupName());
         log.info("build NonPeriodic Schedule "+ nonPeriodicSchedule.toString());
         return  nonPeriodicSchedule;
     }
@@ -400,7 +416,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         Time_Table timeTable = member.getTimeTable();
         schedule.setTimeTable(timeTable);
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
-
+        log.info("savedSchedule: "+ savedSchedule.getGroupId());
         List<Schedule> scheduleList = timeTable.getScheduleList();
         scheduleList.add(savedSchedule);
         timeTable.calcAllWeekScheduleData();

@@ -35,6 +35,12 @@ public class TimeTableDto {
         @Builder.Default
         private List<Boolean> timeData = new ArrayList<>();
         private String timeStringData;
+
+        //@Builder.Default
+        private Boolean groupType = false;
+        //@Builder.Default
+        private Long groupId = -1l; //개인 스케줄은 -1
+        private String groupName = "";
     }
 
     @Data
@@ -90,6 +96,14 @@ public class TimeTableDto {
         private LocalDateTime startTime;    //only for Non_Periodic
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime endTime;      //only for Non_Periodic
+
+        //팀을 위한 데이터. 개인 스케줄은 기본 값으로 들어감
+        @Builder.Default
+        private Boolean groupType = false;
+        @Builder.Default
+        private Long groupId = -1l; //개인 스케줄은 -1
+        @Builder.Default
+        private String groupName = "notGroup";
     }
 
     @Data
