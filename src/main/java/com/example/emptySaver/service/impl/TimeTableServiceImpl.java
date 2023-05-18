@@ -113,7 +113,6 @@ public class TimeTableServiceImpl implements TimeTableService {
         Time_Table timeTable = member.getTimeTable();
 
         Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
-        schedule.setGroupType(true);
         schedule.setTimeTable(timeTable);
         schedule.setOriginScheduleId(originScheduleId);
         schedule.setPublicType(isPublicTypeSchedule);
@@ -145,13 +144,12 @@ public class TimeTableServiceImpl implements TimeTableService {
         schedulePostDto.setGroupName(team.getName());
         schedulePostDto.setGroupType(true);
         Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
-        schedule.setGroupType(true);
         schedule.setTimeTable(teamTimeTable);
         schedule.setPublicType(isPublicTypeSchedule);
 
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
         savedSchedule.setOriginScheduleId(savedSchedule.getId());   //원본id 저장
-        log.info("team savedSchedule: "+ savedSchedule.getGroupName());
+        //log.info("team savedSchedule: "+ savedSchedule.getGroupName());
 
         List<Schedule> scheduleList = teamTimeTable.getScheduleList();
         scheduleList.add(savedSchedule);

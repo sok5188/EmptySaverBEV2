@@ -1,5 +1,7 @@
 package com.example.emptySaver.domain.dto;
 
+import com.example.emptySaver.errorHandler.BaseException;
+import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -133,5 +135,9 @@ public class TimeTableDto {
         private LocalDateTime endTime;      //only for Non_Periodic
     }
 
-
+    //유효성 검사
+    static public void checkSchedulePostDtoValid(final SchedulePostDto dto){
+        if(dto.getEndTime().isBefore(dto.getStartTime()))
+            throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
+    }
 }
