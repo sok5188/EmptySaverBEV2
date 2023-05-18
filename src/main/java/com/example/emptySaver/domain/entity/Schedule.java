@@ -26,6 +26,8 @@ public class Schedule {
 
     @ColumnDefault("false")
     private boolean groupType;      //그룹에 의해 추가된 경우
+    private Long groupId;
+    private String groupName;
     private Long originScheduleId;  //그룹 스케줄 원본의 id
 
     @ManyToOne
