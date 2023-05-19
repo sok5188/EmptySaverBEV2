@@ -51,6 +51,7 @@ public class GroupDto {
         private Boolean isAnonymous;
 
         private String categoryLabel;
+        private Boolean amIOwner;
     }
     @Data
     @Builder
