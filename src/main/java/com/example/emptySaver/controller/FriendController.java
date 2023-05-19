@@ -5,6 +5,7 @@ import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.service.FriendService;
 import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,12 @@ public class FriendController {
     private final FriendService friendService;
     private final TimeTableService timeTableService;
 
-    @GetMapping("/getFriendTimeTable")
+    @PostMapping("/getFriendTimeTable")
     @Operation(summary = "친구 시간표 조회하기", description = "회원의 친구의 시간표를 조회하는 API")
+    @Parameter(
+            name = "groupMemberId",
+            description = "대상이 되는 친구의 ID를 넘김"
+    )
     public ResponseEntity<TimeTableDto.TimeTableInfo> getFriendTimeTable(final @RequestParam Long friendMemberId ,@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
         //Long currentMemberId = memberService.getCurrentMemberId();
         log.info("build: " + requestForm.toString());
