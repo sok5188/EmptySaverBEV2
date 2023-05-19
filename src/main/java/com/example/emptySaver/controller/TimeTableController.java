@@ -40,7 +40,11 @@ public class TimeTableController {
     @PostMapping("/team/findEmptyTime")
     @Operation(summary = "팀원들의 빈시간 정보 받기", description = "그룹의 멤버들의 스케줄를 분석해서, 모든 멤버가 겹치지 않는 시간을 문자열 정보로 넘김<br>" +
             "startTime과 endTime은 년,월,일 까지만 확실히 적고, 시간은 00:00:00처럼 채워만 두세요.(가능은 한 시간으로)")
-    public ResponseEntity<List<String>> getEmptyTimeOfTeam(@RequestParam Long groupId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
+    @Parameter(
+            name ="groupId",
+            description = "groupId"
+    )
+    public ResponseEntity<List<String>> getEmptyTimeOfTeam(final @RequestParam Long groupId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
         this.checkLocalDateException(searchForm.getStartTime(),searchForm.getEndTime());
 
         List<String> emptyDataList = scheduleRecommendService.findEmptyTimeOfTeam(groupId,
@@ -71,10 +75,6 @@ public class TimeTableController {
 
     @PostMapping("/findSchedule")
     @Operation(summary = "시간내의 스케줄 정보 찾기", description = "일단은 시간만 활용해서 공개 스케줄을 검색해옴")
-    @Parameter(
-            name ="requestForm",
-            description = "yyyy-mm-dd'T'hh:mm:ss 형식으로 보내기"
-    )
     public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> searchSchedule(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
         this.checkLocalDateException(requestForm.getStartTime(),requestForm.getEndTime());
 
@@ -84,12 +84,6 @@ public class TimeTableController {
 
     @PostMapping("/getMemberAndGroupTimeTable")
     @Operation(summary = "자신과 자신의 그룹의 TimeTable 정보 가져오기", description = "로그인 한 유저, 자신과 자신의 그룹의 timeTable의 정보를 가져옴")
-    @Parameter(
-            name = "requestForm",
-            description = "startDate와 endDate는 날짜 정보만을 필요로 한다.<br>" +
-                    " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.<br>" +
-                    " 형식에 맞추지 않으면 오류"
-    )
     @ApiResponse(responseCode = "200", description = "list의 첫번째 원소가 ")
     public ResponseEntity<TimeTableDto.MemberAllTimeTableInfo> getMemberAndGroupTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
         this.checkLocalDateException(requestForm.getStartDate().atStartOfDay(),requestForm.getEndDate().atStartOfDay());
@@ -101,12 +95,6 @@ public class TimeTableController {
 
     @PostMapping("/getTimeTable")
     @Operation(summary = "TimeTable 정보 가져오기", description = "로그인 한 유저, 자신의 timeTable의 정보를 가져옴")
-    @Parameter(
-            name = "requestForm",
-            description = "startDate와 endDate는 날짜 정보만을 필요로 한다.<br>" +
-                    " 따라서 'yyyy-MM-dd' 형식으로 String에 담아 보내면 자동으로 형변환이 진행됨.<br>" +
-                    " 형식에 맞추지 않으면 오류"
-    )
     public ResponseEntity<TimeTableDto.TimeTableInfo> getMemberTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
         this.checkLocalDateException(requestForm.getStartDate().atStartOfDay(),requestForm.getEndDate().atStartOfDay());
 
@@ -118,17 +106,13 @@ public class TimeTableController {
     }
 
     @PostMapping("/saveSchedule")
-    @Operation(summary = "timetable에 스케줄 저장", description = "로그인 한 유저가 스케줄 정보를 timetable에 추가")
-    @Parameter(
-            name = "SchedulePostDto",
-            description = "가장 중요한 부분은 periodicType설정 임다. <br>" +
-                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
-                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br>" +
-                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
-                    "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다. <br>"+
-                    "새로 추가된 "
-
-    )
+    @Operation(summary = "timetable에 스케줄 저장", description = "로그인 한 유저가 스케줄 정보를 timetable에 추가<br>" +
+            "가장 중요한 부분은 periodicType설정 임다. <br>" +
+            " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
+            "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br>" +
+            "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
+            "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다. <br>"+
+            "새로 추가된 ")
     public ResponseEntity<String> addMemberSchedule(@RequestBody TimeTableDto.SchedulePostDto schedulePostData){
         TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
 
@@ -167,21 +151,16 @@ public class TimeTableController {
     }
 
     @PostMapping("/team/saveSchedule")
-    @Operation(summary = "Team의 스케줄 저장", description = "그룹장으로 유저인 스케줄 정보를 추가")
+    @Operation(summary = "Team의 스케줄 저장", description = "그룹장으로 유저인 스케줄 정보를 추가<br>"+
+            "팀의 스케줄 저장은 멤버의 스케줄 저장과 단 하나가 다름니다.<br>" +
+            "또한 중요한 부분은 periodicType설정 임다. <br>" +
+            " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
+            "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다.  <br>" +
+            "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
+            "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다.")
     @Parameter(
             name = "groupId",
             description = "uri에 스캐줄을 추가할 그룹의 ID를 담는다."
-    )
-    @Parameter(
-            name = "schedulePostData",
-            description = "body에 담습니다. <br>" +
-                    "팀의 스케줄 저장은 멤버의 스케줄 저장과 단 하나가 다름니다.<br>" +
-                    "" +
-                    "또한 중요한 부분은 periodicType설정 임다. <br>" +
-                    " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
-                    "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다.  <br>" +
-                    "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
-                    "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다."
     )
     @Parameter(
             name = "isPublicTypeSchedule",
@@ -228,7 +207,11 @@ public class TimeTableController {
     }
 
     @DeleteMapping("/team/deleteSchedule")
-    @Operation(summary = "Team의 스케줄 삭제", description = "그룹의 id, 스케줄 id로 삭제요청<br>모든 팀원들의 timetable에서 삭제됨")
+    @Operation(summary = "group의 스케줄 삭제", description = "그룹의 id, 스케줄 id로 삭제요청<br>모든 팀원들의 timetable에서 삭제됨")
+    @Parameter(
+            name = "groupId",
+            description = "변경할 group의 id"
+    )
     @Parameter(
             name = "scheduleId",
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."

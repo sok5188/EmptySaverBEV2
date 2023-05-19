@@ -18,8 +18,12 @@ import java.util.List;
 public class TimeTableDto {
     @Data
     @Builder
+    @Schema(description = "멤버의 시간표 정보")
     public static class TimeTableInfo{
+        @Schema(description = "찾는 시작 시점, yyyy-mm-dd 형식으로 보내기")
         private LocalDate startDate;
+
+        @Schema(description = "찾는 종료 시점, yyyy-mm-dd 형식으로 보내기")
         private LocalDate endData;
         @Builder.Default
         private List<List<Boolean>> bitListsPerDay = new ArrayList<>();
@@ -29,6 +33,7 @@ public class TimeTableDto {
 
     @Data
     @Builder
+    @Schema(description = "스케줄 정보")
     public static class ScheduleDto{
         private Long id;
         private String name;
@@ -39,14 +44,19 @@ public class TimeTableDto {
         private String timeStringData;
 
         //@Builder.Default
+        @Schema(description = "개인 스케줄인 경우 false")
         private Boolean groupType = false;
         //@Builder.Default
+
+        @Schema(description = "개인 스케줄인 경우 -1")
         private Long groupId = -1l; //개인 스케줄은 -1
+        @Schema(description = "개인 스케줄인 경우 notGroup")
         private String groupName = "";
     }
 
     @Data
     @Builder
+    @Schema(description = "그룹의 스케줄 간단 정보")
     public static class TeamScheduleDto{
         private Long id;
         private String name;
@@ -57,6 +67,7 @@ public class TimeTableDto {
 
     @Data
     @Builder
+    @Schema(description = "그룹의 timetable")
     public static class GroupTimeTableInfo{
         private Long groupId;
         private TimeTableInfo timeTableInfo;
@@ -72,12 +83,14 @@ public class TimeTableDto {
 
     @Data
     @Builder
+    @Schema(description = "검색된 스케줄을 반환하는 form")
     public static class SearchedScheduleDto{
         private Long id;
         private String name;
         private String body;
         private boolean periodicType;
 
+        @Schema(description = "스케줄을 만든 그룹의 내용")
         private GroupDto.DetailGroupRes groupInfo;
         private String timeData;
     }
@@ -86,24 +99,32 @@ public class TimeTableDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "저장하려는 스케줄의 정보")
     public static class SchedulePostDto{
         private String name;
         private String body;
+
+        @Schema(description = "스케줄이 주기적인지의 정보를 문자열로")
         private String periodicType;
 
         @Builder.Default
         private List<String> periodicTimeStringList = new ArrayList<>(); //only for Periodic
 
+        @Schema(description = "스케줄이 비주기적인 경우 yyyy-MM-dd'T'HH:mm:ss형식으로 보내기")
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime startTime;    //only for Non_Periodic
+        @Schema(description = "스케줄이 비주기적인 경우 yyyy-MM-dd'T'HH:mm:ss형식으로 보내기")
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime endTime;      //only for Non_Periodic
 
         //팀을 위한 데이터. 개인 스케줄은 기본 값으로 들어감
+        @Schema(description = "스케줄이 그룹에서 만들어진 것인지에 대한 여부, 개인 스케줄이면 안보내도 됨")
         @Builder.Default
         private Boolean groupType = false;
+        @Schema(description = "스케줄이 그룹에서 만들어진 경우 그룹의 id를 보내줌, 개인 스케줄이면 안보내도 됨")
         @Builder.Default
         private Long groupId = -1l; //개인 스케줄은 -1
+        @Schema(description = "스케줄이 그룹에서 만들어진 경우 그룹의 이름 보내줌, 개인 스케줄이면 안보내도 됨")
         @Builder.Default
         private String groupName = "notGroup";
     }
@@ -112,10 +133,13 @@ public class TimeTableDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "TimeTable의 정보를 받기 위한 형식")
     public static class TimeTableRequestForm{
+        @Schema(description = "찾는 시작 시점, yyyy-mm-dd 형식으로 보내기")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate startDate;
 
+        @Schema(description = "찾는 끝 시점, yyyy-mm-dd 형식으로 보내기")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate endDate;
     }
