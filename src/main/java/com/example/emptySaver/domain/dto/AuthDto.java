@@ -42,5 +42,6 @@ public class AuthDto {
     public static class SimpleMemberInfo{
         private Long memberId;
         private String name;
+        private Boolean isOwner;
     }
 }

@@ -156,6 +156,7 @@ public class GroupService {
                     )
                     .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
                     .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
+                            .amIOwner(team.getOwner().equals(memberService.getMember()))
                     .build());
         });
     }
@@ -238,7 +239,9 @@ public class GroupService {
                     if(mt.isBelong()){
                         result.add(AuthDto.SimpleMemberInfo.builder()
                                         .memberId(mt.getMember().getId())
-                                        .name(mt.getMember().getName()).build()
+                                        .name(mt.getMember().getName())
+                                        .isOwner(mt.getMember().equals(team.getOwner()))
+                                .build()
                         );
                     }
                 });
