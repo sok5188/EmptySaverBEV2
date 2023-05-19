@@ -9,6 +9,7 @@ import com.example.emptySaver.service.GroupService;
 import com.example.emptySaver.service.MemberService;
 import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -173,8 +174,12 @@ public class GroupController {
     }
 
 
-    @GetMapping("/getMemberTimeTable")
+    @PostMapping("/getMemberTimeTable")
     @Operation(summary = "그룹원 시간표 조회하기", description = "그룹원 시간표를 조회하는 API")
+    @Parameter(
+            name = "groupMemberId",
+            description = "대상이 되는 그룹원의 ID를 넘김"
+    )
     public ResponseEntity<TimeTableDto.TimeTableInfo> getGroupMemberTimeTable(final @RequestParam Long groupMemberId , @RequestBody TimeTableDto.TimeTableRequestForm requestForm){
         //Long currentMemberId = memberService.getCurrentMemberId();
         //log.info("build: " + requestForm.toString());
