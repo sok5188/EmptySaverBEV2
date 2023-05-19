@@ -119,7 +119,7 @@ public class CrawlService {
         int i=1;
         List<Recruiting> recruitingList=new ArrayList<>();
 
-        while (!isFin){
+        while (!isFin||i<10){
             String url="https://uostory.uos.ac.kr/site/reservation/lecture/lectureList?menuid=001003002002&reservegroupid=1&viewtype=L&rectype=J&thumbnail=Y&currentpage="+i++;
             Document document = Jsoup.connect(url)
                     .userAgent(userAgent).headers(sameHeader).cookie("JSESSIONID", first.cookie("JSESSIONID")).get();
