@@ -22,14 +22,10 @@ public class SubjectController {
     private final MemberService memberService;
 
     @PostMapping("/search")
-    @Operation(summary = "강의 검색", description = "검색 데이터 form을 작성해 보내면 반환해줌")
-    @Parameter(
-            name = "searchData",
-            description = "일단 간단한 검색만 구현했습니다. <br>" +
-                    "강의 이름(name)으로 검색시, 해당 이름이 들어간 모든 강의가 검색됩니다.  <br>" +
-                    "강의 이름(name)을 담으면, department(학과)와 grade(학년)정보는 담지 않아도 됩니다." +
-                    "반대로 강의 이름 대신 다른걸로 검색할때는 department(학과)와 grade(학년)정보 두가지 모두 담아서 보내야합니다."
-    )
+    @Operation(summary = "강의 검색", description = "검색 데이터 form을 작성해 보내면 반환해줌.<br>"+ "일단 간단한 검색만 구현했습니다. <br>" +
+            "강의 이름(name)으로 검색시, 해당 이름이 들어간 모든 강의가 검색됩니다.  <br>" +
+            "강의 이름(name)을 담으면, department(학과)와 grade(학년)정보는 담지 않아도 됩니다." +
+            "반대로 강의 이름 대신 다른걸로 검색할때는 department(학과)와 grade(학년)정보 두가지 모두 담아서 보내야합니다.")
     public ResponseEntity<List<SubjectDto.SubjectInfo>> searchSubjectByKeyword(@RequestBody SubjectDto.SubjectSearchData searchData){
         List<SubjectDto.SubjectInfo> searchedSubjects = subjectService.getSearchedSubjects(searchData);
         return new ResponseEntity<>(searchedSubjects, HttpStatus.OK);

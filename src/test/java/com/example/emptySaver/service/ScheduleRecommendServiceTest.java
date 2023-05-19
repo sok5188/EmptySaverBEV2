@@ -70,12 +70,12 @@ class ScheduleRecommendServiceTest {
     @DisplayName("추천 동작 확인")
     @Test
     void recommendTest(){
-        Time_Table timeTable = Time_Table.builder().title("육사시미").build();
+        Member member = Member.init().name("멤버").build();
+        em.persist(member);
+
+        Time_Table timeTable = Time_Table.builder().title("육사시미").member(member).build();
         em.persist(timeTable);
 
-        Member member = Member.init().name("멤버").build();
-        member.setTimeTable(timeTable);
-        em.persist(member);
 
         em.flush();     //저장시킴
         em.clear();

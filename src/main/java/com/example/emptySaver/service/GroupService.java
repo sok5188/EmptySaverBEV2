@@ -51,16 +51,18 @@ public class GroupService {
                 .ifPresent(t-> {throw new BaseException(BaseResponseStatus.INVALID_MAKE_TEAM_ATTEMPT);});
 
 
-        Time_Table timeTable = Time_Table.builder().build();
-        timeTableRepository.save(timeTable);
 
         Team team = Team.builder().name(groupInfo.getGroupName()).oneLineInfo(groupInfo.getOneLineInfo())
                 .description(groupInfo.getGroupDescription()).maxMember(groupInfo.getMaxMember())
                 .isPublic(groupInfo.getIsPublic()).isAnonymous(groupInfo.getIsAnonymous())
                 .category(categoryByLabel).owner(member)
                 .build();
-        team.setTimeTable(timeTable);
         teamRepository.save(team);
+
+        Time_Table timeTable = Time_Table.builder().team(team).build();
+        timeTableRepository.save(timeTable);
+        team.setTimeTable(timeTable);
+
         MemberTeam mt=new MemberTeam();
         mt.initMemberTeam(member,team,member);
         mt.setBelong(true);

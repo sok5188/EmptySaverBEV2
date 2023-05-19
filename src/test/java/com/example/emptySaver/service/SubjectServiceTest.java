@@ -69,12 +69,12 @@ class SubjectServiceTest {
 
     @Test
     void 강의를_주기_데이터로_저장(){
-        Time_Table timeTable = Time_Table.builder().title("육사시미").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
+        Member member = Member.init().name("멤버").build();
+        Member savedMember = memberRepository.save(member);
+
+        Time_Table timeTable = Time_Table.builder().title("육사시미").member(savedMember).weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
         Time_Table savedTable = timeTableRepository.save(timeTable);
 
-        Member member = Member.init().name("멤버").build();
-        member.setTimeTable(savedTable);
-        Member savedMember = memberRepository.save(member);
 
         long[] weekData = {0,100,100,100,0,0,0};
         Subject subject = new Subject();
