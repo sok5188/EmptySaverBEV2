@@ -138,12 +138,12 @@ class TimeTableServiceTest {
 
     @Test
     void TimeTableDto받아오기(){
-        Time_Table timeTable = Time_Table.builder().title("육사시미").weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
+        Member member = Member.init().name("멤버").build();
+        Member savedMember = memberRepository.save(member);
+
+        Time_Table timeTable = Time_Table.builder().title("육사시미").member(savedMember).weekScheduleData(new long[]{0l,0l,0l,0l,0l,0l,0l}).build();
         Time_Table savedTable = timeTableRepository.save(timeTable);
 
-        Member member = Member.init().name("멤버").build();
-        member.setTimeTable(savedTable);
-        Member savedMember = memberRepository.save(member);
 
         List<String> timeList1 = Arrays.asList("화,00:30-01:30","화,18:00-19:00","금,19:00-24:00");
         TimeTableDto.SchedulePostDto periodicSchedule1 = TimeTableDto.SchedulePostDto.builder().name("캡스톤").periodicType("true").periodicTimeStringList(timeList1).build();
@@ -180,18 +180,19 @@ class TimeTableServiceTest {
 
 
     @Transactional
-    private Member getSavedMember(){
-        Time_Table timeTable = Time_Table.builder().title("육사시미").scheduleList(new ArrayList<>()).build();
+    private Long getSavedMemberId(){
+        Member member = Member.init().name("멤버").build();
+        Member savedMember = memberRepository.save(member);
+
+        Time_Table timeTable = Time_Table.builder().title("육사시미").member(member).scheduleList(new ArrayList<>()).build();
         timeTableRepository.save(timeTable);
+        member.setTimeTable(timeTable);
         //em.persist(timeTable);
 
-        Member member = Member.init().name("멤버").build();
-        member.setTimeTable(timeTable);
-        Member savedMember = memberRepository.save(member);
         //em.persist(member);
         //em.flush();     //저장시킴
 
-        return(savedMember);   //저장된 멤버 호출
+        return savedMember.getId();   //저장된 멤버 호출
     }
 
     @Transactional
@@ -204,7 +205,7 @@ class TimeTableServiceTest {
     @Transactional
     @Test
     void 스케줄삭제(){
-        Member savedMember = getSavedMember();      //영속성 유지됨
+        Member savedMember = memberRepository.findById(getSavedMemberId()).get();      //영속성 유지됨
 
         TimeTableDto.SchedulePostDto periodicSchedule = getTempSchedulePostDto();
 
@@ -226,12 +227,21 @@ class TimeTableServiceTest {
     @Transactional
     @Test
     void Id로스케줄수정(){
-        Member savedMember = getSavedMember();
+        Member member = Member.init().name("멤버").build();
+        em.persist(member);
+
+        Time_Table timeTable = Time_Table.builder().member(member).title("육사시미").build();
+        em.persist(timeTable);
+        member.setTimeTable(timeTable);
+
+
+        em.flush();     //저장시킴
+
 
         TimeTableDto.SchedulePostDto periodicSchedule = getTempSchedulePostDto();
-        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule);        //멤버에게 스케줄 저장
+        timeTableService.saveScheduleInTimeTable(member.getId(), periodicSchedule);        //멤버에게 스케줄 저장
 
-        Long scheduleId = savedMember.getTimeTable().getScheduleList().get(0).getId();
+        Long scheduleId = member.getTimeTable().getScheduleList().get(0).getId();
 
         //long[] newWeekData = {100,0,0,0,0,100,0};
         List<String> timeList = Arrays.asList("금,14:00-17:00","수,18:00-18:30");
@@ -239,7 +249,7 @@ class TimeTableServiceTest {
 
         timeTableService.updateScheduleInTimeTable(scheduleId, newPeriodicSchedule);
 
-        List<Schedule> scheduleList = savedMember.getTimeTable().getScheduleList();
+        List<Schedule> scheduleList = member.getTimeTable().getScheduleList();
         //for (Schedule sc: scheduleList)
             //System.out.println("schedule: "+sc);
 
@@ -254,12 +264,12 @@ class TimeTableServiceTest {
     @Transactional
     @Test
     void 멤버타임테이블에스케줄저장(){
-        Time_Table timeTable = Time_Table.builder().title("육사시미").build();
+        Member member = Member.init().name("멤버").build();
+        em.persist(member);
+
+        Time_Table timeTable = Time_Table.builder().member(member).title("육사시미").build();
         em.persist(timeTable);
 
-        Member member = Member.init().name("멤버").build();
-        member.setTimeTable(timeTable);
-        em.persist(member);
 
         em.flush();     //저장시킴
         em.clear();
@@ -282,12 +292,12 @@ class TimeTableServiceTest {
     @Transactional
     @Test
     void 멤버타임테이블에주기적스케줄저장(){
-        Time_Table timeTable = Time_Table.builder().title("육사시미").build();
+        Member member = Member.init().name("멤버").build();
+        em.persist(member);
+
+        Time_Table timeTable = Time_Table.builder().member(member).title("육사시미").build();
         em.persist(timeTable);
 
-        Member member = Member.init().name("멤버").build();
-        member.setTimeTable(timeTable);
-        em.persist(member);
 
         em.flush();     //저장시킴
         em.clear();

@@ -44,15 +44,46 @@ class TimeTableRepositoryTest {
     }*/
 
     @Transactional
-    @Test
-    void 멤버에시간표저장(){
-        Time_Table timeTable = Time_Table.builder().title("헬스루틴").build();
-        em.persist(timeTable);
-
+    private Long temp(){
         Member member = new Member();
         member.setName("오운완");
-        member.setTimeTable(timeTable);
         em.persist(member);
+
+        Time_Table timeTable = Time_Table.builder().title("헬스루틴").member(member).build();
+        em.persist(timeTable);
+        member.setTimeTable(timeTable);
+
+        //Member savedMember = memberRepository.save(member);
+
+        em.flush();
+        em.clear();
+        //then
+        Long memberId = member.getId();
+        Long timeTableId = timeTable.getId();
+        memberRepository.deleteById(memberId);
+
+        assertThat(memberRepository.findById(memberId).isEmpty()).isTrue();
+
+        return timeTableId;
+    }
+
+
+    @DisplayName("멤버삭제시 시간표도 삭제되는지 확인")
+    @Test
+    void deleteMemberWithTimeTable(){
+        //assertThat(memberRepository.findById(temp()).isEmpty()).isTrue();
+    }
+
+    @Transactional
+    @Test
+    void 멤버에시간표저장(){
+        Member member = new Member();
+        member.setName("오운완");
+        em.persist(member);
+
+        Time_Table timeTable = Time_Table.builder().title("헬스루틴").member(member).build();
+        em.persist(timeTable);
+
         //Member savedMember = memberRepository.save(member);
 
         em.flush();

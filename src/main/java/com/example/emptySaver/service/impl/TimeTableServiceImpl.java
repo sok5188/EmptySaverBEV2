@@ -417,7 +417,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         log.info("savedSchedule: "+ savedSchedule.getGroupId());
         List<Schedule> scheduleList = timeTable.getScheduleList();
         scheduleList.add(savedSchedule);
-        timeTable.calcAllWeekScheduleData();
+        //timeTable.calcAllWeekScheduleData();
 
         log.info("add Schedule"+ savedSchedule.getId() + " to Member" + member.getId());
     }

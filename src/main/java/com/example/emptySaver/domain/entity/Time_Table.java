@@ -2,6 +2,8 @@ package com.example.emptySaver.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,15 +21,23 @@ public class Time_Table {
     private Long id;
     private String title;
 
-    @OneToOne(mappedBy = "timeTable")
+
+    //@OneToOne(mappedBy = "timeTable")
+    @ToString.Exclude
+    @OneToOne(fetch = FetchType.LAZY )//, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "member_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
-    @OneToOne(mappedBy = "timeTable")
+    @ToString.Exclude
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "team_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Team team;
 
     //외래키 저장을 상대에게 위임 -> 상대는 @joinColumn에 외래키 저장
     @Builder.Default
-    @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true) //casecade all로 이 table사라지면 일정도 같이 제거됨
+    @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY,  cascade = CascadeType.REMOVE)//, cascade = CascadeType.ALL,orphanRemoval = true) //casecade all로 이 table사라지면 일정도 같이 제거됨
     @ToString.Exclude
     private List<Schedule> scheduleList = new ArrayList<>();
 

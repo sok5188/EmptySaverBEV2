@@ -54,9 +54,11 @@ public class Member {
         this.role=MemberRole.USER;
     }
 
+    /*
     @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "time_table_id")
+    @JoinColumn(name = "time_table_id")*/
+    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE)
     private Time_Table timeTable;
 
     @OneToMany(mappedBy = "member")

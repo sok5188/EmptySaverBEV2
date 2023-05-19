@@ -161,6 +161,9 @@ public class TimeTableDto {
 
     //유효성 검사
     static public void checkSchedulePostDtoValid(final SchedulePostDto dto){
+        if(dto.getPeriodicType().equals("true"))
+            return;
+
         if(dto.getEndTime().isBefore(dto.getStartTime()))
             throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
     }

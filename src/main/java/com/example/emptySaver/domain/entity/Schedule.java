@@ -3,6 +3,8 @@ package com.example.emptySaver.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 
 @NoArgsConstructor
@@ -12,8 +14,8 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Builder
 @ToString
-@Inheritance(strategy = InheritanceType.JOINED) // 하위 클래스는 그 그 클래스의 데이터만 저장
-@DiscriminatorColumn // 하위 테이블의 구분 컬럼 생성 default = DTYPE
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS) // 하위 클래스는 그 그 클래스의 데이터만 저장
+//@DiscriminatorColumn // 하위 테이블의 구분 컬럼 생성 default = DTYPE
 public class Schedule {
     @Id
     @GeneratedValue
@@ -33,5 +35,6 @@ public class Schedule {
     @ManyToOne
     @JoinColumn(name = "time_table_id")
     @ToString.Exclude
+    //@OnDelete(action = OnDeleteAction.CASCADE)
     private Time_Table timeTable;
 }

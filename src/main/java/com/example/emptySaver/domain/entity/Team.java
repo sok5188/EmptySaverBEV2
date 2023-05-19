@@ -56,9 +56,7 @@ public class Team {
 
     private LocalDateTime createTime;
 
-    @ToString.Exclude
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "time_table_id")
+    @OneToOne(mappedBy = "team",  cascade = CascadeType.REMOVE)
     private Time_Table timeTable;
 
     @OneToMany(mappedBy = "team")

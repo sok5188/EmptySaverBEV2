@@ -39,14 +39,14 @@ public class MemberService {
             throw new BaseException(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
         String username= signInForm.getEmail().split("@")[0];
 
-        Time_Table timeTable = Time_Table.builder().build();
-        timeTableRepository.save(timeTable);
 
         Member build = Member.init().username(username).password(signInForm.getPassword()).classOf(signInForm.getClassOf())
                 .name(signInForm.getName()).nickname(signInForm.getNickname()).email(signInForm.getEmail()).build();
-        build.setTimeTable(timeTable);  //연관관계 설정을 위해 삽입, 주인이 저장시켜야 반영됨.
         memberRepository.save(build);
 
+        Time_Table timeTable = Time_Table.builder().member(build).build();
+        timeTableRepository.save(timeTable);
+        build.setTimeTable(timeTable);
         return signInForm;
     }
     public String getUserNameByEmail(String email) {
