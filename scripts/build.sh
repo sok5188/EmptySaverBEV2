@@ -29,6 +29,7 @@ else
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
+rm -rf /home/ubuntu/github_action/application.log
 echo "> DEPLOY_JAR 배포" >> $DEPLOY_LOG_PATH
 nohup java -jar $DEPLOY_JAR >> $APPLICATION_LOG_PATH 2> $DEPLOY_ERR_LOG_PATH &
 
