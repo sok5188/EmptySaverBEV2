@@ -32,9 +32,10 @@ public class Schedule {
     private String groupName;
     private Long originScheduleId;  //그룹 스케줄 원본의 id
 
+    private String category;    //카테고리 구분은 일단 임시로 string으로
+
     @ManyToOne
     @JoinColumn(name = "time_table_id")
     @ToString.Exclude
-    //@OnDelete(action = OnDeleteAction.CASCADE)
     private Time_Table timeTable;
 }

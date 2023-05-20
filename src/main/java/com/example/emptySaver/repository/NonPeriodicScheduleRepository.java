@@ -12,5 +12,5 @@ public interface NonPeriodicScheduleRepository extends JpaRepository<Non_Periodi
     //List<Schedule> findByPublicType(boolean publicType);
     List<Non_Periodic_Schedule> findByPublicTypeAndStartTimeBetween(boolean publicType,LocalDateTime from, LocalDateTime to);
     List<Non_Periodic_Schedule> findSortByPublicTypeAndStartTimeBetween(boolean publicType, LocalDateTime from, LocalDateTime to, Sort sort);
-
+    List<Non_Periodic_Schedule> findByCategoryAndStartTimeBetween(String category,LocalDateTime from, LocalDateTime to);
 }

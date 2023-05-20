@@ -36,6 +36,7 @@ public class CrawlService {
     private final RecruitingRepository recruitingRepository;
     private final NonSubjectRepository nonSubjectRepository;
     private final CategoryService categoryService;
+    private final ScheduleService scheduleService;
     String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
     @Value("${portal.id}")
     String id;
@@ -51,11 +52,11 @@ public class CrawlService {
         //깃헙올라갈때 빌드 오류 방지
         if(id.equals("fake"))
             return;
-//        this.InitCrawl();
-//        this.CrawlRecruiting();
-//        this.CrawlNonSubject();
+        this.InitCrawl();
+        this.CrawlRecruiting();
+        this.CrawlNonSubject();
         //TODO : 밑에 주석 풀고 확인하십셔
-//        this.CrawlMovie();
+        this.CrawlMovie();
     }
 
     @Scheduled(cron = "0 0 5 * * *",zone = "Asia/Seoul")
@@ -66,7 +67,7 @@ public class CrawlService {
         this.CrawlRecruiting();
         this.CrawlNonSubject();
         //TODO : 얘도 처리되면 주석풀어주십셔
-//        this.CrawlMovie();
+        this.CrawlMovie();
     }
     public void InitCrawl() throws IOException{
         log.info("crawl construct start");
@@ -283,9 +284,15 @@ public class CrawlService {
             String[] split = detailInfo.html().split("<span class=\"cm_bar_info\"></span>");
             String movieGenre=split[0];
             String movieCountry=split[1];
-            String movieRunningTime=split[2];
+            System.out.println("Info : genre:"+movieGenre+ " / country : "+movieCountry + " / runningTime : "+split[2]);
+            System.out.println(split[2].replace("분",""));
+
+            int movieRunningTime= Integer.parseInt(split[2].replace("분","")); //런타임 정수화
             System.out.println("Info : genre:"+movieGenre+ " / country : "+movieCountry + " / runningTime : "+movieRunningTime);
+
+
             Category targetCategory;
+
             try{
                 //영화 장르로 Category객체 찾아옴 ( 만약 해당 장르가 없으면 예외를던짐
                 targetCategory = categoryService.getCategoryByLabel(movieGenre);
@@ -304,7 +311,6 @@ public class CrawlService {
                 }
             }
 
-
             String title=a.text();
             Elements divs = tr.select("td > div");
             List<RoomInfo> roomInfoList = new ArrayList<>();
@@ -322,13 +328,18 @@ public class CrawlService {
                 }
                 roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
             }
-            TmpMovie tmpMovie = new TmpMovie(title, movieInfoUrl, roomInfoList);
+            TmpMovie tmpMovie = new TmpMovie(title, movieInfoUrl, roomInfoList, movieRunningTime);
             movieList.add(tmpMovie);
         }
+        /*
+        log.info("movieList size: "+ movieList.size());
         for (TmpMovie tmpMovie : movieList) {
             System.out.println("---------Movie Info-------");
             System.out.println(tmpMovie);
-        }
+            //log.info(tmpMovie.toString());
+        }*/
+        scheduleService.saveMovieScheduleList(movieList);
+        //return movieList;
     }
 
     @Builder
@@ -337,6 +348,7 @@ public class CrawlService {
         String title;
         String movieUrl;
         List<RoomInfo> roomInfoList;
+        Integer runningTime;
     }
     @Builder
     @ToString
