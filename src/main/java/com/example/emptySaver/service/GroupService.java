@@ -130,6 +130,9 @@ public class GroupService {
     }
     public List<GroupDto.SimpleGroupRes> getGroupByType(String categoryName,String label){
 //        Category categoryByLabel = categoryService.getCategoryByLabel(label);
+        if(label.equals("전체")){
+            return this.getGroupByCategoryName(categoryName);
+        }
         Category category = categoryService.getListByCategoryAndLabel(categoryName, label).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_LABEL_NAME));
         //익명인 경우 조회되지 않게 한다.
         List<Team> byCategory = teamRepository.findByCategory(category).stream().filter(team -> team.isPublic()).collect(Collectors.toList());
