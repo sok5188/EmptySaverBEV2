@@ -28,7 +28,7 @@ public class GroupController {
     private final TimeTableService timeTableService;
 
     @PostMapping("/make")
-    @Operation(summary = "그룹 추가", description = "그룹을 추가하는 API")
+    @Operation(summary = "그룹 추가", description = "!!(categoryName:영어 / labelName: 한글)그룹을 추가하는 API ")
     public ResponseEntity<String> addGroup(@RequestBody GroupDto.GroupInfo groupDto){
         groupService.addGroup(groupDto);
         return new ResponseEntity<>("Make Group",HttpStatus.OK);
@@ -74,30 +74,33 @@ public class GroupController {
         groupService.deleteMemberFromGroup(currentMemberId,groupId);
         return new ResponseEntity<>("delete Me",HttpStatus.OK);
     }
-    @GetMapping("/getLabelTeam/{label}")
-    @Operation(summary = "해당 라벨의 팀 찾기", description = "특정 라벨(하위)의 그룹 목록을 반환하는 API(공개그룹만)")
-    public ResponseEntity<GroupDto.res> getLabelTeam(@PathVariable String label){
-        GroupDto.res res=new GroupDto.res(groupService.getGroupByType(label));
-        return new ResponseEntity<>(res, HttpStatus.OK);
+    @GetMapping("/getLabelTeam")
+    @Operation(summary = "카테고리 이름(영어) + 라벨(한글)의 팀 찾기", description = "카테고리(영어) + 라벨(한글) 조합으로 해당하는 그룹 목록을 반환하는 API(공개그룹만)")
+    public ResponseEntity<List<GroupDto.SimpleGroupRes>> getLabelTeam(@RequestParam String categoryName, @RequestParam String label){
+//        GroupDto.res res=new GroupDto.res(groupService.getGroupByType(categoryName,label);
+        List<GroupDto.SimpleGroupRes> groupByType = groupService.getGroupByType(categoryName, label);
+        return new ResponseEntity<>(groupByType, HttpStatus.OK);
     }
     @GetMapping("/getCategoryTeam/{categoryName}")
     @Operation(summary = "해당 카테고리의 팀 찾기", description = "특정 카테고리(상위)의 그룹 목록을 반환하는 API(공개그룹만)")
-    public ResponseEntity<GroupDto.res> getCategoryTeam(@PathVariable String categoryName){
-        GroupDto.res res=new GroupDto.res(groupService.getGroupByCategoryName(categoryName));
-        return new ResponseEntity<>(res, HttpStatus.OK);
+    public ResponseEntity<List<GroupDto.SimpleGroupRes>> getCategoryTeam(@PathVariable String categoryName){
+//        GroupDto.res res=new GroupDto.res(groupService.getGroupByCategoryName(categoryName));
+        List<GroupDto.SimpleGroupRes> groupByCategoryName = groupService.getGroupByCategoryName(categoryName);
+        return new ResponseEntity<>(groupByCategoryName, HttpStatus.OK);
     }
     @GetMapping("/getAllGroup")
     @Operation(summary = "전체 그룹 조회", description = "서비스 내 모든 그룹 리스트 반환하는 API(공개그룹만)")
-    public ResponseEntity<GroupDto.res> getAllGroup(){
+    public ResponseEntity<List<GroupDto.SimpleGroupRes>> getAllGroup(){
         List<GroupDto.SimpleGroupRes> allGroup = groupService.getAllGroup();
-        GroupDto.res res=new GroupDto.res<>(allGroup);
-        return new ResponseEntity<>(res,HttpStatus.OK);
+//        GroupDto.res res=new GroupDto.res<>(allGroup);
+        return new ResponseEntity<>(allGroup,HttpStatus.OK);
     }
     @GetMapping("/getMyGroup")
     @Operation(summary = "자신의 그룹 조회",description = "자신이 !소속된! 그룹 리스트를 반환하는 API")
-    public ResponseEntity<GroupDto.res> getMyGroup(){
-        GroupDto.res res=new GroupDto.res<>(groupService.getMyGroup());
-        return new ResponseEntity<>(res,HttpStatus.OK);
+    public ResponseEntity<List<GroupDto.SimpleGroupRes>> getMyGroup(){
+//        GroupDto.res res=new GroupDto.res<>(groupService.getMyGroup());
+        List<GroupDto.SimpleGroupRes> myGroup = groupService.getMyGroup();
+        return new ResponseEntity<>(myGroup,HttpStatus.OK);
     }
 
     @GetMapping("/getGroupMember/{groupId}")
@@ -141,35 +144,37 @@ public class GroupController {
 
     @GetMapping("/getMemberRequestList")
     @Operation(summary = "멤버가 가입신청을 보낸 그룹 목록 조회", description = "회원이 가입신청을 보낸 그룹 리스트를 확인하는 API")
-    public ResponseEntity<GroupDto.res> getMemberRequestGroupList(){
-        GroupDto.res res = new GroupDto.res(groupService.getGroupRequests("member"));
+    public ResponseEntity<List<GroupDto.SimpleGroupRes>> getMemberRequestGroupList(){
+//        GroupDto.res res = new GroupDto.res(groupService.getGroupRequests("member"));
+        List<GroupDto.SimpleGroupRes> res = groupService.getGroupRequests("member");
         return new ResponseEntity<>(res,HttpStatus.OK);
     }
     @GetMapping("/getMemberReceiveList")
     @Operation(summary = "멤버가 받은 그룹 가입 권유 목록 조회", description = "회원이 가입신청을 받은 그룹 리스트를 확인하는 API")
-    public ResponseEntity<GroupDto.res> getMemberReceiveGroupList(){
-        GroupDto.res res = new GroupDto.res(groupService.getGroupRequests("group"));
+    public ResponseEntity<List<GroupDto.SimpleGroupRes>> getMemberReceiveGroupList(){
+//        GroupDto.res res = new GroupDto.res(groupService.getGroupRequests("group"));
+        List<GroupDto.SimpleGroupRes> res = groupService.getGroupRequests("group");
         return new ResponseEntity<>(res,HttpStatus.OK);
     }
 
     @GetMapping("/getReceiveList/{groupId}")
     @Operation(summary = "그룹장이 가입신청 목록 조회", description = "회원들이 보낸 가입신청을 그룹장이 확인하는 API")
-    public ResponseEntity<GroupDto.res> getReceiveGroupList(@PathVariable Long groupId){
+    public ResponseEntity<List<GroupDto.InviteInfo>> getReceiveGroupList(@PathVariable Long groupId){
         if(!groupService.checkOwner(groupId))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
         if(!groupService.checkPublic(groupId))
             throw new BaseException(BaseResponseStatus.NOT_PUBLIC_ERROR);
-        List<GroupDto.InviteInfo> inviteMemberList = groupService.getInviteMemberList(groupId,"member");
-        GroupDto.res res=new GroupDto.res(inviteMemberList);
+        List<GroupDto.InviteInfo> res = groupService.getInviteMemberList(groupId,"member");
+//        GroupDto.res res=new GroupDto.res(inviteMemberList);
         return new ResponseEntity<>(res,HttpStatus.OK);
     }
     @GetMapping("/getInviteList/{groupId}")
     @Operation(summary = "그룹장이 해당 그룹에서 보낸 초대 목록 확인",description = "그룹장이 보낸 초대 목록을 확인하는 API(그룹장 Only)")
-    public ResponseEntity<GroupDto.res> getInviteList(@PathVariable Long groupId){
+    public ResponseEntity<List<GroupDto.InviteInfo>> getInviteList(@PathVariable Long groupId){
         if(!groupService.checkOwner(groupId))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
-        List<GroupDto.InviteInfo> inviteMemberList = groupService.getInviteMemberList(groupId,"group");
-        GroupDto.res res=new GroupDto.res(inviteMemberList);
+        List<GroupDto.InviteInfo> res = groupService.getInviteMemberList(groupId,"group");
+//        GroupDto.res res=new GroupDto.res(inviteMemberList);
         return new ResponseEntity<>(res,HttpStatus.OK);
     }
 
