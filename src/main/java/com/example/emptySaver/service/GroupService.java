@@ -39,7 +39,9 @@ public class GroupService {
 
     @Transactional
     public void addGroup(GroupDto.GroupInfo groupInfo){
-        Category categoryByLabel = categoryService.getCategoryByLabel(groupInfo.getCategoryLabel());
+//        Category categoryByLabel = categoryService.getCategoryByLabel(groupInfo.getCategoryLabel());
+        Category category = categoryService.getListByCategoryAndLabel(groupInfo.getCategoryName(), groupInfo.getLabelName())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_LABEL_NAME));
         Member member = memberService.getMember();
         //owner가 같고 제목이 같으면 중복으로 인식하자.. 그리고 여기서 5개 넘기면 최대갯수 제한
         //근데 이걸 할거면 날짜 지났을 때 해당 그룹 정보들을 삭제해야 되는데...
@@ -55,7 +57,7 @@ public class GroupService {
         Team team = Team.builder().name(groupInfo.getGroupName()).oneLineInfo(groupInfo.getOneLineInfo())
                 .description(groupInfo.getGroupDescription()).maxMember(groupInfo.getMaxMember())
                 .isPublic(groupInfo.getIsPublic()).isAnonymous(groupInfo.getIsAnonymous())
-                .category(categoryByLabel).owner(member)
+                .category(category).owner(member)
                 .build();
         teamRepository.save(team);
 
@@ -126,19 +128,20 @@ public class GroupService {
         setSimpleGroupRes(teamRepository.findAll().stream().filter(team -> team.isPublic()).collect(Collectors.toList()),result);
         return result;
     }
-    public List<GroupDto.SimpleGroupRes> getGroupByType(String label){
-        Category categoryByLabel = categoryService.getCategoryByLabel(label);
+    public List<GroupDto.SimpleGroupRes> getGroupByType(String categoryName,String label){
+//        Category categoryByLabel = categoryService.getCategoryByLabel(label);
+        Category category = categoryService.getListByCategoryAndLabel(categoryName, label).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_LABEL_NAME));
         //익명인 경우 조회되지 않게 한다.
-        List<Team> byCategory = teamRepository.findByCategory(categoryByLabel).stream().filter(team -> team.isPublic()).collect(Collectors.toList());
+        List<Team> byCategory = teamRepository.findByCategory(category).stream().filter(team -> team.isPublic()).collect(Collectors.toList());
 
         List<GroupDto.SimpleGroupRes> result = new ArrayList<>();
         setSimpleGroupRes(byCategory, result);
         return result;
     }
     public List<GroupDto.SimpleGroupRes> getGroupByCategoryName(String categoryName){
-        List<Category> categoryByName = categoryService.getCategoryByName(categoryName);
+        List<? extends Category> categoryByName = categoryService.getCategoryByName(categoryName);
         //익명인 경우 조회되지 않게 한다.
-        List<Team> byCategory = teamRepository.findWithCategoryByCategoryIn(categoryByName).stream().filter(team -> team.isPublic()).collect(Collectors.toList());
+        List<Team> byCategory = teamRepository.findWithCategoryByCategoryIn((List<Category>) categoryByName).stream().filter(team -> team.isPublic()).collect(Collectors.toList());
         List<GroupDto.SimpleGroupRes> result = new ArrayList<>();
         setSimpleGroupRes(byCategory, result);
         return result;
@@ -147,6 +150,7 @@ public class GroupService {
     private void setSimpleGroupRes(List<Team> byCategory, List<GroupDto.SimpleGroupRes> result) {
 
         byCategory.forEach(team -> {
+            log.info("in simple group iter");
             System.out.println("team.getCategory().getClass() = " + team.getCategory().getClass());
             result.add(GroupDto.SimpleGroupRes.builder().groupName(team.getName())
                     .groupId(team.getId()).oneLineInfo(team.getOneLineInfo())

@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class GroupDto {
+
+
     @Data
     @AllArgsConstructor
     public static class res<T>{
@@ -33,8 +35,8 @@ public class GroupDto {
 
         private Boolean isPublic;
         private Boolean isAnonymous;
-
-        private String categoryLabel;
+        private String categoryName;
+        private String labelName;
 
     }
     @Data

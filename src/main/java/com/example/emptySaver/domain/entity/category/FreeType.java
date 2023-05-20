@@ -1,9 +1,9 @@
 package com.example.emptySaver.domain.entity.category;
 
-public enum EtcType {
+public enum FreeType {
     FREE("자율");
     private String label;
-    EtcType(String label){
+    FreeType(String label){
         this.label=label;
     }
 

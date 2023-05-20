@@ -3,6 +3,7 @@ package com.example.emptySaver.service;
 import com.example.emptySaver.domain.dto.CrawlDto;
 import com.example.emptySaver.domain.entity.NonSubject;
 import com.example.emptySaver.domain.entity.Recruiting;
+import com.example.emptySaver.domain.entity.category.Category;
 import com.example.emptySaver.repository.NonSubjectRepository;
 import com.example.emptySaver.repository.RecruitingRepository;
 //import jakarta.transaction.Transactional;
@@ -25,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -37,6 +35,7 @@ import java.util.Map;
 public class CrawlService {
     private final RecruitingRepository recruitingRepository;
     private final NonSubjectRepository nonSubjectRepository;
+    private final CategoryService categoryService;
     String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
     @Value("${portal.id}")
     String id;
@@ -56,7 +55,7 @@ public class CrawlService {
         this.CrawlRecruiting();
         this.CrawlNonSubject();
         //TODO : 밑에 주석 풀고 확인하십셔
-//        this.CrawlMovie();
+        this.CrawlMovie();
     }
 
     @Scheduled(cron = "0 0 5 * * *",zone = "Asia/Seoul")
@@ -278,8 +277,35 @@ public class CrawlService {
             String href = a.attr("href");
             // TODO : 영화 상세 정보 URL
             String movieInfoUrl="https://search.naver.com/search.naver"+href;
-            String title=a.text();
+            // TODO: 영화 상세 보기 페이지에서 상영시간 parsing하기
+            Document movieInfoDoc = Jsoup.connect(movieInfoUrl).userAgent(userAgent).headers(sameHeader).get();
+            Elements detailInfo = movieInfoDoc.selectXpath("//*[@id=\"main_pack\"]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd");
+            String[] split = detailInfo.html().split("<span class=\"cm_bar_info\"></span>");
+            String movieGenre=split[0];
+            String movieCountry=split[1];
+            String movieRunningTime=split[2];
+            System.out.println("Info : genre:"+movieGenre+ " / country : "+movieCountry + " / runningTime : "+movieRunningTime);
+            Category targetCategory;
+            try{
+                //영화 장르로 Category객체 찾아옴 ( 만약 해당 장르가 없으면 예외를던짐
+                targetCategory = categoryService.getCategoryByLabel(movieGenre);
+            }
+            catch (Exception e){
+                //그렇기에 기타 장르로 설정합시다.
+                // DB에 카테고리 정보가 제대로 저장되어 있지 않다면 여기서 또 에러를 던지니 주의..
+                Optional<? extends Category> etc = categoryService.getListByCategoryAndLabel("movie", "기타");
+                if(!etc.isPresent()){
+                    log.error("========================================");
+                    log.error("Category Movie doesnt have etc column.. Check The DataBase!");
+                    log.error("========================================");
+                    return;
+                }else{
+                    targetCategory=etc.get();
+                }
+            }
 
+
+            String title=a.text();
             Elements divs = tr.select("td > div");
             List<RoomInfo> roomInfoList = new ArrayList<>();
             for (Element div : divs) {

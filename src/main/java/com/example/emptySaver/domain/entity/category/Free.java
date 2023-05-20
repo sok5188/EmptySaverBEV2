@@ -9,8 +9,8 @@ import lombok.Setter;
 
 @Entity
 @Getter@Setter
-@DiscriminatorValue("etc")
-public class Etc extends Category{
+@DiscriminatorValue("free")
+public class Free extends Category{
     @Enumerated(EnumType.STRING)
-    private EtcType etcType;
+    private FreeType freeType;
 }

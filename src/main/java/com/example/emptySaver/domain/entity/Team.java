@@ -21,6 +21,7 @@ public class Team {
     private Long id;
     private String name;
     private String oneLineInfo;
+    @Column(length = 50000)
     private String description;
 
     private Long maxMember;

@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
@@ -24,18 +22,18 @@ class CategoryRepositoryTest {
     @DisplayName("save Test")
     class SaveTest{
         @Test
-        public void 게임저장(){
+        public void 오락저장(){
             //given
-            Game game=new Game();
-            game.setGameGenre(GameType.FPS);
-            game.setName("SuddenAttack");
-            em.persistAndFlush(game);
+            Play play =new Play();
+            play.setPlayType(PlayType.ONLINE_GAME);
+            play.setName("SuddenAttack");
+            em.persistAndFlush(play);
             //when
             em.clear();
-            Optional<Category> save = categoryRepository.findById(game.getId());
+            Optional<Category> save = categoryRepository.findById(play.getId());
             //then
             assertThat(save.isPresent()).isTrue();
-            assertThat(save.get().getName()).isEqualTo(game.getName());
+            assertThat(save.get().getName()).isEqualTo(play.getName());
         }
 
         @Test
