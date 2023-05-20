@@ -45,12 +45,15 @@ public class TimeTableDto {
 
         //@Builder.Default
         @Schema(description = "개인 스케줄인 경우 false")
+        @Builder.Default
         private Boolean groupType = false;
         //@Builder.Default
 
         @Schema(description = "개인 스케줄인 경우 -1")
+        @Builder.Default
         private Long groupId = -1l; //개인 스케줄은 -1
         @Schema(description = "개인 스케줄인 경우 notGroup")
+        @Builder.Default
         private String groupName = "";
     }
 
