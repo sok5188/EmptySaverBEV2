@@ -37,62 +37,90 @@ public class InitDB {
         private final CategoryService categoryService;
         //데이터가 있으면 false -> 없으면 TRue
         public boolean checkUpdate(){
-            if(categoryRepository.count()<categoryService.getLabelCount())
+            if(categoryRepository.count()<categoryService.getTotalLabelCount())
                 return true;
             else return false;
         }
         public void intiCategoryInfo(){
-            saveGame();
+            //TODO: 추가는 가능하지만 삭제,변경이 불가능함 (DB에서 직접 수정,,.? 삭제는 일단 안됨 (Team FK))
+            savePlay();
             saveMovie();
             saveSports();
             saveStudy();
-            saveEtc();
+            saveFree();
         }
 
-        private void saveGame() {
-            List<Game> gameList = new ArrayList<>();
-            Arrays.stream(GameType.values()).forEach(t->{
-                Game game=new Game();
-                game.setGameGenre(t);
-                gameList.add(game);
+        private void savePlay() {
+            List<Play> allPlay = categoryService.findAllPlay();
+            if(allPlay.size()==categoryService.getTargetCategoryLabelCount("play")){
+                return;
+            }
+            List<Play> playList = new ArrayList<>();
+            Arrays.stream(PlayType.values()).forEach(t->{
+                if(!allPlay.stream().filter(g->g.getPlayType().equals(t)).findAny().isPresent()){
+                    Play play =new Play();
+                    play.setPlayType(t);
+                    playList.add(play);
+                }
             });
-            categoryRepository.saveAll(gameList);
+            categoryRepository.saveAll(playList);
         }
         private void saveMovie() {
+            List<Movie> allMovie = categoryService.findAllMovie();
+            if(allMovie.size()==categoryService.getTargetCategoryLabelCount("movie")){
+                return;
+            }
             List<Movie> movieList = new ArrayList<>();
             Arrays.stream(MovieType.values()).forEach(t->{
-                Movie movie=new Movie();
-                movie.setMovieGenre(t);
-                movieList.add(movie);
+                //등록된 라벨 (enum기준)이 DB에 없다면 새로 만들어서 추가
+                if(!allMovie.stream().filter(m->m.getMovieGenre().equals(t)).findAny().isPresent()){
+                    Movie movie=new Movie();
+                    movie.setMovieGenre(t);
+                    movieList.add(movie);
+                }
+
             });
             categoryRepository.saveAll(movieList);
         }
         private void saveSports() {
+            List<Sports> allSports = categoryService.findAllSports();
+            if(allSports.size()==categoryService.getTargetCategoryLabelCount("sports"))
+                return;
             List<Sports> sportsList = new ArrayList<>();
             Arrays.stream(SportsType.values()).forEach(t->{
-                Sports sports = new Sports();
-                sports.setSportType(t);
-                sportsList.add(sports);
+                if(!allSports.stream().filter(s->s.getSportType().equals(t)).findAny().isPresent()){
+                    Sports sports = new Sports();
+                    sports.setSportType(t);
+                    sportsList.add(sports);
+                }
             });
             categoryRepository.saveAll(sportsList);
         }
         private void saveStudy() {
+            List<Study> allStudy = categoryService.findAllStudy();
+            if(allStudy.size()==categoryService.getTargetCategoryLabelCount("study"))
+                return;
             List<Study> studyList = new ArrayList<>();
             Arrays.stream(StudyType.values()).forEach(t->{
-                Study study=new Study();
-                study.setStudyType(t);
-                studyList.add(study);
+                if(!allStudy.stream().filter(s->s.getStudyType().equals(t)).findAny().isPresent()){
+                    Study study=new Study();
+                    study.setStudyType(t);
+                    studyList.add(study);
+                }
             });
             categoryRepository.saveAll(studyList);
         }
-        private void saveEtc(){
-            List<Etc> etcList = new ArrayList<>();
-            Arrays.stream(EtcType.values()).forEach(t->{
-                Etc etc=new Etc();
-                etc.setEtcType(t);
-                etcList.add(etc);
+        private void saveFree(){
+            if(categoryService.findAllFree().size()==categoryService.getTargetCategoryLabelCount("free"))
+                return;
+            //얘는 어차피 자율라벨 하나니깐 지나갑니다.
+            List<Free> freeList = new ArrayList<>();
+            Arrays.stream(FreeType.values()).forEach(t->{
+                Free free =new Free();
+                free.setFreeType(t);
+                freeList.add(free);
             });
-            categoryRepository.saveAll(etcList);
+            categoryRepository.saveAll(freeList);
         }
     }
 
