@@ -2,8 +2,8 @@ package com.example.emptySaver.repository;
 
 import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.domain.entity.MemberInterest;
-import com.example.emptySaver.domain.entity.category.Game;
-import com.example.emptySaver.domain.entity.category.GameType;
+import com.example.emptySaver.domain.entity.category.Play;
+import com.example.emptySaver.domain.entity.category.PlayType;
 import com.example.emptySaver.domain.entity.category.Movie;
 import com.example.emptySaver.domain.entity.category.MovieType;
 import org.junit.jupiter.api.Test;
@@ -36,10 +36,10 @@ class MemberInterestRepositoryTest {
         movie.setMovieGenre(MovieType.ACTION);
         em.persist(movie);
 
-        Game game=new Game();
-        game.setGameGenre(GameType.FPS);
-        game.setName("SuddenAttack");
-        em.persist(game);
+        Play play =new Play();
+        play.setPlayType(PlayType.ONLINE_GAME);
+        play.setName("SuddenAttack");
+        em.persist(play);
 
         MemberInterest memberInterest=new MemberInterest();
         memberInterest.setMember(member);
@@ -48,7 +48,7 @@ class MemberInterestRepositoryTest {
 
         MemberInterest memberInterest2=new MemberInterest();
         memberInterest2.setMember(member);
-        memberInterest2.setCategory(game);
+        memberInterest2.setCategory(play);
         em.persist(memberInterest2);
 
         MemberInterest memberInterest3=new MemberInterest();
@@ -58,7 +58,7 @@ class MemberInterestRepositoryTest {
 
         MemberInterest memberInterest4=new MemberInterest();
         memberInterest4.setMember(member2);
-        memberInterest4.setCategory(game);
+        memberInterest4.setCategory(play);
         em.persist(memberInterest4);
 
         em.flush();
