@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository<T extends Category> extends JpaRepository<T, Long> {
-    @Query("from Game")
-    List<Game> findAllGame();
+    @Query("from Play")
+    List<Play> findAllPlay();
     @Query("from Sports")
     List<Sports> findAllSports();
     @Query("from Movie")
@@ -19,6 +19,6 @@ public interface CategoryRepository<T extends Category> extends JpaRepository<T,
     @Override
     Optional<T> findById(Long categoryId);
 
-    @Query("from Etc")
-    List<Etc> findAllEtc();
+    @Query("from Free")
+    List<Free> findAllFree();
 }
