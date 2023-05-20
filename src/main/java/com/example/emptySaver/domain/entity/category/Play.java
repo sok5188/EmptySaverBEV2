@@ -9,8 +9,8 @@ import lombok.Setter;
 
 @Entity
 @Getter@Setter
-@DiscriminatorValue("game")
-public class Game extends Category{
+@DiscriminatorValue("play")
+public class Play extends Category{
     @Enumerated(EnumType.STRING)
-    private GameType gameGenre;
+    private PlayType playType;
 }
