@@ -8,7 +8,9 @@ public enum SportsType {
     BILLIARDS("당구"),
     SQUASH("스쿼시"),
     TENNIS("테니스"),
-    PINGPONG("탁구");
+    PINGPONG("탁구"),
+    ETC("기타")
+    ;
     private String label;
 
     SportsType(String label) {
