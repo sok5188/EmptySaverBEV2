@@ -7,6 +7,7 @@ import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.service.MemberService;
 import com.example.emptySaver.service.ScheduleRecommendService;
+import com.example.emptySaver.service.ScheduleService;
 import com.example.emptySaver.service.TimeTableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,8 +30,10 @@ import java.util.List;
 public class TimeTableController {
     private final TimeTableService timeTableService;
     private final MemberService memberService;
-    private final TeamRepository teamRepository;
     private final ScheduleRecommendService scheduleRecommendService;
+    private final ScheduleService scheduleService;
+
+    private final TeamRepository teamRepository;
 
     private void checkLocalDateException(final LocalDateTime startTime, final LocalDateTime endTime){
         if(endTime.isBefore(startTime))
@@ -238,6 +241,13 @@ public class TimeTableController {
     public ResponseEntity<List<TimeTableDto.TeamScheduleDto>> getTeamScheduleList(final @RequestParam Long groupId){
         List<TimeTableDto.TeamScheduleDto> teamScheduleList = timeTableService.getTeamScheduleList(groupId);
         return new ResponseEntity<>(teamScheduleList, HttpStatus.OK);
+    }
+
+    @GetMapping("/getMovieScheduleList")
+    @Operation(summary = "오늘 상영 영화의 스케줄들을 받아오기", description = "일단 오늘 것만")
+    public ResponseEntity<List<TimeTableDto.TeamScheduleDto>> getMovieScheduleList(){
+        List<TimeTableDto.TeamScheduleDto> movieScheduleToDay = scheduleService.getMovieScheduleToDay();
+        return new ResponseEntity<>(movieScheduleToDay, HttpStatus.OK);
     }
 
 }
