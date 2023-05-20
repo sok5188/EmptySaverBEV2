@@ -119,7 +119,8 @@ public class CrawlService {
         int i=1;
         List<Recruiting> recruitingList=new ArrayList<>();
 
-        while (!isFin||i<10){
+        while (!isFin&&i<10){
+//            System.out.println("now iter:"+i);
             String url="https://uostory.uos.ac.kr/site/reservation/lecture/lectureList?menuid=001003002002&reservegroupid=1&viewtype=L&rectype=J&thumbnail=Y&currentpage="+i++;
             Document document = Jsoup.connect(url)
                     .userAgent(userAgent).headers(sameHeader).cookie("JSESSIONID", first.cookie("JSESSIONID")).get();
@@ -139,6 +140,7 @@ public class CrawlService {
                     if(k==1){
                         //신청가능여부
                         if(!tr.text().equals("신청가능")){
+                            System.out.println("Not Possible.. now tr="+tr.text());
                             isFin=isPass=true;
                             break;
                         }
@@ -168,11 +170,14 @@ public class CrawlService {
                     else if(tagName.equals("대상학년"))
                         recruiting.setTargetGrade(tagValue);
                 }
+                System.out.println("fin trs");
                 if(!isPass) {
                     recruitingList.add(recruiting);
                 }
 
             }
+            System.out.println("fin li");
+            System.out.println("Now fin flag:"+isFin);
         }
         recruitingRepository.saveAll(recruitingList);
 
