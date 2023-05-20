@@ -1,8 +1,6 @@
 package com.example.emptySaver.domain.dto;
 
-import com.example.emptySaver.domain.entity.category.GameType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 public class CategoryDto {
