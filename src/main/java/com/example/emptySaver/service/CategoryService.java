@@ -26,10 +26,10 @@ public class CategoryService {
     @PostConstruct
     public void setAllCategories() {
         List<CategoryDto.categoryType> typeList=new ArrayList<>();
-        List<String> gameCollect = Arrays.stream(GameType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
-        categoryMap.put("game",gameCollect);
-        typeList.add(new CategoryDto.categoryType<>("game", gameCollect));
-        labelMap.putAll(Arrays.stream(GameType.values()).collect(Collectors.toMap(GameType::getLabel,GameType::getKey)));
+        List<String> playCollect = Arrays.stream(PlayType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
+        categoryMap.put("play",playCollect);
+        typeList.add(new CategoryDto.categoryType<>("play", playCollect));
+        labelMap.putAll(Arrays.stream(PlayType.values()).collect(Collectors.toMap(PlayType::getLabel, PlayType::getKey)));
 
         List<String> movieCollect = Arrays.stream(MovieType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
         categoryMap.put("movie",movieCollect);
@@ -46,17 +46,18 @@ public class CategoryService {
         typeList.add(new CategoryDto.categoryType<>("study", studyCollect));
         labelMap.putAll(Arrays.stream(StudyType.values()).collect(Collectors.toMap(StudyType::getLabel,StudyType::getKey)));
 
-        List<String> etcCollect=new ArrayList<>();
-        etcCollect.add("자율");
-        categoryMap.put("etc",etcCollect);
-        typeList.add(new CategoryDto.categoryType<>("etc",etcCollect));
-        labelMap.putAll(Arrays.stream(EtcType.values()).collect(Collectors.toMap(EtcType::getLabel,EtcType::getKey)));
+        List<String> freeCollect=new ArrayList<>();
+        freeCollect.add("자율");
+        categoryMap.put("free",freeCollect);
+        typeList.add(new CategoryDto.categoryType<>("free",freeCollect));
+        labelMap.putAll(Arrays.stream(FreeType.values()).collect(Collectors.toMap(FreeType::getLabel, FreeType::getKey)));
 
         allCategory=new CategoryDto.res(typeList);
     }
-    public Integer getLabelCount(){
+    public Integer getTotalLabelCount(){
         return labelMap.size();
     }
+    public Integer getTargetCategoryLabelCount(String categoryName){ return categoryMap.get(categoryName).size();}
 
     public CategoryDto.res getAllCategories() {
         return allCategory;
@@ -65,28 +66,28 @@ public class CategoryService {
         if(!labelMap.containsKey(label))
             throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
 
-        List<Game> allGame = categoryRepository.findAllGame();
-        Optional<Game> gameOptional = allGame.stream().filter(g -> g.getGameGenre().getLabel().equals(label)).findAny();
-        if(gameOptional.isPresent())
-            return gameOptional.get();
+        List<Play> allPlay = this.findAllPlay();
+        Optional<Play> playOptional = allPlay.stream().filter(g -> g.getPlayType().getLabel().equals(label)).findAny();
+        if(playOptional.isPresent())
+            return playOptional.get();
 
-        List<Sports> allSports = categoryRepository.findAllSports();
+        List<Sports> allSports = this.findAllSports();
         Optional<Sports> sportsOptional = allSports.stream().filter(g -> g.getSportType().getLabel().equals(label)).findAny();
         if(sportsOptional.isPresent())
             return sportsOptional.get();
 
-        List<Movie> allMovie = categoryRepository.findAllMovie();
+        List<Movie> allMovie = this.findAllMovie();
         Optional<Movie> movieOptional = allMovie.stream().filter(m -> m.getMovieGenre().getLabel().equals(label)).findAny();
         if(movieOptional.isPresent())
             return movieOptional.get();
 
-        List<Study> allStudy = categoryRepository.findAllStudy();
+        List<Study> allStudy = this.findAllStudy();
         Optional<Study> studyOptional = allStudy.stream().filter(m -> m.getStudyType().getLabel().equals(label)).findAny();
         if(studyOptional.isPresent())
             return studyOptional.get();
 
-        List<Etc> allEtc = categoryRepository.findAllEtc();
-        Optional<Etc> etcOptional = allEtc.stream().filter(e -> e.getEtcType().getLabel().equals(label)).findAny();
+        List<Free> allFree = this.findAllFree();
+        Optional<Free> etcOptional = allFree.stream().filter(e -> e.getFreeType().getLabel().equals(label)).findAny();
         if(etcOptional.isPresent())
             return etcOptional.get();
 
@@ -96,9 +97,9 @@ public class CategoryService {
     public String getLabelByCategory(Category category){
         log.info("now get label by category, id and class : "+category.getId()+ " / "+ category.getClass());
 
-        if(category instanceof Game){
-            Game game = (Game) category;
-            return game.getGameGenre().getLabel();
+        if(category instanceof Play){
+            Play play = (Play) category;
+            return play.getPlayType().getLabel();
         }else if(category instanceof Movie){
             Movie movie = (Movie) category;
             return movie.getMovieGenre().getLabel();
@@ -108,35 +109,35 @@ public class CategoryService {
         }else if(category instanceof Study){
             Study study= (Study) category;
             return study.getStudyType().getLabel();
-        }else if(category instanceof Etc){
-            Etc etc=(Etc) category;
-            return etc.getEtcType().getLabel();
+        }else if(category instanceof Free){
+            Free free =(Free) category;
+            return free.getFreeType().getLabel();
         }
         else{
             throw new BaseException(BaseResponseStatus.INVALID_CATEGORY_ID);
         }
     }
-    public List<Category> getCategoryByName(String name){
+    public List<? extends Category> getCategoryByName(String name){
 
-        if(name.equals("game")){
-            return categoryRepository.findAllGame();
+        if(name.equals("play")){
+            return this.findAllPlay();
         }else if(name.equals("movie"))
-            return categoryRepository.findAllMovie();
+            return this.findAllMovie();
         else if(name.equals("sports"))
-            return categoryRepository.findAllSports();
+            return this.findAllSports();
         else if(name.equals("study"))
-            return categoryRepository.findAllStudy();
-        else if(name.equals("etc"))
-            return categoryRepository.findAllEtc();
+            return this.findAllStudy();
+        else if(name.equals("free"))
+            return this.findAllFree();
         else throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
     }
     public List<CategoryDto.categoryInfo> getCategoryNames(){
         List<CategoryDto.categoryInfo> result = new ArrayList<>();
-        result.add(new CategoryDto.categoryInfo("game","게임"));
+        result.add(new CategoryDto.categoryInfo("play","오락"));
         result.add(new CategoryDto.categoryInfo("movie","영화"));
         result.add(new CategoryDto.categoryInfo("sports","스포츠"));
         result.add(new CategoryDto.categoryInfo("study","스터디"));
-        result.add(new CategoryDto.categoryInfo("etc","자율"));
+        result.add(new CategoryDto.categoryInfo("free","자율"));
         return result;
     }
     public CategoryDto.categoryType getLabelInfoByCategoryName(String type){
@@ -144,6 +145,35 @@ public class CategoryService {
             throw new BaseException(BaseResponseStatus.INVALID_CATEGORY_ID);
         List<String> labelList = categoryMap.get(type);
         return new CategoryDto.categoryType(type,labelList);
+    }
+    public List<Play> findAllPlay(){
+        return categoryRepository.findAllPlay();
+    }
+    public List<Movie> findAllMovie(){
+        return categoryRepository.findAllMovie();
+    }
+    public List<Sports> findAllSports(){
+        return categoryRepository.findAllSports();
+    }
+    public List<Study> findAllStudy(){
+        return categoryRepository.findAllStudy();
+    }
+    public List<Free> findAllFree(){
+        return categoryRepository.findAllFree();
+    }
+    public Optional<? extends Category> getListByCategoryAndLabel(String categoryName, String labelName){
+
+        if(categoryName.equals("play")){
+            return this.findAllPlay().stream().filter(g->g.getPlayType().getLabel().equals(labelName)).findAny();
+        }else if(categoryName.equals("movie"))
+            return this.findAllMovie().stream().filter(m->m.getMovieGenre().getLabel().equals(labelName)).findAny();
+        else if(categoryName.equals("sports"))
+            return this.findAllSports().stream().filter(sports -> sports.getSportType().getLabel().equals(labelName)).findAny();
+        else if(categoryName.equals("study"))
+            return this.findAllStudy().stream().filter(study -> study.getStudyType().getLabel().equals(labelName)).findAny();
+        else if(categoryName.equals("free"))
+            return this.findAllFree().stream().filter(f->f.getFreeType().getLabel().equals(labelName)).findAny();
+        else throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
     }
 
 }
