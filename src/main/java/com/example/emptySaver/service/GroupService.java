@@ -89,12 +89,13 @@ public class GroupService {
         if(subject.equals("member")){
             //멤버가 그룹에 가인 신청을 하는 경우
             fcmService.sendMessageToMember(team.getOwner().getId(),team.getName()+ " 가입 신청 알림 입니다."
-                    ,member.getNickname()+"님이 회원님의 그룹 " + team.getName() + " 에 가입 신청을 하였습니다."
-                    );
+                    ,member.getNickname()+"님이 회원님의 그룹 " + team.getName() + " 에 가입 신청을 하였습니다.",
+                    "group","group",String.valueOf(teamId));
         }else{
             //그룹장이 회원에게 초대를 보내는 경우
             fcmService.sendMessageToMember(memberId,team.getName()+" 그룹의 초대가 왔습니다",
-                    team.getName()+ " 에서 회원님에게 가입 권유를 보냈습니다");
+                    team.getName()+ " 에서 회원님에게 가입 권유를 보냈습니다",
+                    "notification","group",String.valueOf(teamId));
         }
         return member.getUsername();
     }
@@ -291,8 +292,6 @@ public class GroupService {
     }
     @Transactional
     public String acceptMember(Long memberId, Long groupId){
-        //TODO: 만약 뭐 여기서도 가입 승인 Or 가입 권유 ok응답 이렇게 가입되는 경우 요청자에게 알림을 보내는게 좋을까??
-
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
         Team team = teamRepository.findById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         MemberTeam memberTeam = memberTeamRepository.findFirstByMemberAndTeam(member, team).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REQUEST));
@@ -305,6 +304,7 @@ public class GroupService {
         if(memberTeam.isBelong())
             throw new BaseException(BaseResponseStatus.ALREADY_BELONG_ERROR);
         memberTeam.addMemberToTeam();
+        fcmService.sendMessageToMember(memberId,"그룹에 가입되었습니다",team.getName()+"그룹에 가입이 완료되었습니다","group","group",String.valueOf(groupId));
         return member.getName();
     }
 

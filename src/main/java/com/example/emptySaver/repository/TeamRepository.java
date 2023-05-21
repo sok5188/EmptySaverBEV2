@@ -25,4 +25,7 @@ public interface TeamRepository extends JpaRepository<Team,Long> {
     @EntityGraph(attributePaths = "category")
     List<Team> findWithCategoryByCategoryIn(List<Category> categories);
 
+    @EntityGraph(attributePaths = "owner")
+    Optional<Team> findWithOwnerById(Long id);
+
 }

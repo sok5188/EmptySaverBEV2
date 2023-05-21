@@ -28,6 +28,7 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Team team;
 
     private LocalDateTime date;

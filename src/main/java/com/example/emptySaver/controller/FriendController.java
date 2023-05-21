@@ -58,7 +58,6 @@ public class FriendController {
     @PostMapping("/request/{friendEmail}")
     @Operation(summary = "친구 요청 전송", description = "회원이 다른 회원의 이메일로 친구 요청을 전송하는 API")
     public ResponseEntity<String> sendFriendRequest(@PathVariable String friendEmail){
-        //TODO: 친구 요청을 보내면 해당 회원에겐 알림이 가야 한다.
         log.info("got email: {} ",friendEmail);
         friendService.requestFriend(friendEmail);
         return new ResponseEntity<>("send friend request",HttpStatus.OK);

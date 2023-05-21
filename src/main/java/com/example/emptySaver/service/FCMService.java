@@ -6,6 +6,7 @@ import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.MemberRepository;
+import com.example.emptySaver.repository.NotificationRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -19,26 +20,32 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class FCMService {
     private final FirebaseMessaging firebaseMessaging;
     private final MemberRepository memberRepository;
-    public void sendMessageToMember(Long memberId,String title, String body){
+    private final NotificationRepository notificationRepository;
+    public void sendMessageToMember(Long memberId,String title, String body, String routeValue,String idType, String idValue){
         Notification notification=Notification.builder()
-                .setTitle(title).setBody(body).build();
+                .setTitle(title).setBody(body.length()>20?body.substring(0,17)+"...":body).build();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
-        Message message=Message.builder().setToken(member.getFcmToken())
-                .setNotification(notification).build();
+        Message message=Message.builder().setToken(member.getFcmToken()).putData("route",routeValue).putData("idType",idType)
+                .putData("idValue",idValue).setNotification(notification).build();
+        com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.init()
+                .member(member).title(title).body(body).routeValue(routeValue)
+                .idType(idType).idValue(idValue).build();
         try {
             firebaseMessaging.send(message);
+            notificationRepository.save(build);
         } catch (FirebaseMessagingException e) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_SEND_NOTIFICATION);
         }
     }
 
-    public void sendMessageToMemberList(List<Long> memberIdList, String title, String body){
+    public void sendMessageToMemberList(List<Long> memberIdList, String title, String body,
+                                        String routeValue,String idType, String idValue){
         for (Long memberId : memberIdList) {
-            this.sendMessageToMember(memberId,title,body);
+            this.sendMessageToMember(memberId,title,body,routeValue,idType,idValue);
         }
     }
 }
