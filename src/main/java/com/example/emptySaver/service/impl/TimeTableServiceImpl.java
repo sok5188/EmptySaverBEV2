@@ -158,7 +158,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId(),isPublicTypeSchedule);    //그룹장 자신에게 저장
 
         //그룹원들에게 알림보내기
-        fcmService.sendMessageToMemberList(memberIdList,"그룹 " +team.getName()+"의 일정 추가 요청","scheduleId: " + savedSchedule.getId());
+        //TODO : 그룹 스케줄이 몇시부터 몇시 무슨요일에 추가되는 지를 바디에 넣고 data부분에 스케쥴 아이디
+        fcmService.sendMessageToMemberList(memberIdList,"그룹 " +team.getName()+"의 일정 추가 요청","scheduleId: " + savedSchedule.getId(),"notification","Schedule",String.valueOf(savedSchedule.getId()));
 
         log.info("add Schedule id: "+ savedSchedule.getId() + " to Team id: " + team.getId());
     }

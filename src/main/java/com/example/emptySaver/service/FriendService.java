@@ -81,7 +81,8 @@ public class FriendService {
             Friend friend= new Friend();
             friend.addFriendRequest(member,target);
             friendRepository.save(friend);
-            fcmService.sendMessageToMember(target.getId(), "친구 추가 요청이 왔습니다",member.getNickname()+"님이 회원님과 친구를 맺고 싶어 합니다.");
+            fcmService.sendMessageToMember(target.getId(), "친구 추가 요청이 왔습니다",member.getNickname()+"님이 회원님과 친구를 맺고 싶어 합니다."
+                    ,"notification","friend",String.valueOf(friend.getId()));
         }
 
     }
@@ -108,9 +109,6 @@ public class FriendService {
     }
     @Transactional
     public void approveFriend(Long friendId) {
-        //TODO: 처음 친구요청을 보낸사람에게 친구가 되었다고 알려주는게 필요한가 ?
-
-
         //즉, b가 owner고 a가 friendMember인 friend의 id를 받아 true로 바꾸고 a가 owner고 b가 friendMember인 friend가 있다면 true로 바꿈
         Friend friend = getFriend(friendId);
         //이미 친구 수락된 상태면 오류 던지고 바로 돌아가자.
@@ -134,11 +132,18 @@ public class FriendService {
             log.info("a가 b에게 보낸 요청 존재");
             Friend frd = opt.get();
             frd.setFriend(true);
+            //둘 다에게 알림 전송
+            fcmService.sendMessageToMember(b.getId(),a.getName()+"님과 친구가 되었습니다",a.getName()+"님이 회원님의 친구 요청을 수락하였습니다",
+                    "friend","x","x");
+            fcmService.sendMessageToMember(a.getId(),b.getName()+"님과 친구가 되었습니다",b.getName()+"님이 회원님의 친구 요청을 수락하였습니다",
+                    "friend","x","x");
         }else{
             log.info("a가 b에게 보낸 요청 없음");
             Friend frd = new Friend();
             frd.makeFriend(a,b);
             friendRepository.save(frd);
+            fcmService.sendMessageToMember(b.getId(),a.getName()+"님과 친구가 되었습니다",a.getName()+"님이 회원님의 친구 요청을 수락하였습니다",
+                    "friend","x","x");
         }
 
     }
