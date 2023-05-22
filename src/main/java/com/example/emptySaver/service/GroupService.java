@@ -89,7 +89,7 @@ public class GroupService {
         if(subject.equals("member")){
             //멤버가 그룹에 가인 신청을 하는 경우
             fcmService.sendMessageToMember(team.getOwner().getId(),team.getName()+ " 가입 신청 알림 입니다."
-                    ,member.getNickname()+"님이 회원님의 그룹 " + team.getName() + " 에 가입 신청을 하였습니다.",
+                    ,team.isAnonymous()?member.getNickname():member.getName()+"님이 회원님의 그룹 " + team.getName() + " 에 가입 신청을 하였습니다.",
                     "group","group",String.valueOf(teamId));
         }else{
             //그룹장이 회원에게 초대를 보내는 경우
@@ -156,6 +156,8 @@ public class GroupService {
         byCategory.forEach(team -> {
             log.info("in simple group iter");
             System.out.println("team.getCategory().getClass() = " + team.getCategory().getClass());
+            String labelName = categoryService.getLabelByCategory(team.getCategory());
+            String categoryName = categoryService.getCategoryNameByCategory(team.getCategory());
             result.add(GroupDto.SimpleGroupRes.builder().groupName(team.getName())
                     .groupId(team.getId()).oneLineInfo(team.getOneLineInfo())
                     .nowMember(
@@ -165,8 +167,9 @@ public class GroupService {
                             )
                     )
                     .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
-                    .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
+                    .categoryLabel(labelName)
                             .amIOwner(team.getOwner().equals(memberService.getMember()))
+                            .categoryName(categoryName)
                     .build());
         });
     }
@@ -249,7 +252,7 @@ public class GroupService {
                     if(mt.isBelong()){
                         result.add(AuthDto.SimpleMemberInfo.builder()
                                         .memberId(mt.getMember().getId())
-                                        .name(mt.getMember().getName())
+                                        .name(team.isAnonymous()?mt.getMember().getNickname():mt.getMember().getName())
                                         .isOwner(mt.getMember().equals(team.getOwner()))
                                 .build()
                         );
