@@ -41,6 +41,7 @@ public enum BaseResponseStatus {
 
     NOT_EXIST_SCHEDULE_ID(false, 2500,"존재하지 않는 schedule id 입니다."),
     LOCAL_DATE_TIME_END_ERROR(false, 2501,"종료 시간이 시작 시간보다 빠를 수 없습니다."),
+    INVALID_NOTIFICATION_ID(false, 2502,"유효하지 않은 알림 ID 입니다"),
     /**
      * 3000 : Response 오류
      */

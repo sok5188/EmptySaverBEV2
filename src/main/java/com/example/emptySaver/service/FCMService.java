@@ -12,6 +12,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class FCMService {
     private final FirebaseMessaging firebaseMessaging;
     private final MemberRepository memberRepository;
@@ -44,7 +46,9 @@ public class FCMService {
 
     public void sendMessageToMemberList(List<Long> memberIdList, String title, String body,
                                         String routeValue,String idType, String idValue){
+        log.info("in fcm send List size: "+memberIdList.size());
         for (Long memberId : memberIdList) {
+            log.info("target id:"+memberId);
             this.sendMessageToMember(memberId,title,body,routeValue,idType,idValue);
         }
     }

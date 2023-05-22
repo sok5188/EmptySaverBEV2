@@ -54,6 +54,7 @@ public class GroupDto {
 
         private String categoryLabel;
         private Boolean amIOwner;
+        private String categoryName;
     }
     @Data
     @Builder
