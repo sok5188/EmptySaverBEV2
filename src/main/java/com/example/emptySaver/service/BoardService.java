@@ -178,14 +178,15 @@ public class BoardService {
     @Transactional
     public void addPost(PostDto.PostAddReq req){
         Member member = memberService.getMember();
+        log.info("member Name:"+member.getName());
         Team team = getTeam(req.getGroupId());
+        log.info("team name:"+team.getName());
         //TODO: 지연로딩 될 지점 (아마)
         if(!team.getOwner().equals(member))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
         Post build = Post.init().memberName(member.getName()).team(team).title(req.getTitle()).content(req.getContent()).build();
         postRepository.save(build);
-        // 그룹 공지사항 게시되면 모든 그룹원에게 알림 전송
-        fcmService.sendMessageToMemberList(team.getTeamMembers().stream().map(MemberTeam::getId).collect(Collectors.toList())
+        fcmService.sendMessageToMemberList(team.getTeamMembers().stream().map( memberTeam -> memberTeam.getMember().getId()).collect(Collectors.toList())
                 , team.getName()+" 그룹에 새로운 공지사항이  등록되었습니다.", req.getContent(), "notification","x","x");
     }
     @Transactional
