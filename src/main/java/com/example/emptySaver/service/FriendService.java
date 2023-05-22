@@ -81,7 +81,7 @@ public class FriendService {
             Friend friend= new Friend();
             friend.addFriendRequest(member,target);
             friendRepository.save(friend);
-            fcmService.sendMessageToMember(target.getId(), "친구 추가 요청이 왔습니다",member.getNickname()+"님이 회원님과 친구를 맺고 싶어 합니다."
+            fcmService.sendMessageToMember(target.getId(), "친구 추가 요청이 왔습니다",member.getName()+"님이 회원님과 친구를 맺고 싶어 합니다."
                     ,"notification","friend",String.valueOf(friend.getId()));
         }
 

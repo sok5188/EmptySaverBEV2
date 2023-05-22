@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
+public class Notification implements Comparable<Notification>{
     @Id
     @GeneratedValue
     @Column(name = "notification_id")
@@ -41,5 +41,10 @@ public class Notification {
         this.idValue = idValue;
         receiveTime=LocalDateTime.now();
         isRead=false;
+    }
+
+    @Override
+    public int compareTo(Notification o) {
+        return this.getReceiveTime().compareTo(o.getReceiveTime());
     }
 }
