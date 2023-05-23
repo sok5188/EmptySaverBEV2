@@ -15,6 +15,7 @@ public class FriendDto {
     @Builder
     public static class FriendInfo{
         private String friendName;
+        private String friendEmail;
         private Long friendId;
         private Long friendMemberId;
     }
