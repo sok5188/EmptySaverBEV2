@@ -95,14 +95,17 @@ public class FriendService {
     public void removeFriend(Long friendId, boolean forceFlag){
         Friend friend = getFriend(friendId);
         Member member = getMember();
-        //해당 관계의 주인만 삭제를 시도할 수 있다. (물론 진짜 친구 삭제면 양방향으로 다 삭제되긴 한다.)
-        if(!friend.getOwner().equals(member))
+        //해당 친구객체에 연관이 있는 회원만 수정이 가능.
+        if(!friend.getOwner().equals(member)&&!friend.getFriendMember().equals(member))
             throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
         if(!forceFlag){
-            //이미 친구관계이고 강제 삭제가 아닌경우
+            //이미 친구관계이거나 해당 Friend객체의 대상이 현재 접속한 회원이 아닌 경우 -> 에러
             if(friend.isFriend()|| !friend.getFriendMember().equals(member))
                 throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
             else friendRepository.delete(friend);
+            //친구 요청을 거절하는 것이므로 그냥 전달받은 friend객체만 지워주면 ok
+            //TODO : 뭐랄까 양쪽으로 친구요청상태인 객체가 2 개 존재할 때 이렇게 지우면 하나만 지워진다 ( 즉, 정말 완벽하게 하려면 not friend인 관계
+            // 중 friend,owner 가 뒤집힌 관계가 있다면 그것까지 지워야 함.(뭐 지금은 pass)
         }else {
             //양방향 삭제해야 함
             friendRepository.delete(friend);
