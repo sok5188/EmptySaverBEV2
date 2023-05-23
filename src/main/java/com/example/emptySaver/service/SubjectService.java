@@ -3,6 +3,7 @@ package com.example.emptySaver.service;
 import com.example.emptySaver.domain.dto.SubjectDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
+import com.example.emptySaver.repository.DepartmentRepository;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.ScheduleRepository;
 import com.example.emptySaver.repository.SubjectRepository;
@@ -24,6 +25,7 @@ public class SubjectService {
     private final UosSubjectAutoSaver uosSubjectAutoSaver;
     private final MemberRepository memberRepository;
     private final ScheduleRepository scheduleRepository;
+    private final DepartmentRepository departmentRepository;
 
     @Transactional
     public void saveAllSubjectByYearAndTerm(String years, String term){
@@ -106,5 +108,26 @@ public class SubjectService {
         scheduleList.add(savedSchedule);
         timeTable.calcAllWeekScheduleData();
         log.info("add Subject Schedule"+ savedSchedule.getId() + " to Member" + member.getId());
+    }
+
+    public List<SubjectDto.DepartmentDto> getAllDepartment(){
+        List<Department> departmentList = departmentRepository.findAll();
+        return this.convertDepartmentToDtoList(departmentList);
+    }
+
+    private List<SubjectDto.DepartmentDto> convertDepartmentToDtoList(List<Department> departmentList){
+        List<SubjectDto.DepartmentDto> departmentDtoList = new ArrayList<>();
+
+        for (Department department : departmentList) {
+            SubjectDto.DepartmentDto departmentDto = SubjectDto.DepartmentDto.builder()
+                    .id(department.getId())
+                    .name(department.getName())
+                    .deptDiv(department.getDeptDiv())
+                    .subDiv(department.getSubDiv())
+                    .dept(department.getDept())
+                    .build();
+            departmentDtoList.add(departmentDto);
+        }
+        return departmentDtoList;
     }
 }
