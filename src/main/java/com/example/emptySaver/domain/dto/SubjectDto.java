@@ -1,6 +1,8 @@
 package com.example.emptySaver.domain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -63,5 +65,19 @@ public class SubjectDto {
 
         @Schema(description = "강의 학년, 1~4 사이의 숫자로")
         private String grade;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "학과 정보에 대해서")
+    public static class DepartmentDto{
+        private Long id;
+
+        private String name;
+        private String deptDiv; //by colg
+        private String dept;    //by up_dept
+        private String subDiv;  //by dept
     }
 }

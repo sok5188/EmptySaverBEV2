@@ -45,4 +45,10 @@ public class SubjectController {
         subjectService.saveSubjectToMemberSchedule(currentMemberId,subjectId);
         return new ResponseEntity<>("save Subject to Member, subjectId: " + subjectId, HttpStatus.OK);
     }
+
+    @GetMapping("/getAllDepartment")
+    @Operation(summary = "모든 부서 정보 가져오기", description = "DB에 존재하는 모든 부서의 정보를 가져옴")
+    public ResponseEntity<List<SubjectDto.DepartmentDto>>getAllDepartmentDto(){
+        return new ResponseEntity<>(subjectService.getAllDepartment(), HttpStatus.OK);
+    }
 }
