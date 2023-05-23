@@ -32,7 +32,7 @@ public class Comment {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10000)
     private String text;
     @Column(nullable = false)
     private LocalDateTime date;
