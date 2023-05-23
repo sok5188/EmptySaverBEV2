@@ -37,7 +37,9 @@ public class FriendService {
         withFriendByOwner.stream().forEach(friend -> {
             if(friend.isFriend())
                 friendInfoList.add(FriendDto.FriendInfo.builder().friendName(friend.getFriendMember().getName())
-                                .friendId(friend.getId()).friendMemberId(friend.getFriendMember().getId()).build());
+                                .friendEmail(friend.getFriendMember().getEmail())
+                                .friendId(friend.getId()).friendMemberId(friend.getFriendMember().getId())
+                        .build());
         });
         return friendInfoList;
     }
@@ -49,6 +51,7 @@ public class FriendService {
         withFriendByOwner.stream().forEach(friend -> {
             if(!friend.isFriend())
                 friendInfoList.add(FriendDto.FriendInfo.builder().friendName(friend.getFriendMember().getName())
+                        .friendEmail(friend.getFriendMember().getEmail())
                         .friendId(friend.getId()).friendMemberId(friend.getFriendMember().getId()).build());
         });
         return friendInfoList;
@@ -61,6 +64,7 @@ public class FriendService {
         withFriendByOwner.stream().forEach(friend -> {
             if(!friend.isFriend())
                 friendInfoList.add(FriendDto.FriendInfo.builder().friendName(friend.getOwner().getName())
+                        .friendEmail(friend.getOwner().getEmail())
                         .friendId(friend.getId()).friendMemberId(friend.getOwner().getId()).build());
         });
         return friendInfoList;
