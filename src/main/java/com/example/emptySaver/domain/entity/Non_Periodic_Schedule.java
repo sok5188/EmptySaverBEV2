@@ -6,12 +6,11 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Entity
 @ToString
 public class Non_Periodic_Schedule extends Schedule{
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    //private LocalDateTime startTime;
+    //private LocalDateTime endTime;
 }

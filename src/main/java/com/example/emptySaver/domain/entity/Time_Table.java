@@ -59,6 +59,15 @@ public class Time_Table {
         });*/
     }
 
+    public long[] calcPeriodicScheduleInBound(final LocalDateTime start, final LocalDateTime end){
+        this.weekScheduleData = new long[]{0,0,0,0,0,0,0};   //0으로 init 후 재계산
+
+        for (Periodic_Schedule schedule: this.getPeriodicScheduleInBound(start, end)) {
+            addWeekScheduleData(schedule.getWeekScheduleData());
+        }
+        return this.weekScheduleData;
+    }
+
     private void addWeekScheduleData(long[] otherScheduleData){
         for (int i=0; i<otherScheduleData.length ; ++i)
             this.weekScheduleData[i] |= otherScheduleData[i];
@@ -79,5 +88,43 @@ public class Time_Table {
         }
 
         return nonPeriodicScheduleList;
+    }
+
+    public List<Periodic_Schedule> getPeriodicScheduleInBound(final LocalDateTime start, final LocalDateTime end){
+        LocalDateTime startTime = start.minusMinutes(1);
+        LocalDateTime endTime = end.plusMinutes(1);
+
+        List<Periodic_Schedule> periodicScheduleList = new ArrayList<>();
+        for (Schedule schedule: this.scheduleList) {
+            if (schedule instanceof  Non_Periodic_Schedule)
+                continue;
+            Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
+            if(periodicSchedule.getStartTime() == null){
+                periodicScheduleList.add(periodicSchedule);
+            }
+            /*
+            else if(periodicSchedule.getStartTime().isAfter(startTime)
+                    && periodicSchedule.getEndTime().isBefore(endTime))
+                periodicScheduleList.add(periodicSchedule);*/
+        }
+
+        return periodicScheduleList;
+    }
+
+    public List<Periodic_Schedule> getPeriodicScheduleOverlap(final LocalDateTime startTime, final LocalDateTime endTime){
+
+        List<Periodic_Schedule> periodicScheduleList = new ArrayList<>();
+        for (Schedule schedule: this.scheduleList) {
+            if (schedule instanceof  Non_Periodic_Schedule)
+                continue;
+            if(schedule.getStartTime() == null)
+                continue;
+            Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
+            if((periodicSchedule.getStartTime().isBefore(endTime) && periodicSchedule.getEndTime().isAfter(endTime.minusMinutes(1)))
+                    ||(startTime.isBefore(periodicSchedule.getEndTime()) && periodicSchedule.getEndTime().isBefore(endTime.plusMinutes(1))))
+                periodicScheduleList.add(periodicSchedule);
+        }
+
+        return periodicScheduleList;
     }
 }

@@ -91,10 +91,12 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         List<Periodic_Schedule> periodicScheduleList = periodicScheduleRepository.findByPublicType(true);
         for (Periodic_Schedule periodicSchedule : periodicScheduleList) {
-            if(timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
-                    ,searchForm.getStartTime(), searchForm.getEndTime()))
-                includedScheduleList.add(periodicSchedule);
-
+            if((periodicSchedule.getStartTime().isAfter(searchForm.getStartTime().minusMinutes(1)) && periodicSchedule.getStartTime().isBefore(searchForm.getEndTime().plusMinutes(1)))
+                    || periodicSchedule.getEndTime().isAfter(searchForm.getStartTime().minusMinutes(1)) && periodicSchedule.getEndTime().isBefore(searchForm.getEndTime().plusMinutes(1))){
+                if(timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
+                        ,searchForm.getStartTime(), searchForm.getEndTime()))
+                    includedScheduleList.add(periodicSchedule);
+            }
         }
 
         List<Non_Periodic_Schedule> nonPeriodicScheduleList = nonPeriodicScheduleRepository.findByPublicTypeAndStartTimeBetween(true, searchForm.getStartTime(), searchForm.getEndTime());
@@ -108,14 +110,14 @@ public class TimeTableServiceImpl implements TimeTableService {
 
     //그룹장에게 schedule 저장
     @Transactional
-    private void saveScheduleInOwnerTimeTable(final TimeTableDto.SchedulePostDto schedulePostDto, final Long originScheduleId,final boolean isPublicTypeSchedule){
+    private void saveScheduleInOwnerTimeTable(final TimeTableDto.SchedulePostDto schedulePostDto, final Long originScheduleId){
         Member member = memberService.getMember();
         Time_Table timeTable = member.getTimeTable();
 
         Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
         schedule.setTimeTable(timeTable);
         schedule.setOriginScheduleId(originScheduleId);
-        schedule.setPublicType(isPublicTypeSchedule);
+        schedule.setPublicType(false);
 
         schedule.setTimeTable(timeTable);
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
@@ -155,7 +157,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         scheduleList.add(savedSchedule);
         teamTimeTable.calcAllWeekScheduleData();
 
-        this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId(),isPublicTypeSchedule);    //그룹장 자신에게 저장
+        this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId());    //그룹장 자신에게 저장
 
         //그룹원들에게 알림보내기
         //TODO : 그룹 스케줄이 몇시부터 몇시 무슨요일에 추가되는 지를 바디에 넣고 data부분에 스케쥴 아이디
@@ -217,9 +219,13 @@ public class TimeTableServiceImpl implements TimeTableService {
             groupList.add(team.getTeam());
         }
 
+        LocalDateTime startTime = startDate.atStartOfDay();
+        LocalDateTime endTime = endDate.atStartOfDay();
         for (Team team : groupList) {
             Time_Table teamTimeTable = team.getTimeTable();
-            TimeTableDto.TimeTableInfo timeTableInfo = this.calcTimeTableDataPerWeek(startDate, endDate, teamTimeTable.getWeekScheduleData(), teamTimeTable.getScheduleList());
+            TimeTableDto.TimeTableInfo timeTableInfo = this.calcTimeTableDataPerWeek(startDate, endDate
+                    , teamTimeTable.calcPeriodicScheduleInBound(startTime,endTime), teamTimeTable.getPeriodicScheduleInBound(startTime,endTime)
+                    ,teamTimeTable.getPeriodicScheduleOverlap(startTime,endTime),teamTimeTable.getNonPeriodicScheduleInBound(startTime,endTime));
             groupTimeTableInfoList.add(TimeTableDto.GroupTimeTableInfo.builder()
                     .groupId(team.getId())
                     .timeTableInfo(timeTableInfo)
@@ -234,11 +240,14 @@ public class TimeTableServiceImpl implements TimeTableService {
         Member member = memberRepository.findById(memberId).get();
 
         Time_Table timeTable = member.getTimeTable();
-        timeTable.calcAllWeekScheduleData();
-        long[] weekScheduleData = timeTable.getWeekScheduleData();
+        //timeTable.calcAllWeekScheduleData();
+        long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.atStartOfDay());
         final List<Schedule> scheduleList = timeTable.getScheduleList();
-
-        return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,scheduleList);
+        List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
+        List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(), endDate.atStartOfDay());
+        log.info("overlap size: "+ periodicScheduleOverlap.size());
+        List<Non_Periodic_Schedule> nonPeriodicScheduleInBound = timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
+        return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,periodicScheduleInBound,periodicScheduleOverlap,nonPeriodicScheduleInBound);
     }
 
     private List<List<Boolean>> convertLongListToBitListsPerDay(List<Long> bitDataPerDays){
@@ -252,7 +261,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         return bitListsPerDay;
     }
 
-    private TimeTableDto.TimeTableInfo calcTimeTableDataPerWeek( final LocalDate startDate, final LocalDate endDate ,final long[] weekScheduleData, final List<Schedule> scheduleList){
+    private TimeTableDto.TimeTableInfo calcTimeTableDataPerWeek( final LocalDate startDate, final LocalDate endDate ,final long[] weekScheduleData
+            ,final List<Periodic_Schedule> periodicScheduleInBound, List<Periodic_Schedule> periodicScheduleOverlap,List<Non_Periodic_Schedule> nonPeriodicScheduleInBound){
         final int dayNum = (int) Duration.between(startDate.atStartOfDay(),endDate.atStartOfDay()).toDays() +1;
         final int startDayOfWeek = startDate.getDayOfWeek().getValue() -1; //월요일부터 0~6까지 정수
 
@@ -267,7 +277,7 @@ public class TimeTableServiceImpl implements TimeTableService {
             dayOfWeekIdx %= WEEK_MOD;
             scheduleListPerDays.add(new ArrayList<>());
         }
-
+/*
         List<Periodic_Schedule> periodicScheduleList = new ArrayList<>();
         List<Non_Periodic_Schedule> nonPeriodicScheduleList = new ArrayList<>();
         for (Schedule schedule: scheduleList) { //타입 분리
@@ -281,13 +291,13 @@ public class TimeTableServiceImpl implements TimeTableService {
                     nonPeriodicScheduleList.add((Non_Periodic_Schedule)schedule);
             }
 
-        }
+        }*/
 
         List<List<TimeTableDto.ScheduleDto>> weekRoutines = new ArrayList<>();
         for (int i = 0; i <WEEK_MOD ; i++)    //init
             weekRoutines.add(new ArrayList<>());
 
-        for (Periodic_Schedule schedule:periodicScheduleList) { //weekRoutine인 스케줄 저장
+        for (Periodic_Schedule schedule:periodicScheduleInBound) { //weekRoutine인 스케줄 저장
             long[] weekBits = schedule.getWeekScheduleData();
             for(int day =0; day< WEEK_MOD ; ++day)
                 if(weekBits[day] >0) {  //Dto Convert
@@ -313,7 +323,38 @@ public class TimeTableServiceImpl implements TimeTableService {
             dayOfWeekIdx %= WEEK_MOD;
         }
 
-        for (Non_Periodic_Schedule schedule: nonPeriodicScheduleList ) {
+        for (Periodic_Schedule schedule:periodicScheduleOverlap) { //overlap은 직접 하나하나
+            long[] weekBits = schedule.getWeekScheduleData();
+            dayOfWeekIdx = schedule.getStartTime().getDayOfWeek().getValue() -1;
+            int startDay = (int) Duration.between(startDate.atStartOfDay(),schedule.getStartTime().toLocalDate().atStartOfDay()).toDays();
+            if(startDay <0){
+                startDay = 0;
+                dayOfWeekIdx = startDayOfWeek;
+            }
+            int endDay = (int) Duration.between(startDate.atStartOfDay(),schedule.getEndTime().toLocalDate().atStartOfDay()).toDays() +1;
+            if(endDay >dayNum)
+                endDay = dayNum;
+            for(int day =startDay; day< endDay ; ++day) {
+                if (weekBits[dayOfWeekIdx] > 0) {  //Dto Convert
+                    //log.info("return: schedule.getGroupId: "+schedule.getGroupId());
+                    TimeTableDto.ScheduleDto build = TimeTableDto.ScheduleDto.builder()
+                            .id(schedule.getId())
+                            .name(schedule.getName())
+                            .body(schedule.getBody())
+                            .groupType(schedule.isGroupType())
+                            .groupId(schedule.getGroupId())
+                            .groupName(schedule.getGroupName())
+                            .timeData(this.timeDataConverter.convertLongToBooleanList(weekBits[dayOfWeekIdx]))
+                            .timeStringData(timeDataConverter.bitTimeDataToStringData(weekBits[dayOfWeekIdx]))
+                            .build();
+                    scheduleListPerDays.get(day).add(build);
+                }
+                ++dayOfWeekIdx;
+                dayOfWeekIdx %= WEEK_MOD;
+            }
+        }
+
+        for (Non_Periodic_Schedule schedule: nonPeriodicScheduleInBound ) {
             LocalDateTime scheduleStartTime = schedule.getStartTime();
             Long timeBitData = timeDataConverter.convertTimeToBit(scheduleStartTime, schedule.getEndTime());
             LocalDate startLocalDate = LocalDate.of(scheduleStartTime.getYear(), scheduleStartTime.getMonth(), scheduleStartTime.getDayOfMonth());
@@ -369,6 +410,8 @@ public class TimeTableServiceImpl implements TimeTableService {
             periodicSchedule.setWeekScheduleData(this.convertTimeStringsToBitsArray(schedulePostData.getPeriodicTimeStringList()));
             periodicSchedule.setName(schedulePostData.getName());
             periodicSchedule.setBody(schedulePostData.getBody());
+            periodicSchedule.setStartTime(schedulePostData.getStartTime());
+            periodicSchedule.setEndTime(schedulePostData.getEndTime());
             periodicSchedule.setGroupId(schedulePostData.getGroupId());
             periodicSchedule.setGroupType(schedulePostData.getGroupType());
             periodicSchedule.setGroupName(schedulePostData.getGroupName());

@@ -128,6 +128,14 @@ public class TimeDataSuperUltraConverter {
         StringBuilder stringBuilder = new StringBuilder();
         if (schedule instanceof Periodic_Schedule) {
             Periodic_Schedule periodicSchedule = (Periodic_Schedule) schedule;
+            if(periodicSchedule.getStartTime() == null)
+                stringBuilder.append("무기한/ ");
+            else{
+                stringBuilder.append("기한: ");
+                stringBuilder.append(periodicSchedule.getStartTime());
+                stringBuilder.append(" ~ ");
+                stringBuilder.append(periodicSchedule.getEndTime() + " / ");
+            }
             String ret = bitTimeDataArrayToStringData(periodicSchedule.getWeekScheduleData());
             stringBuilder.append(ret);
         }else{
