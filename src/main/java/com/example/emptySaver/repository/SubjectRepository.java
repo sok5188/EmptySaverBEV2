@@ -13,4 +13,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     List<Subject> findByDept(String dept);
     List<Subject> findByShyrAndDeptContaining(String shyr, String dept);
     boolean existsByYearsAndTerm(String years, String term );
+
+    @Query(value = "select distinct s.upper_div_name from subject s",nativeQuery = true)
+    List<String> findDistinctUpperDivName();
 }

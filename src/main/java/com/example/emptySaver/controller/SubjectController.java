@@ -51,4 +51,9 @@ public class SubjectController {
     public ResponseEntity<List<SubjectDto.DepartmentDto>>getAllDepartmentDto(){
         return new ResponseEntity<>(subjectService.getAllDepartment(), HttpStatus.OK);
     }
+    @GetMapping("/getAllUpperDivNameList")
+    @Operation(summary = "상위 대학 정보 리스트 반환", description = "공대, 정경대 이런 상위 대학 정보 목록을 리턴하는 API")
+    public ResponseEntity<List<String>> getAllUpperDivList(){
+        return new ResponseEntity<>(subjectService.getUpperDivNameList(),HttpStatus.OK);
+    }
 }
