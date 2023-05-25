@@ -3,10 +3,9 @@ package com.example.emptySaver.domain.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 public class SubjectDto {
     @Data
@@ -83,5 +82,24 @@ public class SubjectDto {
         private String deptDiv; //by colg
         private String dept;    //by up_dept
         private String subDiv;  //by dept
+    }
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DivInfo{
+        private String upperDivName;
+        private List<String> deptNameList;
+    }
+    @Data
+    @ToString
+    public static class DivDto{
+        private String upperDivName;
+        private String deptName;
+
+        public DivDto(String upperDivName, String deptName) {
+            this.upperDivName = upperDivName;
+            this.deptName = deptName;
+        }
     }
 }
