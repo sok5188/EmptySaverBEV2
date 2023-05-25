@@ -18,6 +18,10 @@ public class SubjectDto {
         @Schema(description = "학부(과) 정보입니다.")
         private String dept; //학부(과) 정보입니다.
 
+        private String upperDivName; //상위 부서
+        private String deptDiv; //by colg
+        private String subDiv;  //by dept
+
         @Schema(description = "교과구분 정보입니다.")
         private String subject_div; //교과구분 정보입니다.
 

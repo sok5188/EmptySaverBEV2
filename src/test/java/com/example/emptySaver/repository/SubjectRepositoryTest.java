@@ -97,6 +97,7 @@ class SubjectRepositoryTest {
         assertThat(savedSubject.getSubject_nm()).isEqualTo(subject.getSubject_nm());
     }
     */
+    /*
     private Subject getSubject(){
         Subject subject = null;
         try{
@@ -111,7 +112,7 @@ class SubjectRepositoryTest {
         }
         return subject;
     }
-
+*/
     private String getResponseFromUOS() throws IOException {
         Map<String,String> params= new HashMap<>(){{
             put("year", "2023");

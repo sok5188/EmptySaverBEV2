@@ -13,6 +13,10 @@ import lombok.*;
 public class Subject extends Periodic_Schedule{
 
     private String dept; //학부(과) 정보입니다.
+    private String upperDivName; //상위 부서 이름
+    private String deptDiv; //by colg
+    private String subDiv;  //by dept
+
 
     private String subject_div; //교과구분 정보입니다.
 

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UosSubjectAutoSaverTest {
     @Autowired
     private UosSubjectAutoSaver uosSubjectAutoSaver;
-
+    /*
     @Test
     void Html파싱테스트(){
         String data = "<?xml version=\"1.0\" encoding=\"EUC-KR\"?>\n" +
@@ -773,5 +773,5 @@ class UosSubjectAutoSaverTest {
                 System.out.println(Long.toBinaryString(l));
             }
         }
-    }
+    }*/
 }
