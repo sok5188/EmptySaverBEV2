@@ -133,4 +133,7 @@ public class SubjectService {
         }
         return departmentDtoList;
     }
+    public List<String> getUpperDivNameList(){
+        return subjectRepository.findDistinctUpperDivName();
+    }
 }

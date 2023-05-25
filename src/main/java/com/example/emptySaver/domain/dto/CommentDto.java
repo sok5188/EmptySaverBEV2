@@ -39,6 +39,7 @@ public class CommentDto {
         private String text;
         private LocalDateTime dateTime;
         private Boolean isOwner;
+        private String writerName;
     }
 
     @Data
