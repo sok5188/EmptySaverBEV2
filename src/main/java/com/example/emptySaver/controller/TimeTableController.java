@@ -113,7 +113,7 @@ public class TimeTableController {
             "가장 중요한 부분은 periodicType설정 임다. <br>" +
             " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
             "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다. <br>" +
-            "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
+            "주기 데이터라도 startTime과 endTime이 있다면 보내주면 됩니다. 없으면 안보내도 됩니다.  <br>" +
             "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다. <br>"+
             "새로 추가된 ")
     public ResponseEntity<String> addMemberSchedule(@RequestBody TimeTableDto.SchedulePostDto schedulePostData){
@@ -159,7 +159,7 @@ public class TimeTableController {
             "또한 중요한 부분은 periodicType설정 임다. <br>" +
             " \"true\"로 하면 주기적 데이터로 인식하여 periodicTimeStringList를 반드식 넣어줘여한다. <br>" +
             "periodicTimeStringList = [\"화,00:30-01:30\",\"화,18:00-19:00\",\"금,19:00-24:00\"] 같이, [요일,시작시간-끝나는시간]으로 표기한다.  <br>" +
-            "periodicType = false로 하면 비주기적 데이터로 인식하여 startTime과 endTime이 필요합니다. <br>" +
+            "주기 데이터라도 startTime과 endTime이 있다면 보내주면 됩니다. 없으면 안보내도 됩니다. <br>" +
             "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다.")
     @Parameter(
             name = "groupId",

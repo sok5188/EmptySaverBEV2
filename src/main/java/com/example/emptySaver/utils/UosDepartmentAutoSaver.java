@@ -1,7 +1,6 @@
 package com.example.emptySaver.utils;
 
 import com.example.emptySaver.domain.entity.Department;
-import com.example.emptySaver.domain.entity.Subject;
 import com.example.emptySaver.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +74,8 @@ public class UosDepartmentAutoSaver {
             dataMap.put(dataName,data);
         }
 
-        Department department = Department.builder().name(dataMap.get("dept_nm")).dept(dataMap.get("up_dept")).deptDiv(dataMap.get("colg")).subDiv(dataMap.get("dept")).build();
+        Department department = Department.builder()
+                .upperDivName(dataMap.get("up_nm")).name(dataMap.get("dept_nm")).dept(dataMap.get("up_dept")).deptDiv(dataMap.get("colg")).subDiv(dataMap.get("dept")).build();
         return department;
     }
 
@@ -100,6 +100,7 @@ public class UosDepartmentAutoSaver {
 
         String response = stringBuffer.toString();
         //System.out.println(response);
+
         return response;
     }
 }

@@ -71,6 +71,9 @@ public class SubjectService {
                     .prof_nm(subject.getProf_nm())
                     .class_type(subject.getClass_type())
                     .class_nm(subject.getClass_nm())
+                    .deptDiv(subject.getDeptDiv())
+                    .subDiv(subject.getSubDiv())
+                    .upperDivName(subject.getUpperDivName())
                     .build();
             ret.add(subjectInfo);
         }

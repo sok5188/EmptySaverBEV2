@@ -124,7 +124,7 @@ public class ScheduleRecommendService {
         return timeTableService.convertScheduleListToSearchedScheduleDtoList(recommendByMemberTimeTable);
     }
 
-    private List<Periodic_Schedule> getPeriodicScheduleListNotOverlap(final long[] memberWeekData){
+    private List<Periodic_Schedule> getPeriodicScheduleListNotOverlap(final long[] memberWeekData, List<Periodic_Schedule> periodicScheduleOverlapList ){
         long[] notWeekData = {0,0,0,0,0,0,0};
         for (int i = 0; i < notWeekData.length; i++) {
             notWeekData[i] = ~memberWeekData[i];
@@ -133,7 +133,11 @@ public class ScheduleRecommendService {
         List<Periodic_Schedule> includedScheduleList = new ArrayList<>();
 
         List<Periodic_Schedule> periodicScheduleList = periodicScheduleRepository.findByPublicType(true);
+        log.info("public schedule size: " + periodicScheduleList.size());
         for (Periodic_Schedule periodicSchedule : periodicScheduleList) {
+            if(!this.checkBitTimeDataIsOverlap(periodicSchedule.getWeekScheduleData(), memberWeekData))
+               includedScheduleList.add(periodicSchedule);
+/*
             long[] weekScheduleData = periodicSchedule.getWeekScheduleData();
 
             boolean isOverlap = false;
@@ -145,21 +149,69 @@ public class ScheduleRecommendService {
             }
 
             if(!isOverlap)
-                includedScheduleList.add(periodicSchedule);
+                includedScheduleList.add(periodicSchedule);*/
+        }
+        log.info("includedScheduleList size : "+ includedScheduleList.size());
+
+        List<Periodic_Schedule> finalScheduleList = new ArrayList<>();
+
+        for (Periodic_Schedule schedule : includedScheduleList) {   //member의 overlap 주기 스케줄과 한번더 filteri
+            boolean isOkay = true;
+            for (Periodic_Schedule overlapSchedule : periodicScheduleOverlapList) {
+                if (schedule.getStartTime() !=null){ //시간 주기와 시간 주기의 filter
+                    if(checkPeriodicScheduleTimeHaveOverlap(schedule,overlapSchedule)
+                            && this.checkBitTimeDataIsOverlap(schedule.getWeekScheduleData(), overlapSchedule.getWeekScheduleData())){
+                        isOkay = false;
+                        break;
+                    }
+                }else{ //시간x 주기와 시간 주기의 filter
+                    if(this.checkBitTimeDataIsOverlap(schedule.getWeekScheduleData(), overlapSchedule.getWeekScheduleData())){
+                        isOkay = false;
+                        break;
+                    }
+                }
+            }
+            if(isOkay)
+                finalScheduleList.add(schedule);
+        }
+        log.info("finalScheduleList size : "+finalScheduleList.size());
+
+        return finalScheduleList;
+    }
+
+    private boolean checkPeriodicScheduleTimeHaveOverlap(final Periodic_Schedule a, final Periodic_Schedule b){
+        if((a.getStartTime().isBefore(b.getEndTime()) && a.getEndTime().isAfter(b.getEndTime().minusMinutes(1)))
+                ||(b.getStartTime().isBefore(a.getEndTime()) && a.getEndTime().isBefore(b.getEndTime().plusMinutes(1))))
+            return true;
+        return false;
+    }
+
+    private boolean checkBitTimeDataIsOverlap(final long[] a, final long[] b){
+        //boolean isOverlap = false;
+        for (int i = 0; i < a.length; i++) {
+            log.info("b:" + Long.toBinaryString(b[i]));
+            log.info("a:" + Long.toBinaryString(a[i]));
+            if((b[i] & a[i]) != 0){
+                return true;
+            }
         }
 
-        return includedScheduleList;
+        return false;
     }
 
     public List<Schedule> getRecommendByMemberTimeTable(final Long memberId, final LocalDateTime startTime, final LocalDateTime endTime){
         Member member = memberRepository.findById(memberId).get();
         Time_Table timeTable = member.getTimeTable();
 
-        timeTable.calcAllWeekScheduleData();
-        final long[] weekScheduleData = timeTable.getWeekScheduleData();
+        //timeTable.calcAllWeekScheduleData();
+        final long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound(startTime,endTime);
 
-        List<Non_Periodic_Schedule> memberNonPeriodicScheduleList = new ArrayList<>();    // 멤버의 비주기 스케줄 가져옴
-        List<Periodic_Schedule> memberPeriodicScheduleList = new ArrayList<>();    // 멤버의 주기 스케줄 가져옴
+
+        List<Non_Periodic_Schedule> memberNonPeriodicScheduleList = timeTable.getNonPeriodicScheduleInBound(startTime,endTime); //new ArrayList<>();    // 멤버의 비주기 스케줄 가져옴
+        List<Periodic_Schedule> memberPeriodicScheduleList = timeTable.getPeriodicScheduleInBound(startTime,endTime); // new ArrayList<>();    // 멤버의 주기 스케줄 가져옴
+        List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startTime, endTime);
+        //log.info("ovelap size = " + periodicScheduleOverlap.size());
+        /*
         List<Schedule> scheduleList = timeTable.getScheduleList();
         for (Schedule schedule : scheduleList) {
             if(schedule instanceof Non_Periodic_Schedule){
@@ -170,11 +222,11 @@ public class ScheduleRecommendService {
             }else{
                 memberPeriodicScheduleList.add((Periodic_Schedule) schedule);
             }
-        }
+        }*/
 
-        List<Periodic_Schedule> passedPeriodicScheduleList = getMatchedPeriodicScheduleList(weekScheduleData, memberNonPeriodicScheduleList);
+        List<Periodic_Schedule> passedPeriodicScheduleList = getMatchedPeriodicScheduleList(weekScheduleData, memberNonPeriodicScheduleList, periodicScheduleOverlap);
 
-        List<Non_Periodic_Schedule> passedNonPeriodicScheduleList = getMatchedNonPeriodicScheduleList(startTime, endTime, weekScheduleData, memberNonPeriodicScheduleList);
+        List<Non_Periodic_Schedule> passedNonPeriodicScheduleList = getMatchedNonPeriodicScheduleList(startTime, endTime, weekScheduleData, memberNonPeriodicScheduleList, periodicScheduleOverlap);
 
         List<Schedule> recommendScheduleList = new ArrayList<>();
         recommendScheduleList.addAll(passedPeriodicScheduleList);
@@ -183,7 +235,8 @@ public class ScheduleRecommendService {
         return recommendScheduleList;
     }
 
-    private List<Non_Periodic_Schedule> getMatchedNonPeriodicScheduleList(LocalDateTime startTime, LocalDateTime endTime, long[] weekScheduleData, List<Non_Periodic_Schedule> memberNonPeriodicScheduleList) {
+    private List<Non_Periodic_Schedule> getMatchedNonPeriodicScheduleList(LocalDateTime startTime, LocalDateTime endTime, long[] weekScheduleData
+            , List<Non_Periodic_Schedule> memberNonPeriodicScheduleList, final List<Periodic_Schedule> periodicScheduleOverlapList) {
         List<Non_Periodic_Schedule> sortMemberNonPeriodicScheduleList = memberNonPeriodicScheduleList.stream()
                 .sorted(Comparator.comparing(Non_Periodic_Schedule::getStartTime).thenComparing(Non_Periodic_Schedule::getEndTime)).collect(Collectors.toList());
         List<Non_Periodic_Schedule> nonPeriodicScheduleList = nonPeriodicScheduleRepository
@@ -211,7 +264,7 @@ public class ScheduleRecommendService {
             if(!isPassedArr[i])
                 matchedNonPeriodicScheduleList.add(nonPeriodicScheduleList.get(i));
         }
-       // log.info("non Periodic size: "+ matchedNonPeriodicScheduleList.size());
+       log.info("non Periodic size: "+ matchedNonPeriodicScheduleList.size());
 
         List<Non_Periodic_Schedule> passedNonPeriodicScheduleList = new ArrayList<>();
         for (int i = 0; i < matchedNonPeriodicScheduleList.size(); i++) {
@@ -223,13 +276,31 @@ public class ScheduleRecommendService {
             if(ret == notBits)  //같아야 빈칸에 들어감
                 passedNonPeriodicScheduleList.add(nonPeriodicSchedule);
         }
-        return passedNonPeriodicScheduleList;
+        log.info("passedNonPeriodicScheduleList size: "+ passedNonPeriodicScheduleList.size());
+
+        List<Non_Periodic_Schedule> finalNonPeriodicScheduleList = new ArrayList<>();
+        for (Non_Periodic_Schedule nonPeriodicSchedule : passedNonPeriodicScheduleList) {   //시간 있는 주기랑도 안겹친게 최종 통과
+            boolean isOkay =true;
+            for (Periodic_Schedule periodicSchedule : periodicScheduleOverlapList) {
+                if((periodicSchedule.getStartTime().isBefore(nonPeriodicSchedule.getStartTime().plusMinutes(1))
+                        && periodicSchedule.getEndTime().isAfter(nonPeriodicSchedule.getEndTime().minusMinutes(1)))){
+                    isOkay = false;
+                    break;
+                }
+            }
+            if(isOkay)
+                finalNonPeriodicScheduleList.add(nonPeriodicSchedule);
+        }
+        log.info("finalNonPeriodicScheduleList size: "+ finalNonPeriodicScheduleList.size());
+        return finalNonPeriodicScheduleList;
     }
 
-    private List<Periodic_Schedule> getMatchedPeriodicScheduleList(long[] weekScheduleData, List<Non_Periodic_Schedule> memberNonPeriodicScheduleList) {
+    private List<Periodic_Schedule> getMatchedPeriodicScheduleList(final long[] weekScheduleData, List<Non_Periodic_Schedule> memberNonPeriodicScheduleList, List<Periodic_Schedule> periodicScheduleOverlapList) {
         List<Periodic_Schedule> passedPeriodicScheduleList = new ArrayList<>();
-        List<Periodic_Schedule> periodicScheduleListNotOverlap = this.getPeriodicScheduleListNotOverlap(weekScheduleData);  // db의 주기적 스케줄 가져옴
+        List<Periodic_Schedule> periodicScheduleListNotOverlap = this.getPeriodicScheduleListNotOverlap(weekScheduleData, periodicScheduleOverlapList);  // db의 주기적 스케줄 가져옴
+        //log.info("overlap calc: " + periodicScheduleListNotOverlap.size());
 
+        //log.info("memberNonPeriodicSchedule size : " + memberNonPeriodicScheduleList.size());
         boolean[] isPassedArr = new boolean[periodicScheduleListNotOverlap.size()];
         for (Non_Periodic_Schedule memberNonPeriodicSchedule : memberNonPeriodicScheduleList) {
             int dayOfWeek = memberNonPeriodicSchedule.getEndTime().getDayOfWeek().getValue() -1;
@@ -239,6 +310,17 @@ public class ScheduleRecommendService {
                     continue;
 
                 Periodic_Schedule periodicSchedule = periodicScheduleListNotOverlap.get(i);
+                if(periodicSchedule.getStartTime() != null){    //시간이 있는 주기 스케줄과 비주기가 겹치지 않는 경우
+                    if(periodicSchedule.getStartTime().isBefore(memberNonPeriodicSchedule.getStartTime().plusMinutes(1))
+                            && periodicSchedule.getEndTime().isAfter(memberNonPeriodicSchedule.getEndTime().minusMinutes(1))) {   //겹치는 경우 상세 시간도 겹치는지
+                        Long nonPeriodicBitData = timeDataConverter.convertTimeToBit(memberNonPeriodicSchedule.getStartTime(), memberNonPeriodicSchedule.getEndTime());
+                        long periodicBitData = periodicSchedule.getWeekScheduleData()[dayOfWeek];
+                        if((periodicBitData & nonPeriodicBitData) != 0)
+                            isPassedArr[i] = true;
+                    }
+                    continue;
+                }
+
                 long periodicBitData = periodicSchedule.getWeekScheduleData()[dayOfWeek];
 
                 if(periodicBitData ==0)
@@ -250,11 +332,14 @@ public class ScheduleRecommendService {
                     isPassedArr[i] = true;
             }
 
-            for (int i=0; i<periodicScheduleListNotOverlap.size() ; ++i) {
-                if(!isPassedArr[i])
-                    passedPeriodicScheduleList.add(periodicScheduleListNotOverlap.get(i));
-            }
-        }   //주기적은 모두 비교가 끝난것만 담음
+
+        }
+        //주기적은 모두 비교가 끝난것만 담음
+        for (int i=0; i<periodicScheduleListNotOverlap.size() ; ++i) {
+            if(!isPassedArr[i])
+                passedPeriodicScheduleList.add(periodicScheduleListNotOverlap.get(i));
+        }
+
         return passedPeriodicScheduleList;
     }
 }

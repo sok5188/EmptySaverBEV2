@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -56,13 +58,31 @@ public class UosSubjectAutoSaver {
             params.put("deptDiv", depart.getDeptDiv());
             params.put("dept", depart.getDept());
             params.put("subDept", depart.getSubDiv());
+            params.put("upperDivName", depart.getUpperDivName());
 
             String response = getResponseFromSubjectApi(params);
             if(response.equals(ApiData.ERROR.getData()))   //api call error 발생
                 continue;
 
-            List<Subject> subjects = parseSubjectsHtmlData(response);
+            List<Subject> subjects = parseSubjectsHtmlData(response, params);
             subjectRepository.saveAll(subjects);
+        }
+    }
+
+    private void setSubjectStartEndTime(List<Subject> subjects, String year, String term){
+        int yearToInt = Integer.parseInt(year);
+        int startMonth = 3, termMonthNum = 4;
+        int startDay = 1;
+        if(term.equals("A20")){
+            startMonth = 9;
+        }
+
+        LocalDateTime startTime = LocalDate.of(yearToInt, startMonth, startDay).atStartOfDay();
+        LocalDateTime endTime = startTime.plusMonths(4).minusDays(1);
+
+        for (Subject subject : subjects) {
+            subject.setStartTime(startTime);
+            subject.setEndTime(endTime);
         }
     }
 
@@ -102,17 +122,17 @@ public class UosSubjectAutoSaver {
         return response;
     }
 
-    public List<Subject> parseSubjectsHtmlData(String subjectHtmlData){
+    public List<Subject> parseSubjectsHtmlData(String subjectHtmlData, Map<String,String> params){
         String[] splitSubject = subjectHtmlData.split("<list>");
 
         List<Subject> subjects = new ArrayList<>();
         for (int i=1;i<splitSubject.length;++i)
-            subjects.add(buildSubjectByHtmlData(splitSubject[i]));
+            subjects.add(buildSubjectByHtmlData(splitSubject[i], params));
 
         return  subjects;
     }
 
-    private Subject buildSubjectByHtmlData(String subjectHtmlData){
+    private Subject buildSubjectByHtmlData(String subjectHtmlData, Map<String,String> params){
         //data parsing
         String[] splitSubject = subjectHtmlData.split("</|<|>");
         List<String> splitData = new ArrayList<>();
@@ -167,6 +187,11 @@ public class UosSubjectAutoSaver {
         subject.setClass_type(dataMap.get("class_type"));
         subject.setYears(dataMap.get("year"));
         subject.setTerm(dataMap.get("term"));
+
+        subject.setDeptDiv(params.get("deptDiv"));  //세부 구분도
+        subject.setSubDiv(params.get("subDept"));
+        subject.setUpperDivName(params.get("upperDivName"));
+
 
         subject.setWeekScheduleData(class_numToSchedule(dataMap.get("class_nm")));  //상위 클래스 데이터이므로 직접 삽입
         return subject;

@@ -21,4 +21,5 @@ public class Department {
     private String deptDiv; //by colg
     private String dept;    //by up_dept
     private String subDiv;  //by dept
+    private String upperDivName; //상위 부서
 }

@@ -6,6 +6,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDateTime;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,4 +40,6 @@ public class Schedule {
     @JoinColumn(name = "time_table_id")
     @ToString.Exclude
     private Time_Table timeTable;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 }

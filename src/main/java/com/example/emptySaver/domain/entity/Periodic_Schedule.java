@@ -6,7 +6,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import lombok.*;
 
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
