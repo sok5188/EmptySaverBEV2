@@ -136,7 +136,9 @@ public class BoardService {
         byTeam.stream().forEach(comment -> {
             if(comment.getParentComment()==null){
                 CommentDto.CommentInfo parent = CommentDto.CommentInfo.builder().commentId(comment.getId()).text(comment.getText()).dateTime(comment.getDate())
-                        .isOwner(comment.getMember().equals(team.getOwner())).build();
+                        .isOwner(comment.getMember().equals(team.getOwner()))
+                        .writerName(team.isAnonymous()?comment.getMember().getNickname():comment.getMember().getName())
+                        .build();
                 List<CommentDto.CommentInfo> childList=new ArrayList<>();
                 comment.getChildComment().forEach(child->childList.add(
                         CommentDto.CommentInfo.builder().commentId(child.getId()).text(child.getText())
@@ -159,7 +161,9 @@ public class BoardService {
             log.info("is parent?:"+(comment.getParentComment()==null));
             if(comment.getParentComment()==null){
                 CommentDto.CommentInfo parent = CommentDto.CommentInfo.builder().commentId(comment.getId()).text(comment.getText()).dateTime(comment.getDate())
-                        .isOwner(comment.getMember().equals(post.getTeam().getOwner())).build();
+                        .isOwner(comment.getMember().equals(post.getTeam().getOwner()))
+                        .writerName(post.getTeam().isAnonymous()?comment.getMember().getNickname():comment.getMember().getName())
+                        .build();
                 List<CommentDto.CommentInfo> childList=new ArrayList<>();
                 comment.getChildComment().forEach(child->childList.add(
                         CommentDto.CommentInfo.builder().commentId(child.getId()).text(child.getText())
