@@ -1,5 +1,6 @@
 package com.example.emptySaver.repository;
 
+import com.example.emptySaver.domain.dto.SubjectDto;
 import com.example.emptySaver.domain.entity.Non_Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Schedule;
 import com.example.emptySaver.domain.entity.Subject;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -20,22 +23,26 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
+//@SpringBootTest
+//@ActiveProfiles("test")
+@DataJpaTest
 class SubjectRepositoryTest {
+    @Autowired
+    private TestEntityManager em;
 
     @Autowired
     private SubjectRepository subjectRepository;
-    @Autowired
-    private UosSubjectAutoSaver uosSubjectAutoSaver;
-
-    @BeforeEach
-    void beforeEach(){
-        subjectRepository.deleteAll();
-    }
+//    @Autowired
+//    private UosSubjectAutoSaver uosSubjectAutoSaver;
+//
+//    @BeforeEach
+//    void beforeEach(){
+//        subjectRepository.deleteAll();
+//    }
 
     private static final String URL = "https://wise.uos.ac.kr/uosdoc/api.ApiUcrMjTimeInq.oapi";
     private static final String GET = "GET";
@@ -113,37 +120,82 @@ class SubjectRepositoryTest {
         return subject;
     }
 */
-    private String getResponseFromUOS() throws IOException {
-        Map<String,String> params= new HashMap<>(){{
-            put("year", "2023");
-            put("term", "A10");
-            put("deptDiv", "20011");
-            put("dept", "A200110111");
-            put("subDept", "A200200120");
-        }};
-        String requestURL = uosSubjectAutoSaver.buildRequestURL(URL, params);
-        System.out.println(requestURL);
-        URL url = new URL(requestURL);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//    private String getResponseFromUOS() throws IOException {
+//        Map<String,String> params= new HashMap<>(){{
+//            put("year", "2023");
+//            put("term", "A10");
+//            put("deptDiv", "20011");
+//            put("dept", "A200110111");
+//            put("subDept", "A200200120");
+//        }};
+//        String requestURL = uosSubjectAutoSaver.buildRequestURL(URL, params);
+//        System.out.println(requestURL);
+//        URL url = new URL(requestURL);
+//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//
+//        connection.setRequestMethod(GET);
+//
+//        int responseCode = connection.getResponseCode();
+//
+//        // 성공여부
+//        assertThat(responseCode).isEqualTo(200);
+//
+//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"EUC-KR"));
+//        StringBuffer stringBuffer = new StringBuffer();
+//        String inputLine;
+//
+//        while ((inputLine = bufferedReader.readLine()) != null)  {
+//            stringBuffer.append(inputLine);
+//        }
+//        bufferedReader.close();
+//
+//        String response = stringBuffer.toString();
+//        //System.out.println(response);
+//        return response;
+//    }
+    @Test
+    void getDistinctDept(){
+        Subject subject1=new Subject();
+        subject1.setDept("a1");
+        subject1.setUpperDivName("a");
+        subjectRepository.save(subject1);
 
-        connection.setRequestMethod(GET);
+        Subject subject2=new Subject();
+        subject2.setDept("a1");
+        subject2.setUpperDivName("a");
+        subjectRepository.save(subject2);
 
-        int responseCode = connection.getResponseCode();
+        Subject subject3=new Subject();
+        subject3.setDept("a2");
+        subject3.setUpperDivName("a");
+        subjectRepository.save(subject3);
 
-        // 성공여부
-        assertThat(responseCode).isEqualTo(200);
+        Subject subject4=new Subject();
+        subject4.setDept("b1");
+        subject4.setUpperDivName("b");
+        subjectRepository.save(subject4);
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"EUC-KR"));
-        StringBuffer stringBuffer = new StringBuffer();
-        String inputLine;
+        Subject subject5=new Subject();
+        subject5.setDept("b1");
+        subject5.setUpperDivName("b");
+        subjectRepository.save(subject5);
 
-        while ((inputLine = bufferedReader.readLine()) != null)  {
-            stringBuffer.append(inputLine);
+        Subject subject6=new Subject();
+        subject6.setDept("a1");
+        subject6.setUpperDivName("c");
+        subjectRepository.save(subject6);
+
+        Subject subject7=new Subject();
+        subject7.setDept("a1");
+        subject7.setUpperDivName("d");
+        subjectRepository.save(subject7);
+        em.flush();
+        em.clear();
+        List<SubjectDto.DivDto> collect = subjectRepository.findDistinctDeptGroupByUpperDiv().stream()
+                .map(i -> new SubjectDto.DivDto(i.getUpper(), i.getDept())).collect(Collectors.toList());
+        for (SubjectDto.DivDto divDto : collect) {
+            System.out.println("divDao = " + divDto);
         }
-        bufferedReader.close();
-
-        String response = stringBuffer.toString();
-        //System.out.println(response);
-        return response;
+        assertThat(collect.size()).isEqualTo(5);
     }
 }

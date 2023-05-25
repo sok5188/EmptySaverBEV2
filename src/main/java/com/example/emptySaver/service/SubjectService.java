@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -133,7 +136,18 @@ public class SubjectService {
         }
         return departmentDtoList;
     }
-    public List<String> getUpperDivNameList(){
-        return subjectRepository.findDistinctUpperDivName();
+
+    public List<SubjectDto.DivInfo> getDivInfoList(){
+        List<SubjectDto.DivDto> collect = subjectRepository.findDistinctDeptGroupByUpperDiv().stream()
+                .map(i -> new SubjectDto.DivDto(i.getUpper(), i.getDept())).collect(Collectors.toList());
+        List<String> upperDivName = subjectRepository.findDistinctUpperDivName();
+        Map<String,List<String>> divMap=new HashMap<>();
+        upperDivName.forEach(s->divMap.put(s,new ArrayList<>()));
+
+        collect.forEach(div->divMap.get(div.getUpperDivName()).add(div.getDeptName()));
+
+        List<SubjectDto.DivInfo> divInfoList=new ArrayList<>();
+        divMap.keySet().forEach(k->divInfoList.add(new SubjectDto.DivInfo(k,divMap.get(k))));
+        return divInfoList;
     }
 }
