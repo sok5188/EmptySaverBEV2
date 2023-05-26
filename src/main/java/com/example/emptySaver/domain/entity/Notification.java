@@ -29,6 +29,8 @@ public class Notification implements Comparable<Notification>{
     private String routeValue;
     private String idType;
     private String idValue;
+    private String idType2;
+    private String idValue2;
     private LocalDateTime receiveTime;
     private Boolean isRead;
     @Builder(builderMethodName = "init")
@@ -39,6 +41,20 @@ public class Notification implements Comparable<Notification>{
         this.routeValue=routeValue;
         this.idType=idType;
         this.idValue = idValue;
+        receiveTime=LocalDateTime.now();
+        isRead=false;
+    }
+    @Builder(builderMethodName = "longInit")
+    public Notification(Member member, String title, String body, String routeValue, String idType
+            , String idValue, String idType2, String idValue2){
+        this.member=member;
+        this.title=title;
+        this.body=body;
+        this.routeValue=routeValue;
+        this.idType=idType;
+        this.idValue = idValue;
+        this.idType2=idType2;
+        this.idValue2=idValue2;
         receiveTime=LocalDateTime.now();
         isRead=false;
     }
