@@ -3,6 +3,7 @@ package com.example.emptySaver.utils;
 public enum ApiData {
     KEY("202303727IDO15243"),
     SUBJECT_URL("https://wise.uos.ac.kr/uosdoc/api.ApiUcrMjTimeInq.oapi"),
+    CULTURE_SUBJECT_URL("https://wise.uos.ac.kr/uosdoc/api.ApiUcrCultTimeInq.oapi"),
     GET("GET"),
     ERROR("error");
 
