@@ -79,7 +79,8 @@ public class UosSubjectAutoSaver {
 
         saveAllCultureSubjectByTerm(departmentMap, year, term,"A01");    //교양선택시간표 저장장
         saveAllCultureSubjectByTerm(departmentMap, year, term,"A02");    //교양필수시간표 저장장
-        saveAllCultureSubjectByTerm(departmentMap, year, term,"A05");    //ROTC 시간표
+        saveAllCultureSubjectByTerm(departmentMap, year, term,"A06");    //ROTC 시간표
+        saveAllCultureSubjectByTerm(departmentMap, year, term," A07");    //ROTC 시간표
     }
 
     public void saveAllCultureSubjectByTerm(final Map<String,Department> departmentMap,final String year, final String term, final String subjectDiv){
