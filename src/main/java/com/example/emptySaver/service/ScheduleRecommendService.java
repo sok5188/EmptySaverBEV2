@@ -48,12 +48,13 @@ public class ScheduleRecommendService {
             memberList.add(teamMember.getMember());
         }
 
+        List<Periodic_Schedule> membersPeriodicHaveTimeScheduleList = new ArrayList<>();
         List<Non_Periodic_Schedule> membersNonPeriodicScheduleList = new ArrayList<>();
         List<long[]> memberWeekDataList = new ArrayList<>();    //일단 주기 데이터 가져옴
         for (Member member : memberList) {
             Time_Table timeTable = member.getTimeTable();
-            timeTable.calcAllWeekScheduleData();
-            memberWeekDataList.add(timeTable.getWeekScheduleData());
+            memberWeekDataList.add(timeTable.calcPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.plusDays(1).atStartOfDay()));
+            membersPeriodicHaveTimeScheduleList.addAll(timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(),endDate.plusDays(1).atStartOfDay()));
             membersNonPeriodicScheduleList.addAll(timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.plusDays(1).atStartOfDay()));
         }
 
@@ -61,15 +62,15 @@ public class ScheduleRecommendService {
         final int dayNum = (int) Duration.between(startDate.atStartOfDay(),endDate.atStartOfDay()).toDays() +1;     //시작일로 부터 몇일간의 데이터인가
 
         int dayOfWeek = startDate.getDayOfWeek().getValue() -1;
-        long[] filledDayBitArr = new long[dayNum];               //빈 시간을 복사시켜둠
+        long[] filledDayBitArr = new long[dayNum];               //채워진 시간을 복사시켜둠
         for (int i = 0; i < filledDayBitArr.length; i++) {
             filledDayBitArr[i] = filledWeekTimeBit[dayOfWeek];
             dayOfWeek++;
             dayOfWeek %= WEEK_MOD;
         }
 
-        long[] filledFinalBits = this.fillNonPeriodicMatchBits(startDate.atStartOfDay(), membersNonPeriodicScheduleList, filledDayBitArr);
-
+        long[] filledNonPeriodicBits = this.fillNonPeriodicMatchBits(startDate.atStartOfDay(), membersNonPeriodicScheduleList, filledDayBitArr);
+        long[] filledFinalBits = this.fillBitOfPeriodicHaveTime(startDate.atStartOfDay(), dayNum,membersPeriodicHaveTimeScheduleList, filledNonPeriodicBits);
         List<String> emptyStringDataList = new ArrayList<>();
 
         for (int i = 0; i < filledFinalBits.length; i++) {
@@ -84,7 +85,33 @@ public class ScheduleRecommendService {
         return emptyStringDataList;
     }
 
-    private long[] fillNonPeriodicMatchBits(LocalDateTime startTime,List<Non_Periodic_Schedule> nonPeriodicScheduleList, long[] filledDayBitArr){
+    private long[] fillBitOfPeriodicHaveTime(final LocalDateTime startTime,final int dayNum ,final List<Periodic_Schedule> periodicScheduleHaveTimeList,  long[] filledBits){
+        int dayOfWeek;
+
+        for (Periodic_Schedule periodicSchedule : periodicScheduleHaveTimeList) {
+            int startDay = (int) Duration.between(startTime,periodicSchedule.getStartTime().toLocalDate().atStartOfDay()).toDays();
+            dayOfWeek = periodicSchedule.getStartTime().toLocalDate().getDayOfWeek().getValue() -1;
+            if(startDay <0){
+                startDay = 0;
+                dayOfWeek = startTime.toLocalDate().getDayOfWeek().getValue() -1;
+            }
+
+            int endDay = (int) Duration.between(startTime,periodicSchedule.getEndTime().toLocalDate().atStartOfDay()).toDays() +1;
+            if(endDay> dayNum)
+                endDay = dayNum;
+
+            long[] scheduleBits = periodicSchedule.getWeekScheduleData();
+            for (int i = 0; i < endDay; i++) {
+                filledBits[i] |= scheduleBits[dayOfWeek];
+                dayOfWeek++;
+                dayOfWeek %= WEEK_MOD;
+            }
+        }
+
+        return filledBits;
+    }
+
+    private long[] fillNonPeriodicMatchBits(final LocalDateTime startTime,final List<Non_Periodic_Schedule> nonPeriodicScheduleList, long[] filledDayBitArr){
 
         for (Non_Periodic_Schedule nonPeriodicSchedule : nonPeriodicScheduleList) {
             int dayNum = (int) Duration.between(startTime,nonPeriodicSchedule.getEndTime()).toDays();     //시작일로 부터 몇 idx 떨어져있는가
@@ -106,14 +133,6 @@ public class ScheduleRecommendService {
             }
         }
 
-        /*
-        long[] emptyBitArr = new long[]{0,0,0,0,0,0,0};
-        for (int i = 0; i < filledBitArr.length; i++) {
-            emptyBitArr[i] = ~filledBitArr[i];
-            emptyBitArr[i] <<= 16;  //48bit 이후는 0으로 만듬
-            emptyBitArr[i] >>= 16;
-        }*/
-
         return filledBitArr;
     }
 
@@ -133,7 +152,7 @@ public class ScheduleRecommendService {
         List<Periodic_Schedule> includedScheduleList = new ArrayList<>();
 
         List<Periodic_Schedule> periodicScheduleList = periodicScheduleRepository.findByPublicType(true);
-        log.info("public schedule size: " + periodicScheduleList.size());
+        //log.info("public schedule size: " + periodicScheduleList.size());
         for (Periodic_Schedule periodicSchedule : periodicScheduleList) {
             if(!this.checkBitTimeDataIsOverlap(periodicSchedule.getWeekScheduleData(), memberWeekData))
                includedScheduleList.add(periodicSchedule);
@@ -151,7 +170,7 @@ public class ScheduleRecommendService {
             if(!isOverlap)
                 includedScheduleList.add(periodicSchedule);*/
         }
-        log.info("includedScheduleList size : "+ includedScheduleList.size());
+        //log.info("includedScheduleList size : "+ includedScheduleList.size());
 
         List<Periodic_Schedule> finalScheduleList = new ArrayList<>();
 
@@ -189,8 +208,8 @@ public class ScheduleRecommendService {
     private boolean checkBitTimeDataIsOverlap(final long[] a, final long[] b){
         //boolean isOverlap = false;
         for (int i = 0; i < a.length; i++) {
-            log.info("b:" + Long.toBinaryString(b[i]));
-            log.info("a:" + Long.toBinaryString(a[i]));
+            //log.info("b:" + Long.toBinaryString(b[i]));
+            //log.info("a:" + Long.toBinaryString(a[i]));
             if((b[i] & a[i]) != 0){
                 return true;
             }
