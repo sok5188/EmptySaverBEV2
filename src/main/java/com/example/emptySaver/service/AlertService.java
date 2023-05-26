@@ -30,7 +30,7 @@ public class AlertService {
         List<AlertDto> alertList = new ArrayList<>();
         byMember.forEach(n->alertList.add(AlertDto.builder().id(n.getId()).title(n.getTitle()).body(n.getBody())
                         .routeValue(n.getRouteValue()).idType(n.getIdType()).idValue(n.getIdValue())
-                        .idType2(n.getIdType2()==null?"x":n.getIdType2()).idValue2(n.getIdValue2()==null?"x":n.getIdValue2())
+                        .idType2(n.getIdType2()==null?"x":n.getIdType2()).idValue2(n.getIdValue2()==null?"-1":n.getIdValue2())
                         .receiveTime(n.getReceiveTime()).isRead(n.getIsRead())
                 .build()));
         return alertList;
