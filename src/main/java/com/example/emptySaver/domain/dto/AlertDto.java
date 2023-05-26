@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class AlertDto {
+    private Long id;
     private String title;
     private String body;
     private String routeValue;
