@@ -31,6 +31,7 @@ public class ScheduleRecommendService {
     private final PeriodicScheduleRepository periodicScheduleRepository;
     private final MemberRepository memberRepository;
     private final NonPeriodicScheduleRepository nonPeriodicScheduleRepository;
+    private final MemberInterestRepository memberInterestRepository;
 
     private final static int WEEK_MOD = 7;
 
@@ -137,10 +138,35 @@ public class ScheduleRecommendService {
     }
 
 
-    public List<TimeTableDto.SearchedScheduleDto> getRecommendScheduleList(final TimeTableDto.ScheduleSearchRequestForm requestForm){
+    public List<TimeTableDto.SearchedScheduleDto> getRecommendScheduleList(final boolean interestFilterOn, final TimeTableDto.ScheduleSearchRequestForm requestForm){
         Member member = memberService.getMember();
         List<Schedule> recommendByMemberTimeTable = this.getRecommendByMemberTimeTable(member.getId(), requestForm.getStartTime(), requestForm.getEndTime());
+
+        if(interestFilterOn)    //관심사로 filtering
+            recommendByMemberTimeTable = this.filterMemberInterest(recommendByMemberTimeTable);
+
         return timeTableService.convertScheduleListToSearchedScheduleDtoList(recommendByMemberTimeTable);
+    }
+
+    private List<Schedule> filterMemberInterest(List<Schedule> scheduleList){
+
+        Member member = memberService.getMember();
+        List<MemberInterest> withCategoryByMember = memberInterestRepository.findWithCategoryByMember(member);
+        List<String> interestList = new ArrayList<>();
+        for (MemberInterest memberInterest : withCategoryByMember) {
+            interestList.add(memberInterest.getCategory().getName());
+        }
+
+        if(withCategoryByMember.isEmpty())  //관심사가 없으면 그냥 그대로 반환
+            return scheduleList;
+
+        //관심사가 있으면 filtering 적용
+        List<Schedule> filterScheduleList = scheduleList.stream()
+                .filter(sch -> sch.getCategory() != null)
+                .filter(sch -> interestList.contains(sch.getCategory()))
+                .collect(Collectors.toList());
+
+        return filterScheduleList;
     }
 
     private List<Periodic_Schedule> getPeriodicScheduleListNotOverlap(final long[] memberWeekData, List<Periodic_Schedule> periodicScheduleOverlapList ){
@@ -156,19 +182,6 @@ public class ScheduleRecommendService {
         for (Periodic_Schedule periodicSchedule : periodicScheduleList) {
             if(!this.checkBitTimeDataIsOverlap(periodicSchedule.getWeekScheduleData(), memberWeekData))
                includedScheduleList.add(periodicSchedule);
-/*
-            long[] weekScheduleData = periodicSchedule.getWeekScheduleData();
-
-            boolean isOverlap = false;
-            for (int i = 0; i < weekScheduleData.length; i++) { //겹치지 파악
-                if(notWeekData[i] != (notWeekData[i] | weekScheduleData[i])){
-                    isOverlap = true;
-                    break;
-                }
-            }
-
-            if(!isOverlap)
-                includedScheduleList.add(periodicSchedule);*/
         }
         //log.info("includedScheduleList size : "+ includedScheduleList.size());
 
@@ -193,7 +206,7 @@ public class ScheduleRecommendService {
             if(isOkay)
                 finalScheduleList.add(schedule);
         }
-        log.info("finalScheduleList size : "+finalScheduleList.size());
+        //log.info("finalScheduleList size : "+finalScheduleList.size());
 
         return finalScheduleList;
     }
@@ -230,18 +243,7 @@ public class ScheduleRecommendService {
         List<Periodic_Schedule> memberPeriodicScheduleList = timeTable.getPeriodicScheduleInBound(startTime,endTime); // new ArrayList<>();    // 멤버의 주기 스케줄 가져옴
         List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startTime, endTime);
         //log.info("ovelap size = " + periodicScheduleOverlap.size());
-        /*
-        List<Schedule> scheduleList = timeTable.getScheduleList();
-        for (Schedule schedule : scheduleList) {
-            if(schedule instanceof Non_Periodic_Schedule){
-                Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
-                if (nonPeriodicSchedule.getStartTime().isAfter(startTime.minusMinutes(1))
-                        &&nonPeriodicSchedule.getEndTime().isBefore(endTime.plusMinutes(1)) )
-                    memberNonPeriodicScheduleList.add((Non_Periodic_Schedule)schedule);
-            }else{
-                memberPeriodicScheduleList.add((Periodic_Schedule) schedule);
-            }
-        }*/
+
 
         List<Periodic_Schedule> passedPeriodicScheduleList = getMatchedPeriodicScheduleList(weekScheduleData, memberNonPeriodicScheduleList, periodicScheduleOverlap);
 
