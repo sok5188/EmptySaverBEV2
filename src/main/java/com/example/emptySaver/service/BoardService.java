@@ -108,7 +108,7 @@ public class BoardService {
                 //부모 댓글 작성자가 그룹장이 아닌 경우 + 자신이 아닌경우-> 부모 댓글 작성자에게 답글 알림을 보낸다.
                 fcmService.sendMessageToMember(post.getTeam().getOwner().getId(),post.getTitle()+"글에 댓글이 달렸습니다"
                         , (post.getTeam().isAnonymous()? member.getNickname(): member.getName())+ " : "+req.getText()
-                        ,"post","group",String.valueOf(post.getTeam().getId()));
+                        ,"post","group",String.valueOf(post.getTeam().getId()),"post", String.valueOf(post.getId()));
             }
         }else{
             Comment build = Comment.init_post().member(member).text(req.getText()).post(post).build();
@@ -120,7 +120,7 @@ public class BoardService {
         if(!post.getTeam().getOwner().equals(member)){
             fcmService.sendMessageToMember(post.getTeam().getOwner().getId(),post.getTitle()+"글에 댓글이 달렸습니다"
                     , (post.getTeam().isAnonymous()? member.getNickname(): member.getName())+ " : "+req.getText()
-                    ,"post","group",String.valueOf(post.getTeam().getId()));
+                    ,"post","group",String.valueOf(post.getTeam().getId()),"post", String.valueOf(post.getId()));
         }
     }
     private Post getPost(Long id){

@@ -27,6 +27,22 @@ public class FCMService {
     private final FirebaseMessaging firebaseMessaging;
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
+    public void sendMessageToMember(Long memberId,String title, String body, String routeValue,String idType, String idValue,String idType2, String idValue2){
+        Notification notification=Notification.builder()
+                .setTitle(title).setBody(body.length()>20?body.substring(0,17)+"...":body).build();
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
+        Message message=Message.builder().setToken(member.getFcmToken()).putData("route",routeValue).putData("idType",idType)
+                .putData("idValue",idValue).setNotification(notification).build();
+        com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.longInit()
+                .member(member).title(title).body(body).routeValue(routeValue)
+                .idType(idType).idValue(idValue).idType2(idType2).idValue2(idValue2).build();
+        try {
+            firebaseMessaging.send(message);
+            notificationRepository.save(build);
+        } catch (FirebaseMessagingException e) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_SEND_NOTIFICATION);
+        }
+    }
     public void sendMessageToMember(Long memberId,String title, String body, String routeValue,String idType, String idValue){
         Notification notification=Notification.builder()
                 .setTitle(title).setBody(body.length()>20?body.substring(0,17)+"...":body).build();
