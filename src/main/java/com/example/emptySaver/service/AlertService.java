@@ -28,7 +28,7 @@ public class AlertService {
         List<Notification> byMember = notificationRepository.findByMember(member);
         Collections.sort(byMember);
         List<AlertDto> alertList = new ArrayList<>();
-        byMember.forEach(n->alertList.add(AlertDto.builder().title(n.getTitle()).body(n.getBody())
+        byMember.forEach(n->alertList.add(AlertDto.builder().id(n.getId()).title(n.getTitle()).body(n.getBody())
                         .routeValue(n.getRouteValue()).idType(n.getIdType()).idValue(n.getIdValue())
                         .receiveTime(n.getReceiveTime()).isRead(n.getIsRead())
                 .build()));

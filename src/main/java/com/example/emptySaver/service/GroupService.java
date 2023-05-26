@@ -268,7 +268,9 @@ public class GroupService {
         List<CommentDto.CommentRes> detailComments = boardService.getDetailComments(groupId);
         return GroupDto.DetailGroupRes.builder()
                 .groupId(groupId).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
-                .groupDescription(team.getDescription()).nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
+                .groupDescription(team.getDescription())
+                .nowMember(Long.valueOf(memberTeamRepository.findByTeam(team).stream().filter(memberTeam -> memberTeam.isBelong())
+                        .collect(Collectors.toList()).size()))
                 .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
                 .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                 .commentList(detailComments)
