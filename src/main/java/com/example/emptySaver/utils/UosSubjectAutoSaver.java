@@ -47,10 +47,18 @@ public class UosSubjectAutoSaver {
 
     public void saveAllSubjectByTerm(String year, String term){
         uosDepartmentAutoSaver.saveAllUOSDepartment();
-        List<Department> departmentList = departmentRepository.findAll();
+        final List<Department> departmentList = departmentRepository.findAll();
+
+        Map<String,Department> departmentMap= new HashMap<>();
+        for (Department department : departmentList) {
+            String name = department.getName();
+            departmentMap.put(name, department);
+        }
 
         Map<String,String> params= new HashMap<>(){
             {put("year", year); put("term", term);}};
+
+        String requestURL = buildRequestURL(ApiData.SUBJECT_URL.getData(), params);
 
         //모든 학과 대상 호출
         for (Department depart:departmentList){
@@ -60,12 +68,45 @@ public class UosSubjectAutoSaver {
             params.put("subDept", depart.getSubDiv());
             params.put("upperDivName", depart.getUpperDivName());
 
-            String response = getResponseFromSubjectApi(params);
+            String response = getResponseFromSubjectApi(requestURL);
             if(response.equals(ApiData.ERROR.getData()))   //api call error 발생
                 continue;
 
             List<Subject> subjects = parseSubjectsHtmlData(response, params);
+            this.setSubjectStartEndTime(subjects,year, term);
             subjectRepository.saveAll(subjects);
+        }
+
+        saveAllCultureSubjectByTerm(departmentMap, year, term,"A01");    //교양선택시간표 저장장
+        saveAllCultureSubjectByTerm(departmentMap, year, term,"A01");    //교양필수시간표 저장장
+    }
+
+    public void saveAllCultureSubjectByTerm(final Map<String,Department> departmentMap,final String year, final String term, final String subjectDiv){
+        Map<String,String> params= new HashMap<>(){
+            {put("year", year); put("term", term); put("subjectDiv", subjectDiv);}};
+
+        String requestURL = buildRequestURL(ApiData.CULTURE_SUBJECT_URL.getData(), params);
+        String response = this.getResponseFromSubjectApi(requestURL);
+        if(response.equals(ApiData.ERROR.getData()))   //api call error 발생
+            return;
+
+        List<Subject> subjects = this.parseSubjectsHtmlData(response, params);
+        this.setSubjectStartEndTime(subjects,year, term);
+        this.setCultureSubjectUpDeptName(departmentMap, subjects);
+        List<Subject> subjects1 = subjectRepository.saveAll(subjects);
+        for (Subject subject : subjects1) {
+            log.info(subject.getSubjectname() + ", " + subject.getDept() + " up " + subject.getUpperDivName());
+        }
+    }
+
+    private void setCultureSubjectUpDeptName(final Map<String,Department> departmentMap, List<Subject> subjects){
+        for (Subject subject : subjects) {
+            String deptName = subject.getDept();
+            if(!departmentMap.containsKey(deptName))
+                continue;   //없으면 건너뛰
+
+            Department department = departmentMap.get(deptName);
+            subject.setUpperDivName(department.getUpperDivName());
         }
     }
 
@@ -86,10 +127,10 @@ public class UosSubjectAutoSaver {
         }
     }
 
-    private String getResponseFromSubjectApi(Map<String,String> params){
+    private String getResponseFromSubjectApi(String requestURL){
         String ret;
         try{
-            ret = getResponseFromUOS(params);
+            ret = getResponseFromUOS(requestURL);
         }catch (IOException e){
             log.info("UOS Subject api error");
             ret = ApiData.ERROR.getData();
@@ -97,8 +138,7 @@ public class UosSubjectAutoSaver {
         return ret;
     }
 
-    private String getResponseFromUOS(Map<String,String> params) throws IOException {
-        String requestURL = buildRequestURL(ApiData.SUBJECT_URL.getData(), params);
+    private String getResponseFromUOS( String requestURL) throws IOException {
         log.info(requestURL);
         URL url = new URL(requestURL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
