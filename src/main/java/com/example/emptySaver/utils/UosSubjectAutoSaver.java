@@ -58,7 +58,6 @@ public class UosSubjectAutoSaver {
         Map<String,String> params= new HashMap<>(){
             {put("year", year); put("term", term);}};
 
-        String requestURL = buildRequestURL(ApiData.SUBJECT_URL.getData(), params);
 
         //모든 학과 대상 호출
         for (Department depart:departmentList){
@@ -68,6 +67,7 @@ public class UosSubjectAutoSaver {
             params.put("subDept", depart.getSubDiv());
             params.put("upperDivName", depart.getUpperDivName());
 
+            String requestURL = buildRequestURL(ApiData.SUBJECT_URL.getData(), params);
             String response = getResponseFromSubjectApi(requestURL);
             if(response.equals(ApiData.ERROR.getData()))   //api call error 발생
                 continue;
