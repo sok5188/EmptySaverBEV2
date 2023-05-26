@@ -1,7 +1,7 @@
 #!/bin/bash
-#PROJECT_NAME="github_action"
+# PROJECT_NAME="github_action"
 JAR_PATH="/home/ubuntu/github_action/build/libs/*.jar"
-DEPLOY_PATH=/home/ubuntu/$PROJECT_NAME/
+DEPLOY_PATH="/home/ubuntu/github_action/"
 DEPLOY_LOG_PATH="/home/ubuntu/github_action/deploy.log"
 DEPLOY_ERR_LOG_PATH="/home/ubuntu/github_action/deploy_err.log"
 APPLICATION_LOG_PATH="/home/ubuntu/github_action/application.log"
