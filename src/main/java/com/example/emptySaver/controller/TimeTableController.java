@@ -58,9 +58,14 @@ public class TimeTableController {
 
     @PostMapping("/recommendSchedule")
     @Operation(summary = "시간표 정보로 스케줄 추천받기", description = "멤버의 시간표를 분석해서, 범위 내에서 겹치지 않는 스케줄을 찾아줌")
-    public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> getRecommendScheduleToMember(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
+    @Parameter(
+            name = "interestFilterOn",
+            description = "true로 설정시 멤버의 관심사로 필터링된 스케줄을 받음 <br>" +
+                    "true로 설정해도 관심사가 없는 멤버, 그리고 false로 설정한 경우 모든 스케줄을 추천 받음"
+    )
+    public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> getRecommendScheduleToMember(@RequestParam final boolean interestFilterOn,@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
         this.checkLocalDateException(requestForm.getStartTime(),requestForm.getEndTime());
-        List<TimeTableDto.SearchedScheduleDto> recommendScheduleList = scheduleRecommendService.getRecommendScheduleList(requestForm);
+        List<TimeTableDto.SearchedScheduleDto> recommendScheduleList = scheduleRecommendService.getRecommendScheduleList(interestFilterOn, requestForm);
         return new ResponseEntity<>(recommendScheduleList, HttpStatus.OK);
     }
 
