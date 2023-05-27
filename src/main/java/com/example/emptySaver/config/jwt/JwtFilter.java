@@ -22,7 +22,7 @@ import java.util.Optional;
 public class JwtFilter extends GenericFilterBean {
     private static final String[] whiteList={"/","/auth/*","/css/*","/helloTest",
             "/h2-console/*","/swagger-ui/*","/swagger-resources/*","/swagger-resources",
-            "/swagger-ui","/swagger-ui.html","/v3/api-docs/*","/v3/api-docs","/h2-console","/h2-console/*"};
+            "/swagger-ui","/swagger-ui.html","/v3/api-docs/*","/v3/api-docs","/h2-console","/h2-console/*","/category/*"};
 
     private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
     public static final String AUTHORIZATION_HEADER = "Authorization";
