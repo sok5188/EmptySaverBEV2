@@ -2,6 +2,9 @@ package com.example.emptySaver.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.checkerframework.checker.units.qual.A;
+
+import java.util.List;
 
 public class CategoryDto {
     @Data
@@ -33,6 +36,19 @@ public class CategoryDto {
         private String type;
         private String typeName;
         private T result;
+    }
+    @Data
+    @AllArgsConstructor
+    public static class memberInterestForm{
+        private String type;
+        private String typeName;
+        private List<String> tagList;
 
+    }
+    @Data
+    @AllArgsConstructor
+    public static class saveMemberInterestReq{
+        private String email;
+        private List<memberInterestForm> formList;
     }
 }
