@@ -25,4 +25,12 @@ public class MemberInterest {
     @JoinColumn(name="category_id")
     private Category category;
 
+    @Builder(builderMethodName = "init")
+    public MemberInterest(Member member, Category category){
+        this.member=member;
+        this.category=category;
+        member.getMemberInterests().add(this);
+    }
+
+
 }

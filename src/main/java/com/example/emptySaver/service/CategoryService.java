@@ -1,10 +1,13 @@
 package com.example.emptySaver.service;
 
 import com.example.emptySaver.domain.dto.CategoryDto;
+import com.example.emptySaver.domain.entity.Member;
+import com.example.emptySaver.domain.entity.MemberInterest;
 import com.example.emptySaver.domain.entity.category.*;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.CategoryRepository;
+import com.example.emptySaver.repository.MemberInterestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final MemberInterestRepository memberInterestRepository;
+    private final MemberService memberService;
     private static CategoryDto.res allCategory;
     private static final Map<String,String> labelMap=new HashMap<>();
     private static final Map<String,List<String>> categoryMap=new HashMap<>();
@@ -193,6 +198,19 @@ public class CategoryService {
         else if(categoryName.equals("free"))
             return this.findAllFree().stream().filter(f->f.getFreeType().getLabel().equals(labelName)).findAny();
         else throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
+    }
+    @Transactional
+    public void saveInterest(CategoryDto.saveMemberInterestReq req){
+        List<MemberInterest> memberInterestList = new ArrayList<>();
+        Member member = memberService.getMemberByEmail(req.getEmail());
+        List<CategoryDto.memberInterestForm> formList = req.getFormList();
+        formList.stream().forEach(form-> form.getTagList()
+                .forEach(tag->memberInterestList
+                        .add(MemberInterest.init().member(member)
+                                .category(this.getListByCategoryAndLabel(form.getType(),tag)
+                                        .orElseThrow(()->new BaseException(BaseResponseStatus.INVALID_CATEGORY_ID))).build())
+                        ));
+        memberInterestRepository.saveAll(memberInterestList);
     }
 
 }
