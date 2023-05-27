@@ -27,4 +27,12 @@ public class CategoryDto {
         private String key;
         private String name;
     }
+    @Data
+    @AllArgsConstructor
+    public static class fullCategoryInfo<T>{
+        private String type;
+        private String typeName;
+        private T result;
+
+    }
 }
