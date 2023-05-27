@@ -26,35 +26,35 @@ public class CategoryService {
     private static final Map<String,String> categoryNameMap=new HashMap<>();
     @PostConstruct
     public void setAllCategories() {
-        List<CategoryDto.categoryType> typeList=new ArrayList<>();
+        List<CategoryDto.fullCategoryInfo> typeList=new ArrayList<>();
         List<String> playCollect = Arrays.stream(PlayType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
         categoryMap.put("play",playCollect);
-        typeList.add(new CategoryDto.categoryType<>("play", playCollect));
+        typeList.add(new CategoryDto.fullCategoryInfo<>("play","오락", playCollect));
         labelMap.putAll(Arrays.stream(PlayType.values()).collect(Collectors.toMap(PlayType::getLabel, PlayType::getKey)));
         categoryNameMap.put("play","오락");
 
         List<String> movieCollect = Arrays.stream(MovieType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
         categoryMap.put("movie",movieCollect);
-        typeList.add(new CategoryDto.categoryType<>("movie",movieCollect));
+        typeList.add(new CategoryDto.fullCategoryInfo<>("movie","영화",movieCollect));
         labelMap.putAll(Arrays.stream(MovieType.values()).collect(Collectors.toMap(MovieType::getLabel,MovieType::getKey)));
         categoryNameMap.put("movie","영화");
 
         List<String> sportsCollect = Arrays.stream(SportsType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
         categoryMap.put("sports",sportsCollect);
-        typeList.add(new CategoryDto.categoryType<>("sports", sportsCollect));
+        typeList.add(new CategoryDto.fullCategoryInfo<>("sports","스포츠", sportsCollect));
         labelMap.putAll(Arrays.stream(SportsType.values()).collect(Collectors.toMap(SportsType::getLabel,SportsType::getKey)));
         categoryNameMap.put("sports","스포츠");
 
         List<String> studyCollect = Arrays.stream(StudyType.values()).map(t -> t.getLabel()).collect(Collectors.toList());
         categoryMap.put("study",studyCollect);
-        typeList.add(new CategoryDto.categoryType<>("study", studyCollect));
+        typeList.add(new CategoryDto.fullCategoryInfo<>("study","스터디", studyCollect));
         labelMap.putAll(Arrays.stream(StudyType.values()).collect(Collectors.toMap(StudyType::getLabel,StudyType::getKey)));
         categoryNameMap.put("study","스터디");
 
         List<String> freeCollect=new ArrayList<>();
         freeCollect.add("자율");
         categoryMap.put("free",freeCollect);
-        typeList.add(new CategoryDto.categoryType<>("free",freeCollect));
+        typeList.add(new CategoryDto.fullCategoryInfo<>("free","자율",freeCollect));
         labelMap.putAll(Arrays.stream(FreeType.values()).collect(Collectors.toMap(FreeType::getLabel, FreeType::getKey)));
         categoryNameMap.put("free","자율");
 
