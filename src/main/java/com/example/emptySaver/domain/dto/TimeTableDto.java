@@ -93,6 +93,9 @@ public class TimeTableDto {
         private String body;
         private boolean periodicType;
 
+        @Schema(description = "카테고리가 존재하는 경우 값이 들어있음")
+        private String category;
+
         @Schema(description = "스케줄을 만든 그룹의 내용")
         private GroupDto.DetailGroupRes groupInfo;
         private String timeData;
@@ -106,6 +109,9 @@ public class TimeTableDto {
     public static class SchedulePostDto{
         private String name;
         private String body;
+
+        @Schema(description = "카테고리가 존재하는 스케줄인 경우")
+        private String category;
 
         @Schema(description = "스케줄이 주기적인지의 정보를 문자열로")
         private String periodicType;

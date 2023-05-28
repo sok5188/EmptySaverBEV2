@@ -61,6 +61,7 @@ public class TimeTableServiceImpl implements TimeTableService {
                     .id(schedule.getId())
                     .name(schedule.getName())
                     .body(schedule.getBody())
+                    .category(schedule.getCategory())
                     //.groupInfo(groupService.getGroupDetails(schedule.getTimeTable().getTeam().getId()))
                     .timeData(this.timeDataConverter.convertScheduleTimeDataToString(schedule))
                     .periodicType(false)
@@ -412,6 +413,7 @@ public class TimeTableServiceImpl implements TimeTableService {
             periodicSchedule.setWeekScheduleData(this.convertTimeStringsToBitsArray(schedulePostData.getPeriodicTimeStringList()));
             periodicSchedule.setName(schedulePostData.getName());
             periodicSchedule.setBody(schedulePostData.getBody());
+            periodicSchedule.setCategory(schedulePostData.getCategory());
             periodicSchedule.setStartTime(schedulePostData.getStartTime());
             periodicSchedule.setEndTime(schedulePostData.getEndTime());
             periodicSchedule.setGroupId(schedulePostData.getGroupId());
@@ -425,6 +427,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         nonPeriodicSchedule.setStartTime(schedulePostData.getStartTime());
         nonPeriodicSchedule.setEndTime(schedulePostData.getEndTime());
         nonPeriodicSchedule.setBody(schedulePostData.getBody());
+        nonPeriodicSchedule.setCategory(schedulePostData.getCategory());
         nonPeriodicSchedule.setGroupId(schedulePostData.getGroupId());
         nonPeriodicSchedule.setGroupType(schedulePostData.getGroupType());
         nonPeriodicSchedule.setGroupName(schedulePostData.getGroupName());
