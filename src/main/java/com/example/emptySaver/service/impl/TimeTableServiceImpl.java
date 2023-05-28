@@ -61,6 +61,7 @@ public class TimeTableServiceImpl implements TimeTableService {
                     .id(schedule.getId())
                     .name(schedule.getName())
                     .body(schedule.getBody())
+                    .category(schedule.getCategory())
                     //.groupInfo(groupService.getGroupDetails(schedule.getTimeTable().getTeam().getId()))
                     .timeData(this.timeDataConverter.convertScheduleTimeDataToString(schedule))
                     .periodicType(false)
@@ -148,6 +149,10 @@ public class TimeTableServiceImpl implements TimeTableService {
         Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
         schedule.setTimeTable(teamTimeTable);
         schedule.setPublicType(isPublicTypeSchedule);
+
+        if(schedule.getCategory() == null || schedule.getCategory().isEmpty()){   //스케줄의 카테고리 설정이 없다면 그룹의 카테고리로 만듬.
+            schedule.setCategory(team.getCategory().getName());
+        }
 
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
         savedSchedule.setOriginScheduleId(savedSchedule.getId());   //원본id 저장
@@ -412,6 +417,7 @@ public class TimeTableServiceImpl implements TimeTableService {
             periodicSchedule.setWeekScheduleData(this.convertTimeStringsToBitsArray(schedulePostData.getPeriodicTimeStringList()));
             periodicSchedule.setName(schedulePostData.getName());
             periodicSchedule.setBody(schedulePostData.getBody());
+            periodicSchedule.setCategory(schedulePostData.getCategory());
             periodicSchedule.setStartTime(schedulePostData.getStartTime());
             periodicSchedule.setEndTime(schedulePostData.getEndTime());
             periodicSchedule.setGroupId(schedulePostData.getGroupId());
@@ -425,6 +431,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         nonPeriodicSchedule.setStartTime(schedulePostData.getStartTime());
         nonPeriodicSchedule.setEndTime(schedulePostData.getEndTime());
         nonPeriodicSchedule.setBody(schedulePostData.getBody());
+        nonPeriodicSchedule.setCategory(schedulePostData.getCategory());
         nonPeriodicSchedule.setGroupId(schedulePostData.getGroupId());
         nonPeriodicSchedule.setGroupType(schedulePostData.getGroupType());
         nonPeriodicSchedule.setGroupName(schedulePostData.getGroupName());
