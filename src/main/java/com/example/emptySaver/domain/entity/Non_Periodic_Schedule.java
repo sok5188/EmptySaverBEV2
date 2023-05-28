@@ -13,4 +13,23 @@ import java.time.LocalDateTime;
 public class Non_Periodic_Schedule extends Schedule{
     //private LocalDateTime startTime;
     //private LocalDateTime endTime;
+    static public Non_Periodic_Schedule copySchedule(Non_Periodic_Schedule schedule){
+        Non_Periodic_Schedule nonPeriodicSchedule = new Non_Periodic_Schedule();
+
+        nonPeriodicSchedule.setName(schedule.getName());
+        nonPeriodicSchedule.setBody(schedule.getBody());
+        nonPeriodicSchedule.setPublicType(schedule.isPublicType());
+
+        nonPeriodicSchedule.setGroupType(schedule.isGroupType());
+        nonPeriodicSchedule.setGroupId(schedule.getGroupId());
+        nonPeriodicSchedule.setGroupName(schedule.getGroupName());
+        nonPeriodicSchedule.setOriginScheduleId(schedule.getId());
+
+        nonPeriodicSchedule.setCategory(schedule.getCategory());
+
+        nonPeriodicSchedule.setStartTime(schedule.getStartTime());
+        nonPeriodicSchedule.setEndTime(schedule.getEndTime());
+
+        return nonPeriodicSchedule;
+    }
 }

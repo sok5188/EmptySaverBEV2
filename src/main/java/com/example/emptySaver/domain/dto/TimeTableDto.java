@@ -66,6 +66,7 @@ public class TimeTableDto {
         private String body;
         private boolean periodicType;
         private String timeData;
+        private boolean isRead;
     }
 
     @Data
