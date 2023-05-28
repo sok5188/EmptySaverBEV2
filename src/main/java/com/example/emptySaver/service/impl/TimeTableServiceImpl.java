@@ -35,6 +35,7 @@ public class TimeTableServiceImpl implements TimeTableService {
     private final NonPeriodicScheduleRepository nonPeriodicScheduleRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
+    private final ScheduleMemberRepository scheduleMemberRepository;
 
     private final GroupService groupService;
     private final MemberService memberService;
@@ -163,6 +164,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         teamTimeTable.calcAllWeekScheduleData();
 
         this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId());    //그룹장 자신에게 저장
+        this.setCheckTeamSchedule(savedSchedule.getId(),true);
+
 
         //그룹원들에게 알림보내기
         //TODO : 그룹 스케줄이 몇시부터 몇시 무슨요일에 추가되는 지를 바디에 넣고 data부분에 스케쥴 아이디?..
@@ -196,13 +199,34 @@ public class TimeTableServiceImpl implements TimeTableService {
     @Override
     public List<TimeTableDto.TeamScheduleDto> getTeamScheduleList(final Long teamId){
         Team team = teamRepository.findById(teamId).get();
-
         Time_Table timeTable = team.getTimeTable();
-        List<Schedule> scheduleList = timeTable.getScheduleList();
-        log.info("size: "+scheduleList.size());
+
+        Member member = memberService.getMember();
+
+        List<Schedule> scheduleList = new ArrayList<>();
+        for (Schedule schedule : timeTable.getScheduleList()) {
+            Optional<ScheduleMember> isRead = scheduleMemberRepository.findByMemberAndSchedule(member, schedule);
+
+            if (isRead.isEmpty())  //해당 멤버가 읽지 않은 것만 대상으로
+                scheduleList.add(schedule);
+        }
+        //log.info("size: "+scheduleList.size());
         List<TimeTableDto.TeamScheduleDto> teamScheduleDtoList = this.convertSchedulesToTeamScheduleDtoList(scheduleList);
 
         return teamScheduleDtoList;
+    }
+
+    @Override
+    public void setCheckTeamSchedule(final Long scheduleId, final boolean accept) {
+        Member member = memberService.getMember();
+        Schedule schedule = this.getScheduleById(scheduleId);
+        ScheduleMember build = ScheduleMember.builder().member(member).schedule(schedule).accept(accept).build();
+        ScheduleMember savedEntity = scheduleMemberRepository.save(build);
+
+        if(accept){ //유저의 스케줄로도 저장
+            this.saveScheduleInDB(member.getId(), scheduleId);
+        }
+        log.info("accpet?: " +savedEntity.isAccept());
     }
 
     @Override

@@ -17,6 +17,8 @@ public interface TimeTableService {
 
     List<TimeTableDto.TeamScheduleDto> getTeamScheduleList(Long teamId);
 
+    void setCheckTeamSchedule(final Long scheduleId, final boolean accept);
+
     TimeTableDto.MemberAllTimeTableInfo getMemberAllTimeTableInfo(Long memberId, LocalDate startDate, LocalDate endDate);
 
     TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId, LocalDate startDate, LocalDate endDate);
