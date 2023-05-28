@@ -15,7 +15,9 @@ public class AlertDto {
     private String body;
     private String routeValue;
     private String idType;
+    private String idType2;
     private String idValue;
+    private String idValue2;
     private LocalDateTime receiveTime;
     private Boolean isRead;
 }

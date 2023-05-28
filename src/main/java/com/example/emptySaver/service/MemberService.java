@@ -75,6 +75,10 @@ public class MemberService {
         Member member = getMember();
         return member.getId();
     }
+    public Member getMemberByEmail(String email){
+        Member member = memberRepository.findFirstByEmail(email).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_EMAIL));
+        return member;
+    }
 
     @Transactional
     public void deleteMember(Long memberId) {
