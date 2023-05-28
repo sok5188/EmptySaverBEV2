@@ -162,7 +162,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         //그룹원들에게 알림보내기
         //TODO : 그룹 스케줄이 몇시부터 몇시 무슨요일에 추가되는 지를 바디에 넣고 data부분에 스케쥴 아이디?..
         // 일단 body부분은 사용자가 보기 좋은 말로 보내는게 좋을 듯 함니다.
-        fcmService.sendMessageToMemberList(memberIdList,"그룹 " +team.getName()+"의 일정 추가 요청","scheduleId: " + savedSchedule.getId(),"notification","Schedule",String.valueOf(savedSchedule.getId()));
+        fcmService.sendMessageToMemberList(memberIdList,"그룹 " +team.getName()+"의 일정 추가 요청","여기 바꿔주세영ㅠㅠ: " + savedSchedule.getId(),"notification","Schedule",String.valueOf(savedSchedule.getId())
+        ,"group", String.valueOf(teamId));
 
         log.info("add Schedule id: "+ savedSchedule.getId() + " to Team id: " + team.getId());
     }
