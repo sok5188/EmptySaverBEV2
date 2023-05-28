@@ -18,4 +18,25 @@ import lombok.*;
 @DiscriminatorColumn // 하위 테이블의 구분 컬럼 생성 default = DTYPE
 public class Periodic_Schedule extends Schedule{
     private long[] weekScheduleData;
+
+    static public Periodic_Schedule copySchedule(Periodic_Schedule schedule){
+        Periodic_Schedule periodicSchedule = new Periodic_Schedule();
+        periodicSchedule.setWeekScheduleData(schedule.getWeekScheduleData());
+
+        periodicSchedule.setName(schedule.getName());
+        periodicSchedule.setBody(schedule.getBody());
+        periodicSchedule.setPublicType(schedule.isPublicType());
+
+        periodicSchedule.setGroupType(schedule.isGroupType());
+        periodicSchedule.setGroupId(schedule.getGroupId());
+        periodicSchedule.setGroupName(schedule.getGroupName());
+        periodicSchedule.setOriginScheduleId(schedule.getId());
+
+        periodicSchedule.setCategory(schedule.getCategory());
+
+        periodicSchedule.setStartTime(schedule.getStartTime());
+        periodicSchedule.setEndTime(schedule.getEndTime());
+
+        return periodicSchedule;
+    }
 }

@@ -15,6 +15,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -163,7 +164,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         scheduleList.add(savedSchedule);
         teamTimeTable.calcAllWeekScheduleData();
 
-        this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId());    //그룹장 자신에게 저장
+        //this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId());    //그룹장 자신에게 저장
         this.setCheckTeamSchedule(savedSchedule.getId(),true);
 
 
@@ -189,6 +190,7 @@ public class TimeTableServiceImpl implements TimeTableService {
                     .body(schedule.getBody())
                     .periodicType(periodicType)
                     .name(schedule.getName())
+                    .isRead(false)
                     .timeData(this.timeDataConverter.convertScheduleTimeDataToString(schedule))
                     .build());
         }
@@ -203,16 +205,17 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         Member member = memberService.getMember();
 
-        List<Schedule> scheduleList = new ArrayList<>();
-        for (Schedule schedule : timeTable.getScheduleList()) {
-            Optional<ScheduleMember> isRead = scheduleMemberRepository.findByMemberAndSchedule(member, schedule);
-
-            if (isRead.isEmpty())  //해당 멤버가 읽지 않은 것만 대상으로
-                scheduleList.add(schedule);
-        }
-        //log.info("size: "+scheduleList.size());
+        List<Schedule> scheduleList = timeTable.getScheduleList();
+        log.info("scheduleList size: "+scheduleList.size());
         List<TimeTableDto.TeamScheduleDto> teamScheduleDtoList = this.convertSchedulesToTeamScheduleDtoList(scheduleList);
+        for (int i = 0; i < teamScheduleDtoList.size(); i++) {
+            Optional<ScheduleMember> isRead = scheduleMemberRepository.findByMemberAndSchedule(member, scheduleList.get(i));
 
+            if (!isRead.isEmpty())  {
+                log.info("read");
+                teamScheduleDtoList.get(i).setRead(true);
+            }
+        }
         return teamScheduleDtoList;
     }
 
@@ -466,17 +469,25 @@ public class TimeTableServiceImpl implements TimeTableService {
     @Override
     @Transactional
     public void saveScheduleInDB(final Long memberId, final Long scheduleId){
-        Member member = memberRepository.findById(memberId).get();
-        Schedule schedule = this.getScheduleById(scheduleId);
-
+        Member member = memberService.getMember();
         Time_Table timeTable = member.getTimeTable();
-        schedule.setTimeTable(timeTable);
-        Schedule savedSchedule = scheduleRepository.save(schedule); //복사본으로서 저장
-        //@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
+
+        Schedule schedule = this.getScheduleById(scheduleId);
+        Schedule copySchedule;
+        if(schedule instanceof Periodic_Schedule) {
+            copySchedule = Periodic_Schedule.copySchedule((Periodic_Schedule) schedule);
+        }else{
+            copySchedule = Non_Periodic_Schedule.copySchedule((Non_Periodic_Schedule) schedule);
+        }
+
+        copySchedule.setTimeTable(timeTable);
+        copySchedule.setPublicType(false);
+
+        copySchedule.setTimeTable(timeTable);
+        Schedule savedSchedule = scheduleRepository.save(copySchedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
 
         List<Schedule> scheduleList = timeTable.getScheduleList();
         scheduleList.add(savedSchedule);
-        timeTable.calcAllWeekScheduleData();
 
         log.info("add Schedule"+ savedSchedule.getId() + " to Member" + member.getId());
     }
