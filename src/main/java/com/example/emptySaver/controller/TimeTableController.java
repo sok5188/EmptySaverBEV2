@@ -248,6 +248,21 @@ public class TimeTableController {
         return new ResponseEntity<>(teamScheduleList, HttpStatus.OK);
     }
 
+    @PostMapping("/team/readSchedule")
+    @Operation(summary = "Team의 스케줄 읽음 표시", description = "읽음 표시한 스케줄은 더이상 /team/getScheduleList의 목록에 포함되지 않습니다.")
+    @Parameter(
+            name = "scheduleId",
+            description = "읽음 표시할 스케줄의 Id"
+    )
+    @Parameter(
+            name = "accept",
+            description = "수락/ 거절 여부를 boolean으로"
+    )
+    public ResponseEntity<String> getTeamScheduleList(final @RequestParam Long scheduleId, final @RequestParam boolean accept){
+        timeTableService.setCheckTeamSchedule(scheduleId, accept);
+        return new ResponseEntity<>("set read schedule", HttpStatus.OK);
+    }
+
     @GetMapping("/getMovieScheduleList")
     @Operation(summary = "오늘 상영 영화의 스케줄들을 받아오기", description = "일단 오늘 것만")
     public ResponseEntity<List<TimeTableDto.TeamScheduleDto>> getMovieScheduleList(){
