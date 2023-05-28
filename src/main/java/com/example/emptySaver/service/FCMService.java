@@ -31,12 +31,13 @@ public class FCMService {
         Notification notification=Notification.builder()
                 .setTitle(title).setBody(body.length()>20?body.substring(0,17)+"...":body).build();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
-        Message message=Message.builder().setToken(member.getFcmToken()).putData("route",routeValue).putData("idType",idType)
+        Message message=Message.builder().setToken(member.getFcmToken()).putData("routeValue",routeValue).putData("idType",idType)
                 .putData("idValue",idValue=="x"?"-1":idValue).putData("idType2",idType2).putData("idValue2",idValue2=="x"?"-1":idValue2).setNotification(notification).build();
         com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.longInit()
                 .member(member).title(title).body(body).routeValue(routeValue)
                 .idType(idType).idValue(idValue=="x"?"-1":idValue).idType2(idType2).idValue2(idValue2=="x"?"-1":idValue2).build();
         try {
+            log.info("now Send message:"+message.toString());
             firebaseMessaging.send(message);
             notificationRepository.save(build);
         } catch (FirebaseMessagingException e) {
@@ -47,12 +48,13 @@ public class FCMService {
         Notification notification=Notification.builder()
                 .setTitle(title).setBody(body.length()>20?body.substring(0,17)+"...":body).build();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
-        Message message=Message.builder().setToken(member.getFcmToken()).putData("route",routeValue).putData("idType",idType)
+        Message message=Message.builder().setToken(member.getFcmToken()).putData("routeValue",routeValue).putData("idType",idType)
                 .putData("idValue",idValue=="x"?"-1":idValue).setNotification(notification).build();
         com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.init()
                 .member(member).title(title).body(body).routeValue(routeValue)
                 .idType(idType).idValue(idValue=="x"?"-1":idValue).build();
         try {
+            log.info("now Send message:"+message.toString());
             firebaseMessaging.send(message);
             notificationRepository.save(build);
         } catch (FirebaseMessagingException e) {
@@ -60,6 +62,14 @@ public class FCMService {
         }
     }
 
+    public void sendMessageToMemberList(List<Long> memberIdList, String title, String body,
+                                        String routeValue,String idType, String idValue,String idTyp2,String idValue2){
+        log.info("in fcm send List size: "+memberIdList.size());
+        for (Long memberId : memberIdList) {
+            log.info("target id:"+memberId);
+            this.sendMessageToMember(memberId,title,body,routeValue,idType,idValue,idTyp2,idValue2);
+        }
+    }
     public void sendMessageToMemberList(List<Long> memberIdList, String title, String body,
                                         String routeValue,String idType, String idValue){
         log.info("in fcm send List size: "+memberIdList.size());
