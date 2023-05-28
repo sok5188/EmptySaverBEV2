@@ -35,9 +35,9 @@ public class AlertController {
 //        return new ResponseEntity<>(res, HttpStatus.OK);
 //    }
 
-    @PutMapping("/check")
+    @PutMapping("/check/{notificationId}")
     @Operation(summary = "확인한 알림을 기록하는 API", description = "알림목록의 알림id를 통해 읽은(클릭한)알림을 기록하기 위한 API")
-    public ResponseEntity<String> checkNotification(@RequestBody Long notificationId){
+    public ResponseEntity<String> checkNotification(@PathVariable Long notificationId){
         alertService.checkRead(notificationId);
         return new ResponseEntity<>("Saved Notification",HttpStatus.OK);
     }
