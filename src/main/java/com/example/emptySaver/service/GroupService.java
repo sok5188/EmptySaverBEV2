@@ -274,6 +274,7 @@ public class GroupService {
                 .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
                 .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                 .commentList(detailComments)
+                .amIOwner(team.getOwner().equals(memberService.getMember()))
                 .build();
     }
 
