@@ -110,7 +110,7 @@ public class TimeTableDto {
         private String name;
         private String body;
 
-        @Schema(description = "카테고리가 존재하는 스케줄인 경우")
+        @Schema(description = "카테고리가 존재하는 스케줄인 경우, 없으면 안보내도 됨")
         private String category;
 
         @Schema(description = "스케줄이 주기적인지의 정보를 문자열로")

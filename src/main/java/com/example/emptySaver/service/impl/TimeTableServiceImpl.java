@@ -150,6 +150,10 @@ public class TimeTableServiceImpl implements TimeTableService {
         schedule.setTimeTable(teamTimeTable);
         schedule.setPublicType(isPublicTypeSchedule);
 
+        if(schedule.getCategory() == null || schedule.getCategory().isEmpty()){   //스케줄의 카테고리 설정이 없다면 그룹의 카테고리로 만듬.
+            schedule.setCategory(team.getCategory().getName());
+        }
+
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
         savedSchedule.setOriginScheduleId(savedSchedule.getId());   //원본id 저장
         //log.info("team savedSchedule: "+ savedSchedule.getGroupName());
