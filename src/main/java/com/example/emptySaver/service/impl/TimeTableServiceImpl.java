@@ -135,7 +135,7 @@ public class TimeTableServiceImpl implements TimeTableService {
     @Override
     @Transactional
     public void saveScheduleByTeam(final Long teamId, final Long OwnerId,final boolean isPublicTypeSchedule, final TimeTableDto.SchedulePostDto schedulePostDto){
-        Team team = teamRepository.findById(teamId).get();
+        Team team = teamRepository.findById(teamId).orElseThrow(()-> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         Time_Table teamTimeTable = team.getTimeTable();
 
         List<Long> memberIdList = new ArrayList<>();
@@ -200,7 +200,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
     @Override
     public List<TimeTableDto.TeamScheduleDto> getTeamScheduleList(final Long teamId){
-        Team team = teamRepository.findById(teamId).get();
+        Team team = teamRepository.findById(teamId).orElseThrow(()-> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         Time_Table timeTable = team.getTimeTable();
 
         Member member = memberService.getMember();
