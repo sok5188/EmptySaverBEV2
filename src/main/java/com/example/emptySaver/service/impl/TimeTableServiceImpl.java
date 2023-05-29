@@ -68,8 +68,8 @@ public class TimeTableServiceImpl implements TimeTableService {
                     .timeData(this.timeDataConverter.convertScheduleTimeDataToString(schedule))
                     .periodicType(false)
                     .build();
-            Team team = schedule.getTimeTable().getTeam();
-            if(team != null){
+            if(schedule.getTimeTable() != null && schedule.getTimeTable().getTeam() != null){
+                Team team = schedule.getTimeTable().getTeam();
                 GroupDto.DetailGroupRes groupBuild = GroupDto.DetailGroupRes.builder()
                         .groupId(team.getId()).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
                         .groupDescription(team.getDescription())//.nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
@@ -78,7 +78,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
                 build.setGroupInfo(groupBuild);
             }
-            
+
             if (schedule instanceof Periodic_Schedule)
                 build.setPeriodicType(true);
 
