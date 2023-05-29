@@ -23,7 +23,7 @@ public class ScheduleMember {
 
 
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "schedule_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Schedule schedule;
 
