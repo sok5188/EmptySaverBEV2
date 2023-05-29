@@ -258,7 +258,7 @@ public class TimeTableController {
             name = "accept",
             description = "수락/ 거절 여부를 boolean으로"
     )
-    public ResponseEntity<String> getTeamScheduleList(final @RequestParam Long scheduleId, final @RequestParam boolean accept){
+    public ResponseEntity<String> setCheckTeamSchedule(final @RequestParam Long scheduleId, final @RequestParam boolean accept){
         timeTableService.setCheckTeamSchedule(scheduleId, accept);
         return new ResponseEntity<>("set read schedule", HttpStatus.OK);
     }
