@@ -69,14 +69,16 @@ public class TimeTableServiceImpl implements TimeTableService {
                     .periodicType(false)
                     .build();
             Team team = schedule.getTimeTable().getTeam();
-            GroupDto.DetailGroupRes groupBuild = GroupDto.DetailGroupRes.builder()
-                    .groupId(team.getId()).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
-                    .groupDescription(team.getDescription())//.nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
-                    .maxMember(team.getMaxMember()).isPublic(team.isPublic())//.categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
-                    .build();
+            if(team != null){
+                GroupDto.DetailGroupRes groupBuild = GroupDto.DetailGroupRes.builder()
+                        .groupId(team.getId()).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
+                        .groupDescription(team.getDescription())//.nowMember(Long.valueOf(memberTeamRepository.countByTeam(team)))
+                        .maxMember(team.getMaxMember()).isPublic(team.isPublic())//.categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
+                        .build();
 
-            build.setGroupInfo(groupBuild);
-
+                build.setGroupInfo(groupBuild);
+            }
+            
             if (schedule instanceof Periodic_Schedule)
                 build.setPeriodicType(true);
 
