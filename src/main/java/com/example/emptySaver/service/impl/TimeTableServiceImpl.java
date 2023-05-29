@@ -483,7 +483,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         copySchedule.setTimeTable(timeTable);
         copySchedule.setPublicType(false);
 
-        copySchedule.setTimeTable(timeTable);
+        //copySchedule.setTimeTable(timeTable);
         Schedule savedSchedule = scheduleRepository.save(copySchedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
 
         List<Schedule> scheduleList = timeTable.getScheduleList();
@@ -501,6 +501,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         Time_Table timeTable = member.getTimeTable();
         schedule.setTimeTable(timeTable);
+        schedule.setPublicType(false);
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
         log.info("savedSchedule: "+ savedSchedule.getGroupId());
         List<Schedule> scheduleList = timeTable.getScheduleList();

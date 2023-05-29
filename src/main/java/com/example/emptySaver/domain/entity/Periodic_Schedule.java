@@ -25,7 +25,7 @@ public class Periodic_Schedule extends Schedule{
 
         periodicSchedule.setName(schedule.getName());
         periodicSchedule.setBody(schedule.getBody());
-        periodicSchedule.setPublicType(schedule.isPublicType());
+        periodicSchedule.setPublicType(false);
 
         periodicSchedule.setGroupType(schedule.isGroupType());
         periodicSchedule.setGroupId(schedule.getGroupId());
