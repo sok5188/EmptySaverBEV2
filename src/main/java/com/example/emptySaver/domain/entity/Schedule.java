@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 public class Schedule {
     @Id
     @GeneratedValue
+    @Column(name = "schedule_id")
     private Long id;
     private String name;
     private String body;
