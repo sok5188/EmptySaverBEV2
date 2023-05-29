@@ -18,7 +18,7 @@ public class Non_Periodic_Schedule extends Schedule{
 
         nonPeriodicSchedule.setName(schedule.getName());
         nonPeriodicSchedule.setBody(schedule.getBody());
-        nonPeriodicSchedule.setPublicType(schedule.isPublicType());
+        nonPeriodicSchedule.setPublicType(false);
 
         nonPeriodicSchedule.setGroupType(schedule.isGroupType());
         nonPeriodicSchedule.setGroupId(schedule.getGroupId());
