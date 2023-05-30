@@ -249,7 +249,7 @@ public class TimeTableController {
     }
 
     @PostMapping("/team/readSchedule")
-    @Operation(summary = "Team의 스케줄 읽음 표시", description = "읽음 표시한 스케줄은 더이상 /team/getScheduleList의 목록에 포함되지 않습니다.")
+    @Operation(summary = "Team의 스케줄 읽음 표시", description = "읽음 표시한 스케줄은 멤버의 스케줄에 추가됩니다.")
     @Parameter(
             name = "scheduleId",
             description = "읽음 표시할 스케줄의 Id"

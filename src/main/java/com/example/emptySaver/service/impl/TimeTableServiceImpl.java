@@ -278,12 +278,12 @@ public class TimeTableServiceImpl implements TimeTableService {
         Time_Table timeTable = member.getTimeTable();
         //timeTable.calcAllWeekScheduleData();
         long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.atStartOfDay());
-        final List<Schedule> scheduleList = timeTable.getScheduleList();
+        //final List<Schedule> scheduleList = timeTable.getScheduleList();
         List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
         List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(), endDate.atStartOfDay());
         //log.info("overlap size: "+ periodicScheduleOverlap.size());
         List<Non_Periodic_Schedule> nonPeriodicScheduleInBound = timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
-        log.info("sch detect: "+ scheduleList.size());
+        //log.info("sch detect: "+ scheduleList.size());
         return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,periodicScheduleInBound,periodicScheduleOverlap,nonPeriodicScheduleInBound);
     }
 
