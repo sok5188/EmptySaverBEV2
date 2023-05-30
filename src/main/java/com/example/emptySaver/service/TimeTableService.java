@@ -17,6 +17,7 @@ public interface TimeTableService {
 
     List<TimeTableDto.TeamScheduleDto> getTeamScheduleList(Long teamId);
 
+    @Transactional
     void setCheckTeamSchedule(final Long scheduleId, final boolean accept);
 
     TimeTableDto.MemberAllTimeTableInfo getMemberAllTimeTableInfo(Long memberId, LocalDate startDate, LocalDate endDate);
@@ -36,10 +37,12 @@ public interface TimeTableService {
     void updateScheduleInTimeTable(Long scheduleId, TimeTableDto.SchedulePostDto updatePostData);
 
     //팀 전체 수정
+    @Transactional
     void updateTeamSchedule(final Long teamId,final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData);
 
     @Transactional
     void deleteScheduleInTimeTable(Long scheduleId);
 
+    @Transactional
     void deleteTeamSchedule(final Long teamId,final Long scheduleId);
 }
