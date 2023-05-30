@@ -281,8 +281,9 @@ public class TimeTableServiceImpl implements TimeTableService {
         final List<Schedule> scheduleList = timeTable.getScheduleList();
         List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
         List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(), endDate.atStartOfDay());
-        log.info("overlap size: "+ periodicScheduleOverlap.size());
+        //log.info("overlap size: "+ periodicScheduleOverlap.size());
         List<Non_Periodic_Schedule> nonPeriodicScheduleInBound = timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
+        log.info("sch detect: "+ scheduleList.size());
         return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,periodicScheduleInBound,periodicScheduleOverlap,nonPeriodicScheduleInBound);
     }
 
@@ -488,6 +489,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         //copySchedule.setTimeTable(timeTable);
         Schedule savedSchedule = scheduleRepository.save(copySchedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
 
+        log.info("savedSchdeul: " + savedSchedule.getName() + "l " + savedSchedule.getStartTime());
         List<Schedule> scheduleList = timeTable.getScheduleList();
         scheduleList.add(savedSchedule);
 

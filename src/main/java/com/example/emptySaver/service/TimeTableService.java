@@ -17,6 +17,7 @@ public interface TimeTableService {
 
     List<TimeTableDto.TeamScheduleDto> getTeamScheduleList(Long teamId);
 
+    @Transactional
     void setCheckTeamSchedule(final Long scheduleId, final boolean accept);
 
     TimeTableDto.MemberAllTimeTableInfo getMemberAllTimeTableInfo(Long memberId, LocalDate startDate, LocalDate endDate);
