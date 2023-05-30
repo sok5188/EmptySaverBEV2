@@ -61,7 +61,7 @@ public class ScheduleService {
                     nonPeriodicSchedule.setName(movie.title);
                     nonPeriodicSchedule.setBody(timeInfo.reservationUrl);
                     nonPeriodicSchedule.setCategory(MOVIE);
-                    nonPeriodicSchedule.setPublicType(true);
+                    nonPeriodicSchedule.setPublicType(false);
 
                     String[] split = timeInfo.time.split(":");
                     int startHour = Integer.parseInt(split[0]);
