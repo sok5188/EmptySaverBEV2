@@ -1,5 +1,6 @@
 package com.example.emptySaver.domain.entity;
 
+import com.example.emptySaver.domain.entity.category.Category;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -36,6 +37,7 @@ public class Schedule {
     private Long originScheduleId;  //그룹 스케줄 원본의 id
 
     private String category;    //카테고리 구분은 일단 임시로 string으로
+    private String subCategory; //sub카테고리
 
     @ManyToOne
     @JoinColumn(name = "time_table_id")

@@ -26,6 +26,7 @@ public class ScheduleRecommendService {
     private final MemberService memberService;
     private final TimeTableService timeTableService;
     private final GroupService groupService;
+    private final CategoryService categoryService;
 
     private final TimeDataSuperUltraConverter timeDataConverter;
     private final PeriodicScheduleRepository periodicScheduleRepository;
@@ -154,7 +155,7 @@ public class ScheduleRecommendService {
         List<MemberInterest> withCategoryByMember = memberInterestRepository.findWithCategoryByMember(member);
         List<String> interestList = new ArrayList<>();
         for (MemberInterest memberInterest : withCategoryByMember) {
-            interestList.add(memberInterest.getCategory().getName());
+            interestList.add(categoryService.getLabelByCategory(memberInterest.getCategory()));
         }
 
         if(withCategoryByMember.isEmpty())  //관심사가 없으면 그냥 그대로 반환
@@ -162,8 +163,8 @@ public class ScheduleRecommendService {
 
         //관심사가 있으면 filtering 적용
         List<Schedule> filterScheduleList = scheduleList.stream()
-                .filter(sch -> sch.getCategory() != null)
-                .filter(sch -> interestList.contains(sch.getCategory()))
+                .filter(sch -> sch.getSubCategory() != null)
+                .filter(sch -> interestList.contains(sch.getSubCategory()))
                 .collect(Collectors.toList());
 
         return filterScheduleList;

@@ -33,6 +33,7 @@ public class Periodic_Schedule extends Schedule{
         periodicSchedule.setOriginScheduleId(schedule.getId());
 
         periodicSchedule.setCategory(schedule.getCategory());
+        periodicSchedule.setSubCategory(schedule.getSubCategory());
 
         periodicSchedule.setStartTime(schedule.getStartTime());
         periodicSchedule.setEndTime(schedule.getEndTime());

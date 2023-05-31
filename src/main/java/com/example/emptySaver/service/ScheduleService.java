@@ -3,6 +3,7 @@ package com.example.emptySaver.service;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.Non_Periodic_Schedule;
 import com.example.emptySaver.domain.entity.Schedule;
+import com.example.emptySaver.domain.entity.category.MovieType;
 import com.example.emptySaver.repository.NonPeriodicScheduleRepository;
 import com.example.emptySaver.repository.NonSubjectRepository;
 import com.example.emptySaver.repository.ScheduleRepository;

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,9 @@ public class TimeDataSuperUltraConverter {
         stringBuilder.append(div);
 
         if (idx % 2>0)
-            stringBuilder.append(":30");
+            stringBuilder.append("시 30분");
         else
-            stringBuilder.append(":00");
+            stringBuilder.append("시");
 
         return stringBuilder.toString();
     }
@@ -100,7 +101,7 @@ public class TimeDataSuperUltraConverter {
             if(convertedDayTime.equals(EMPTY))  //빈 요일이면
                 continue;
 
-            stringBuilder.append(intToDayMap.get(day) +"/"+ convertedDayTime +",");
+            stringBuilder.append(intToDayMap.get(day) +":"+ convertedDayTime +", ");
         }
         String builtString = stringBuilder.toString();
         return builtString.substring(0,builtString.length()-1);
@@ -132,20 +133,52 @@ public class TimeDataSuperUltraConverter {
                 stringBuilder.append("무기한/ ");
             else{
                 stringBuilder.append("기한: ");
-                stringBuilder.append(periodicSchedule.getStartTime());
+                stringBuilder.append(this.localDateTimeToPretty(periodicSchedule.getStartTime()));
                 stringBuilder.append(" ~ ");
-                stringBuilder.append(periodicSchedule.getEndTime() + " / ");
+                stringBuilder.append(this.localDateTimeToPretty(periodicSchedule.getEndTime()) + " / ");
             }
             String ret = bitTimeDataArrayToStringData(periodicSchedule.getWeekScheduleData());
             stringBuilder.append(ret);
         }else{
             Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
-            stringBuilder.append(nonPeriodicSchedule.getStartTime().toString());
+            LocalDateTime startTime = nonPeriodicSchedule.getStartTime();
+            LocalDateTime endTime = nonPeriodicSchedule.getEndTime();
+
+            stringBuilder.append(this.localDateTimeToPretty(startTime));
             stringBuilder.append(" ~ ");
-            stringBuilder.append(nonPeriodicSchedule.getEndTime().toString());
+
+            if(startTime.toLocalDate().equals(endTime.toLocalDate()))
+                stringBuilder.append(this.localDateTimeToPrettyOnlyTime(endTime));
+            else
+                stringBuilder.append(this.localDateTimeToPretty(endTime));
         }
 
-        return stringBuilder.toString().replace("T"," ");
+        return stringBuilder.toString();
+    }
+
+    private String localDateTimeToPretty(final LocalDateTime dataTime){
+        StringBuilder stringBuilder = new StringBuilder();
+
+        int year = dataTime.getYear();
+        stringBuilder.append(year+"년 ");
+        int month = dataTime.getMonthValue();
+        stringBuilder.append(month+"월 ");
+        int dayOfMonth = dataTime.getDayOfMonth();
+        stringBuilder.append(dayOfMonth+"일 ");
+
+        stringBuilder.append(this.localDateTimeToPrettyOnlyTime(dataTime));
+
+        return stringBuilder.toString();
+    }
+
+    private String localDateTimeToPrettyOnlyTime(final LocalDateTime dataTime){
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(dataTime.getHour() + "시");
+        if(dataTime.getMinute() >0)
+            stringBuilder.append(dataTime.getMinute()+" 분");
+
+        return stringBuilder.toString();
     }
 
     public float timeStringToFloat(String time){

@@ -5,10 +5,7 @@ import com.example.emptySaver.domain.entity.Team;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.TeamRepository;
-import com.example.emptySaver.service.MemberService;
-import com.example.emptySaver.service.ScheduleRecommendService;
-import com.example.emptySaver.service.ScheduleService;
-import com.example.emptySaver.service.TimeTableService;
+import com.example.emptySaver.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,6 +29,7 @@ public class TimeTableController {
     private final MemberService memberService;
     private final ScheduleRecommendService scheduleRecommendService;
     private final ScheduleService scheduleService;
+    private final GroupService groupService;
 
     private final TeamRepository teamRepository;
 
@@ -181,9 +179,10 @@ public class TimeTableController {
         TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
         log.info("groupId:"+groupId);
         Long currentMemberId = memberService.getCurrentMemberId();
-        Team team = teamRepository.findById(groupId).get();
+        //Team team = teamRepository.findById(groupId).get();
 
-        if(!currentMemberId.equals(team.getOwner().getId())){   //group owner만 가능하도록
+
+        if(!groupService.checkOwner(groupId)){   //group owner만 가능하도록
             log.info("request member is not Group owner");
             return new ResponseEntity<>("request member is not Group owner", HttpStatus.BAD_REQUEST);
         }
