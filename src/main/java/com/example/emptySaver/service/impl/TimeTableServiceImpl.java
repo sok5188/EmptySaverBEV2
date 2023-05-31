@@ -254,7 +254,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         for (MemberTeam team : member.getMemberTeam()) {
             groupList.add(team.getTeam());
         }
-
+        endDate = endDate.plusDays(1);
         LocalDateTime startTime = startDate.atStartOfDay();
         LocalDateTime endTime = endDate.atStartOfDay();
         for (Team team : groupList) {
@@ -277,13 +277,13 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         Time_Table timeTable = member.getTimeTable();
         //timeTable.calcAllWeekScheduleData();
+        endDate = endDate.plusDays(1);
         long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.atStartOfDay());
         //final List<Schedule> scheduleList = timeTable.getScheduleList();
         List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
         List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(), endDate.atStartOfDay());
-        //log.info("overlap size: "+ periodicScheduleOverlap.size());
         List<Non_Periodic_Schedule> nonPeriodicScheduleInBound = timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
-        //log.info("sch detect: "+ scheduleList.size());
+
         return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,periodicScheduleInBound,periodicScheduleOverlap,nonPeriodicScheduleInBound);
     }
 
@@ -300,7 +300,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
     private TimeTableDto.TimeTableInfo calcTimeTableDataPerWeek( final LocalDate startDate, final LocalDate endDate ,final long[] weekScheduleData
             ,final List<Periodic_Schedule> periodicScheduleInBound, List<Periodic_Schedule> periodicScheduleOverlap,List<Non_Periodic_Schedule> nonPeriodicScheduleInBound){
-        final int dayNum = (int) Duration.between(startDate.atStartOfDay(),endDate.atStartOfDay()).toDays() +1;
+        final int dayNum = (int) Duration.between(startDate.atStartOfDay(),endDate.atStartOfDay()).toDays(); //+1;
         final int startDayOfWeek = startDate.getDayOfWeek().getValue() -1; //월요일부터 0~6까지 정수
 
         List<Long> bitDataPerDays = new ArrayList<>();
@@ -416,7 +416,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         return TimeTableDto.TimeTableInfo.builder()
                 .startDate(startDate)
-                .endData(endDate)
+                .endData(endDate.minusDays(1))
                 .bitListsPerDay(this.convertLongListToBitListsPerDay(bitDataPerDays))
                 .scheduleListPerDays(scheduleListPerDays).build();
     }
