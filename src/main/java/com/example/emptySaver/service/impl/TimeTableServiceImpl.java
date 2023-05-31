@@ -3,13 +3,11 @@ package com.example.emptySaver.service.impl;
 import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
+import com.example.emptySaver.domain.entity.category.Category;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.*;
-import com.example.emptySaver.service.FCMService;
-import com.example.emptySaver.service.GroupService;
-import com.example.emptySaver.service.MemberService;
-import com.example.emptySaver.service.TimeTableService;
+import com.example.emptySaver.service.*;
 import com.example.emptySaver.utils.TimeDataSuperUltraConverter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -41,6 +39,7 @@ public class TimeTableServiceImpl implements TimeTableService {
     private final GroupService groupService;
     private final MemberService memberService;
     private final FCMService fcmService;
+    private final CategoryService categoryService;
 
     private Map<String,Integer> dayToIntMap = Map.of("월",0, "화", 1,"수",2,"목",3,"금",4,"토",5,"일",6);
 
@@ -64,6 +63,7 @@ public class TimeTableServiceImpl implements TimeTableService {
                     .name(schedule.getName())
                     .body(schedule.getBody())
                     .category(schedule.getCategory())
+                    .subCategory(schedule.getSubCategory())
                     //.groupInfo(groupService.getGroupDetails(schedule.getTimeTable().getTeam().getId()))
                     .timeData(this.timeDataConverter.convertScheduleTimeDataToString(schedule))
                     .periodicType(false)
@@ -137,8 +137,11 @@ public class TimeTableServiceImpl implements TimeTableService {
     @Override
     @Transactional
     public void saveScheduleByTeam(final Long teamId, final Long OwnerId,final boolean isPublicTypeSchedule, final TimeTableDto.SchedulePostDto schedulePostDto){
+        em.flush();
+        em.clear();
+
         log.info("Got groupID :"+teamId);
-        Team team = teamRepository.findById(teamId).orElseThrow(()-> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        Team team = teamRepository.findFirstWithCategoryById(teamId).orElseThrow(()-> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         Time_Table teamTimeTable = team.getTimeTable();
 
         List<Long> memberIdList = new ArrayList<>();
@@ -155,8 +158,11 @@ public class TimeTableServiceImpl implements TimeTableService {
         schedule.setTimeTable(teamTimeTable);
         schedule.setPublicType(isPublicTypeSchedule);
 
+        Category teamCategory = team.getCategory();
         if(schedule.getCategory() == null || schedule.getCategory().isEmpty()){   //스케줄의 카테고리 설정이 없다면 그룹의 카테고리로 만듬.
-            schedule.setCategory(team.getCategory().getName());
+            //log.info("cate : " + teamCategory.getClass());
+            schedule.setCategory(categoryService.getCategoryNameByCategory(teamCategory));
+            schedule.setSubCategory(categoryService.getLabelByCategory(teamCategory));
         }
 
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
@@ -449,6 +455,7 @@ public class TimeTableServiceImpl implements TimeTableService {
             periodicSchedule.setName(schedulePostData.getName());
             periodicSchedule.setBody(schedulePostData.getBody());
             periodicSchedule.setCategory(schedulePostData.getCategory());
+            periodicSchedule.setSubCategory(schedulePostData.getSubCategory());
             periodicSchedule.setStartTime(schedulePostData.getStartTime());
             periodicSchedule.setEndTime(schedulePostData.getEndTime());
             periodicSchedule.setGroupId(schedulePostData.getGroupId());
@@ -463,6 +470,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         nonPeriodicSchedule.setEndTime(schedulePostData.getEndTime());
         nonPeriodicSchedule.setBody(schedulePostData.getBody());
         nonPeriodicSchedule.setCategory(schedulePostData.getCategory());
+        nonPeriodicSchedule.setSubCategory(schedulePostData.getSubCategory());
         nonPeriodicSchedule.setGroupId(schedulePostData.getGroupId());
         nonPeriodicSchedule.setGroupType(schedulePostData.getGroupType());
         nonPeriodicSchedule.setGroupName(schedulePostData.getGroupName());

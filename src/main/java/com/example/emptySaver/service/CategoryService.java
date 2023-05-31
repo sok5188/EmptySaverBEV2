@@ -130,6 +130,7 @@ public class CategoryService {
         }
     }
     public String getCategoryNameByCategory(Category category){
+        log.info("category id: "  + category.getId());
         if(category instanceof Play){
             return "오락";
         }else if(category instanceof Movie){
