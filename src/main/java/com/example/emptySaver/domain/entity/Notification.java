@@ -33,7 +33,7 @@ public class Notification implements Comparable<Notification>{
     private String idValue2;
     private LocalDateTime receiveTime;
     private Boolean isRead;
-    @Builder(builderMethodName = "init")
+    @Builder(builderMethodName = "init", builderClassName = "build")
     public Notification(Member member, String title, String body, String routeValue, String idType, String idValue){
         this.member=member;
         this.title=title;
@@ -44,7 +44,7 @@ public class Notification implements Comparable<Notification>{
         receiveTime=LocalDateTime.now();
         isRead=false;
     }
-    @Builder(builderMethodName = "longInit")
+    @Builder(builderMethodName = "doubleInit", builderClassName = "buildDouble")
     public Notification(Member member, String title, String body, String routeValue, String idType
             , String idValue, String idType2, String idValue2){
         this.member=member;
