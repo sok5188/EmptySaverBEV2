@@ -63,11 +63,11 @@ public class FCMService {
     }
 
     public void sendMessageToMemberList(List<Long> memberIdList, String title, String body,
-                                        String routeValue,String idType, String idValue,String idTyp2,String idValue2){
+                                        String routeValue,String idType, String idValue,String idType2,String idValue2){
         log.info("in fcm send List size: "+memberIdList.size());
         for (Long memberId : memberIdList) {
             log.info("target id:"+memberId);
-            this.sendMessageToMember(memberId,title,body,routeValue,idType,idValue,idTyp2,idValue2);
+            this.sendMessageToMember(memberId,title,body,routeValue,idType,idValue,idType2,idValue2);
         }
     }
     public void sendMessageToMemberList(List<Long> memberIdList, String title, String body,
