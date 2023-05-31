@@ -33,9 +33,10 @@ public class FCMService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
         Message message=Message.builder().setToken(member.getFcmToken()).putData("routeValue",routeValue).putData("idType",idType)
                 .putData("idValue",idValue=="x"?"-1":idValue).putData("idType2",idType2).putData("idValue2",idValue2=="x"?"-1":idValue2).setNotification(notification).build();
-        com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.longInit()
+        com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.doubleInit()
                 .member(member).title(title).body(body).routeValue(routeValue)
                 .idType(idType).idValue(idValue=="x"?"-1":idValue).idType2(idType2).idValue2(idValue2=="x"?"-1":idValue2).build();
+        log.info("message double : "+idType2 + " / val "+idValue2);
         try {
             log.info("now Send message:"+message.toString());
             firebaseMessaging.send(message);
