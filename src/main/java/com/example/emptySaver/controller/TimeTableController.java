@@ -179,7 +179,7 @@ public class TimeTableController {
     )
     public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId,final @RequestParam boolean isPublicTypeSchedule, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
         TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
-
+        log.info("groupId:"+groupId);
         Long currentMemberId = memberService.getCurrentMemberId();
         Team team = teamRepository.findById(groupId).get();
 
