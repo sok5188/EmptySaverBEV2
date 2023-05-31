@@ -137,6 +137,7 @@ public class TimeTableServiceImpl implements TimeTableService {
     @Override
     @Transactional
     public void saveScheduleByTeam(final Long teamId, final Long OwnerId,final boolean isPublicTypeSchedule, final TimeTableDto.SchedulePostDto schedulePostDto){
+        log.info("Got groupID :"+teamId);
         Team team = teamRepository.findById(teamId).orElseThrow(()-> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         Time_Table teamTimeTable = team.getTimeTable();
 
