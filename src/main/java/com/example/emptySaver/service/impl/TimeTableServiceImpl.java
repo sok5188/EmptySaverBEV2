@@ -96,7 +96,10 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         List<Periodic_Schedule> periodicScheduleList = periodicScheduleRepository.findByPublicType(true);
         for (Periodic_Schedule periodicSchedule : periodicScheduleList) {
-            if((periodicSchedule.getStartTime().isAfter(searchForm.getStartTime().minusMinutes(1)) && periodicSchedule.getStartTime().isBefore(searchForm.getEndTime().plusMinutes(1)))
+            if(periodicSchedule.getStartTime() == null && timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
+                    ,searchForm.getStartTime(), searchForm.getEndTime())){
+                includedScheduleList.add(periodicSchedule);
+            }else if((periodicSchedule.getStartTime().isAfter(searchForm.getStartTime().minusMinutes(1)) && periodicSchedule.getStartTime().isBefore(searchForm.getEndTime().plusMinutes(1)))
                     || periodicSchedule.getEndTime().isAfter(searchForm.getStartTime().minusMinutes(1)) && periodicSchedule.getEndTime().isBefore(searchForm.getEndTime().plusMinutes(1))){
                 if(timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
                         ,searchForm.getStartTime(), searchForm.getEndTime()))
