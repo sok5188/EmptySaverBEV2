@@ -80,11 +80,11 @@ public class TimeTableController {
     }
 
     @PostMapping("/findSchedule")
-    @Operation(summary = "시간내의 스케줄 정보 찾기", description = "일단은 시간만 활용해서 공개 스케줄을 검색해옴")
+    @Operation(summary = "시간내의 스케줄 정보 찾기", description = "정한 search 시간 활용해서 공개 스케줄을 검색해옴")
     public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> searchSchedule(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
         this.checkLocalDateException(requestForm.getStartTime(),requestForm.getEndTime());
-
         List<TimeTableDto.SearchedScheduleDto> searchedScheduleDtoList = timeTableService.getSearchedScheduleDtoList(requestForm);
+
         return new ResponseEntity<>(searchedScheduleDtoList, HttpStatus.OK);
     }
 
@@ -173,7 +173,6 @@ public class TimeTableController {
             description = "이 파라미터가 바로 멤버의 스케줄 저장과 다른 부분입니다.<br>" +
                     "이 파라미터를 true(문자열도 괜찮)로 넘기면 공개 스케줄로서 저장됩니다.<br>" +
                     "공개 스케줄을 스케줄 검색을 통해 모든 유저에게 보일 수 있습니다."
-
     )
     public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId,final @RequestParam boolean isPublicTypeSchedule, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
         TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
@@ -267,6 +266,15 @@ public class TimeTableController {
     public ResponseEntity<List<TimeTableDto.TeamScheduleDto>> getMovieScheduleList(){
         List<TimeTableDto.TeamScheduleDto> movieScheduleToDay = scheduleService.getMovieScheduleToDay();
         return new ResponseEntity<>(movieScheduleToDay, HttpStatus.OK);
+    }
+
+    @PostMapping("saveScheduleByCopy")
+    @Operation(summary = "스케줄 id로 개인 스케줄에 복사시켜 저장하기", description = "영화 스케줄 저장, 팀 스케줄 저장등 스케줄 id값만 있으면,<br>" +
+            "데이터를 복사해서 개인 스케줄에 저장시킨다.")
+    public ResponseEntity<String> saveScheduleByCopy(final @RequestParam Long scheduleId){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        timeTableService.saveScheduleInDB(currentMemberId, scheduleId);
+        return new ResponseEntity<>("Schedule copy saved for member", HttpStatus.OK);
     }
 
 }
