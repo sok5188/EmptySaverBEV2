@@ -1,5 +1,6 @@
 package com.example.emptySaver.service.impl;
 
+import com.example.emptySaver.domain.dto.FriendDto;
 import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
@@ -13,7 +14,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +40,7 @@ public class TimeTableServiceImpl implements TimeTableService {
     private final MemberService memberService;
     private final FCMService fcmService;
     private final CategoryService categoryService;
+    private final FriendService friendService;
 
     private Map<String,Integer> dayToIntMap = Map.of("월",0, "화", 1,"수",2,"목",3,"금",4,"토",5,"일",6);
 
@@ -96,9 +97,10 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         List<Periodic_Schedule> periodicScheduleList = periodicScheduleRepository.findByPublicType(true);
         for (Periodic_Schedule periodicSchedule : periodicScheduleList) {
-            if(periodicSchedule.getStartTime() == null && timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
-                    ,searchForm.getStartTime(), searchForm.getEndTime())){
-                includedScheduleList.add(periodicSchedule);
+            if(periodicSchedule.getStartTime() == null){
+                if(timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
+                        ,searchForm.getStartTime(), searchForm.getEndTime()))
+                    includedScheduleList.add(periodicSchedule);
             }else if((periodicSchedule.getStartTime().isAfter(searchForm.getStartTime().minusMinutes(1)) && periodicSchedule.getStartTime().isBefore(searchForm.getEndTime().plusMinutes(1)))
                     || periodicSchedule.getEndTime().isAfter(searchForm.getStartTime().minusMinutes(1)) && periodicSchedule.getEndTime().isBefore(searchForm.getEndTime().plusMinutes(1))){
                 if(timeDataConverter.checkBitsIsBelongToLocalDataTime(periodicSchedule.getWeekScheduleData()[dayOfWeek]
@@ -615,5 +617,15 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         log.info("delete team Schedule "+ scheduleId);
     }
+
+
+/*
+    public List<FriendDto.FriendInfo> getMatchingTimeFriendList(){
+        List<FriendDto.FriendInfo> friendList = friendService.getFriendList();
+        for (FriendDto.FriendInfo friendInfo : friendList) {
+
+        }
+        return friendInfoList;
+    }*/
 
 }
