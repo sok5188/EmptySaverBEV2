@@ -269,4 +269,13 @@ public class TimeTableController {
         return new ResponseEntity<>(movieScheduleToDay, HttpStatus.OK);
     }
 
+    @PostMapping("saveScheduleByCopy")
+    @Operation(summary = "스케줄 id로 개인 스케줄에 복사시켜 저장하기", description = "영화 스케줄 저장, 팀 스케줄 저장등 스케줄 id값만 있으면,<br>" +
+            "데이터를 복사해서 개인 스케줄에 저장시킨다.")
+    public ResponseEntity<String> saveScheduleByCopy(final @RequestParam Long scheduleId){
+        Long currentMemberId = memberService.getCurrentMemberId();
+        timeTableService.saveScheduleInDB(currentMemberId, scheduleId);
+        return new ResponseEntity<>("Schedule copy saved for member", HttpStatus.OK);
+    }
+
 }
