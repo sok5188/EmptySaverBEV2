@@ -33,6 +33,26 @@ public class TimeTableController {
 
     private final TeamRepository teamRepository;
 
+    private void checkIsAvailableScheduleForm(final TimeTableDto.SchedulePostDto schedulePostDto){
+        TimeTableDto.checkSchedulePostDtoValid(schedulePostDto);
+
+        try {
+            if(schedulePostDto.getEndTime().isBefore(schedulePostDto.getStartTime()))
+                throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
+
+            if(schedulePostDto.getPeriodicType().equals("true")){
+                if(schedulePostDto.getPeriodicTimeStringList() == null)
+                    throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
+
+            }else{
+                if(schedulePostDto.getStartTime() == null)
+                    throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
+            }
+        }catch (NullPointerException e){
+            throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
+        }
+    }
+
     private void checkLocalDateException(final LocalDateTime startTime, final LocalDateTime endTime){
         if(endTime.isBefore(startTime))
             throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
@@ -120,7 +140,8 @@ public class TimeTableController {
             "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다. <br>"+
             "새로 추가된 ")
     public ResponseEntity<String> addMemberSchedule(@RequestBody TimeTableDto.SchedulePostDto schedulePostData){
-        TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
+        this.checkIsAvailableScheduleForm(schedulePostData);
+        //TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
 
         Long currentMemberId = memberService.getCurrentMemberId();
         log.info("build: " + schedulePostData.toString());
@@ -137,7 +158,8 @@ public class TimeTableController {
                     "getMemberTimeTable로 얻은 정보에서 scheduleId 추출해 사용."
     )
     public ResponseEntity<String> updateSchedule(final @RequestParam Long scheduleId, final @RequestBody TimeTableDto.SchedulePostDto updateData){
-        TimeTableDto.checkSchedulePostDtoValid(updateData);
+        this.checkIsAvailableScheduleForm(updateData);
+        //TimeTableDto.checkSchedulePostDtoValid(updateData);
 
         timeTableService.updateScheduleInTimeTable(scheduleId, updateData);
         return new ResponseEntity<>("Schedule update, id: " +scheduleId, HttpStatus.OK);
@@ -175,11 +197,11 @@ public class TimeTableController {
                     "공개 스케줄을 스케줄 검색을 통해 모든 유저에게 보일 수 있습니다."
     )
     public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId,final @RequestParam boolean isPublicTypeSchedule, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
-        TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
+        this.checkIsAvailableScheduleForm(schedulePostData);
+        //TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
         log.info("groupId:"+groupId);
         Long currentMemberId = memberService.getCurrentMemberId();
         //Team team = teamRepository.findById(groupId).get();
-
 
         if(!groupService.checkOwner(groupId)){   //group owner만 가능하도록
             log.info("request member is not Group owner");
@@ -198,7 +220,8 @@ public class TimeTableController {
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
     )
     public ResponseEntity<String> updateTeamSchedule(final @RequestParam Long groupId,final @RequestParam Long scheduleId,@RequestBody TimeTableDto.SchedulePostDto updatePostData){
-        TimeTableDto.checkSchedulePostDtoValid(updatePostData);
+        this.checkIsAvailableScheduleForm(updatePostData);
+        //TimeTableDto.checkSchedulePostDtoValid(updatePostData);
 
         Long currentMemberId = memberService.getCurrentMemberId();
         Team team = teamRepository.findById(groupId).get();
@@ -276,5 +299,7 @@ public class TimeTableController {
         timeTableService.saveScheduleInDB(currentMemberId, scheduleId);
         return new ResponseEntity<>("Schedule copy saved for member", HttpStatus.OK);
     }
+
+    //@Operation(summary = "")
 
 }

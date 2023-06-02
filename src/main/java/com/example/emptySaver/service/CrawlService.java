@@ -268,6 +268,8 @@ public class CrawlService {
     }
 
     public void CrawlMovie() throws IOException {
+        scheduleService.deleteAllSavedMovieBefore();    //과거 영화 지우고 시작
+
         Document document = Jsoup.connect("https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=%EB%A1%AF%EB%8D%B0%EC%8B%9C%EB%84%A4%EB%A7%88+%EC%B2%AD%EB%9F%89%EB%A6%AC+%EC%83%81%EC%98%81")
                 .userAgent(userAgent).headers(sameHeader).get();
         Elements select = document.select("#main_pack > section.sc_new.cs_movie_house > div > div.api_cs_wrap._theater_search_container > div._wrap_single_type > div.movie_content._wrap_time_table > div > div.list_tbl_box > table > tbody");

@@ -28,6 +28,7 @@ public class ScheduleService {
     private final NonPeriodicScheduleRepository nonPeriodicScheduleRepository;
     private final TimeDataSuperUltraConverter timeDataConverter;
     private final static String MOVIE = "movie";
+    private final static String BY_API = "byAPI";
 
     public List<TimeTableDto.TeamScheduleDto> getMovieScheduleToDay(){
         LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
@@ -54,6 +55,18 @@ public class ScheduleService {
     }
 
     @Transactional
+    public void deleteAllSavedMovieBefore(){
+        List<Non_Periodic_Schedule> movieList = nonPeriodicScheduleRepository.findBySubCategory(BY_API);
+        if(!movieList.isEmpty()){ //전날 영화들이 존재하면 지워버림
+            nonPeriodicScheduleRepository.deleteAll(movieList);
+
+            log.info("delete all past movies");
+        }
+
+        log.info("no movie to delete");
+    }
+
+    @Transactional
     public void saveMovieScheduleList(final List<CrawlService.TmpMovie> movieList){
         for (CrawlService.TmpMovie movie : movieList) {
             for (CrawlService.RoomInfo roomInfo: movie.roomInfoList) {
@@ -62,6 +75,7 @@ public class ScheduleService {
                     nonPeriodicSchedule.setName(movie.title);
                     nonPeriodicSchedule.setBody(timeInfo.reservationUrl);
                     nonPeriodicSchedule.setCategory(MOVIE);
+                    nonPeriodicSchedule.setSubCategory(BY_API);
                     nonPeriodicSchedule.setPublicType(false);
 
                     String[] split = timeInfo.time.split(":");
