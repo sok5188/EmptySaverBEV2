@@ -266,6 +266,15 @@ public class GroupService {
         em.clear();
         Team team = teamRepository.findFirstWithCategoryById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         List<CommentDto.CommentRes> detailComments = boardService.getDetailComments(groupId);
+        Member member = memberService.getMember();
+        String status="no";
+        Optional<MemberTeam> any = memberTeamRepository.findWithTeamByMember(member).stream().filter(mt -> mt.getTeam().equals(team)).findAny();
+        if(any.isPresent()){
+            if(any.get().isBelong())
+                status="in";
+            else status="mid";
+        }
+
         return GroupDto.DetailGroupRes.builder()
                 .groupId(groupId).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
                 .groupDescription(team.getDescription())
@@ -274,8 +283,9 @@ public class GroupService {
                 .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
                 .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                 .commentList(detailComments)
-                .amIOwner(team.getOwner().equals(memberService.getMember()))
+                .amIOwner(team.getOwner().equals(member))
                 .categoryName(categoryService.getCategoryNameByCategory(team.getCategory()))
+                .memberStatus(status)
                 .build();
     }
 
