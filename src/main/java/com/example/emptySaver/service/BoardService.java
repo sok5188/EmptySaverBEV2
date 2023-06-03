@@ -131,6 +131,7 @@ public class BoardService {
     }
     public List<CommentDto.CommentRes> getDetailComments(Long groupId){
         Team team = getTeam(groupId);
+        Member member = memberService.getMember();
         List<Comment> byTeam = commentRepository.findByTeam(team);
         List<CommentDto.CommentRes> result = new ArrayList<>();
         byTeam.stream().forEach(comment -> {
@@ -138,11 +139,15 @@ public class BoardService {
                 CommentDto.CommentInfo parent = CommentDto.CommentInfo.builder().commentId(comment.getId()).text(comment.getText()).dateTime(comment.getDate())
                         .isOwner(comment.getMember().equals(team.getOwner()))
                         .writerName(team.isAnonymous()?comment.getMember().getNickname():comment.getMember().getName())
+                        .amIWriter(member.equals(comment.getMember()))
                         .build();
                 List<CommentDto.CommentInfo> childList=new ArrayList<>();
                 comment.getChildComment().forEach(child->childList.add(
                         CommentDto.CommentInfo.builder().commentId(child.getId()).text(child.getText())
-                                .dateTime(child.getDate()).isOwner(child.getMember().equals(team.getOwner())).writerName(team.isAnonymous()?child.getMember().getNickname():child.getMember().getName()).build()
+                                .dateTime(child.getDate()).isOwner(child.getMember().equals(team.getOwner()))
+                                .writerName(team.isAnonymous()?child.getMember().getNickname():child.getMember().getName())
+                                .amIWriter(member.equals(child.getMember()))
+                                .build()
                 ));
                 result.add(CommentDto.CommentRes.builder().parent(parent).childList(childList).build());
             }
@@ -154,6 +159,7 @@ public class BoardService {
         if(!this.checkBelong(post.getTeam().getId()))
             throw new BaseException(BaseResponseStatus.NOT_BELONG_ERROR);
         List<Comment> byPost = commentRepository.findByPost(post);
+        Member member = memberService.getMember();
         log.info("byPost size:"+byPost.size());
         List<CommentDto.CommentRes> result = new ArrayList<>();
         byPost.stream().forEach(comment -> {
@@ -163,12 +169,15 @@ public class BoardService {
                 CommentDto.CommentInfo parent = CommentDto.CommentInfo.builder().commentId(comment.getId()).text(comment.getText()).dateTime(comment.getDate())
                         .isOwner(comment.getMember().equals(post.getTeam().getOwner()))
                         .writerName(post.getTeam().isAnonymous()?comment.getMember().getNickname():comment.getMember().getName())
+                        .amIWriter(member.equals(comment.getMember()))
                         .build();
                 List<CommentDto.CommentInfo> childList=new ArrayList<>();
                 comment.getChildComment().forEach(child->childList.add(
                         CommentDto.CommentInfo.builder().commentId(child.getId()).text(child.getText())
-                                .dateTime(child.getDate()).isOwner(child.getMember()
-                                        .equals(post.getTeam().getOwner())).build()
+                                .dateTime(child.getDate()).isOwner(child.getMember().equals(post.getTeam().getOwner()))
+                                .writerName(post.getTeam().isAnonymous()?child.getMember().getNickname():child.getMember().getName())
+                                .amIWriter(member.equals(child.getMember()))
+                                .build()
                 ));
                 result.add(CommentDto.CommentRes.builder().parent(parent).childList(childList).build());
             }
