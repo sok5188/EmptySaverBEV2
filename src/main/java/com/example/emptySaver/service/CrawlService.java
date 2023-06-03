@@ -48,13 +48,14 @@ public class CrawlService {
 
 
     @PostConstruct
+    @Transactional
     public void CrawlService() throws IOException {
         //깃헙올라갈때 빌드 오류 방지
         if(id.equals("fake"))
             return;
-        this.InitCrawl();
-        this.CrawlRecruiting();
-        this.CrawlNonSubject();
+//        this.InitCrawl();
+//        this.CrawlRecruiting();
+//        this.CrawlNonSubject();
         //TODO : 밑에 주석 풀고 확인하십셔
         this.CrawlMovie();
     }
@@ -66,7 +67,18 @@ public class CrawlService {
         this.InitCrawl();
         this.CrawlRecruiting();
         this.CrawlNonSubject();
-        //TODO : 얘도 처리되면 주석풀어주십셔
+        this.CrawlMovie();
+    }
+    @Scheduled(cron = "0 0 6 * * *",zone = "Asia/Seoul")
+    @Transactional
+    public void MovieCrawl1() throws IOException {
+        log.info("crawl movie 1");
+        this.CrawlMovie();
+    }
+    @Scheduled(cron = "0 0 7 * * *",zone = "Asia/Seoul")
+    @Transactional
+    public void MovieCrawl2() throws IOException {
+        log.info("crawled movie 2");
         this.CrawlMovie();
     }
     public void InitCrawl() throws IOException{
@@ -280,14 +292,16 @@ public class CrawlService {
             String href = a.attr("href");
             // TODO : 영화 상세 정보 URL
             String movieInfoUrl="https://search.naver.com/search.naver"+href;
+            System.out.println("url : "+movieInfoUrl);
             // TODO: 영화 상세 보기 페이지에서 상영시간 parsing하기
             Document movieInfoDoc = Jsoup.connect(movieInfoUrl).userAgent(userAgent).headers(sameHeader).get();
-            Elements detailInfo = movieInfoDoc.selectXpath("//*[@id=\"main_pack\"]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd");
+            Elements detailInfo = movieInfoDoc.selectXpath("/html/body/div[3]/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd");
+            System.out.println("detail Info : "+detailInfo.html());
             String[] split = detailInfo.html().split("<span class=\"cm_bar_info\"></span>");
             String movieGenre=split[0];
             String movieCountry=split[1];
-            System.out.println("Info : genre:"+movieGenre+ " / country : "+movieCountry + " / runningTime : "+split[2]);
-            System.out.println(split[2].replace("분",""));
+//            System.out.println("Info : genre:"+movieGenre+ " / country : "+movieCountry + " / runningTime : "+split[2]);
+//            System.out.println(split[2].replace("분",""));
 
             int movieRunningTime= Integer.parseInt(split[2].replace("분","")); //런타임 정수화
             System.out.println("Info : genre:"+movieGenre+ " / country : "+movieCountry + " / runningTime : "+movieRunningTime);
@@ -331,6 +345,8 @@ public class CrawlService {
                 roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
             }
             TmpMovie tmpMovie = new TmpMovie(title, movieInfoUrl, roomInfoList, movieRunningTime);
+            System.out.println("add movie : "+tmpMovie);
+            System.out.println("===============================================");
             movieList.add(tmpMovie);
         }
         /*
