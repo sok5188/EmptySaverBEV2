@@ -30,6 +30,33 @@ public class FriendService {
         Member user = memberRepository.findFirstByUsername(userName).orElseThrow(() -> new BaseException(BaseResponseStatus.FAILED_TO_LOGIN));
         return user;
     }
+
+    public List<Friend> getFriendEntityList(){
+        Member member = getMember();
+        return friendRepository.findWithFriendMemberByOwner(member);
+    }
+
+    public List<Member> getFriendByMemberEntityList(){  //친구 목록을 member entity로 반환
+        List<Member> friendMemberList = new ArrayList<>();
+
+        Member member = getMember();
+        List<Friend> withFriendByOwner = friendRepository.findWithFriendMemberByOwner(member);
+        for (Friend friend : withFriendByOwner) {
+            friendMemberList.add(friend.getFriendMember());
+        }
+
+        return friendMemberList;
+    }
+
+    public FriendDto.FriendInfo friendToFriendDto(Friend friend){
+        if(friend.isFriend())
+            return FriendDto.FriendInfo.builder().friendName(friend.getFriendMember().getName())
+                    .friendEmail(friend.getFriendMember().getEmail())
+                    .friendId(friend.getId()).friendMemberId(friend.getFriendMember().getId())
+                    .build();
+        return null;
+    }
+
     public List<FriendDto.FriendInfo> getFriendList(){
         Member member = getMember();
         List<Friend> withFriendByOwner = friendRepository.findWithFriendMemberByOwner(member);

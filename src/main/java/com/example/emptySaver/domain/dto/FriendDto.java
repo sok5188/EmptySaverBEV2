@@ -1,8 +1,11 @@
 package com.example.emptySaver.domain.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
 
 
 public class FriendDto {
@@ -18,5 +21,12 @@ public class FriendDto {
         private String friendEmail;
         private Long friendId;
         private Long friendMemberId;
+    }
+
+    @Data
+    @Builder
+    @Schema(description = "친구의 멤버 (friendMemberId)id값을 list로 받음(friendId가 아님에 주의)")
+    public static class FriendMemberIdList{
+        private List<Long> friendMemberIdLst;
     }
 }
