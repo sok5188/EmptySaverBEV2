@@ -191,15 +191,11 @@ public class TimeTableDto {
 
     static public void checkScheduleFormValid(final TimeTableDto.SchedulePostDto schedulePostDto){
         TimeTableDto.checkSchedulePostDtoValid(schedulePostDto);
-
-        try {
-            if(schedulePostDto.getEndTime().isBefore(schedulePostDto.getStartTime()))
-                throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
-
+        try{
             if(schedulePostDto.getPeriodicType().equals("true")){
-                if(schedulePostDto.getPeriodicTimeStringList() == null)
+                if(schedulePostDto.getPeriodicTimeStringList() == null){
                     throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
-
+                }
             }else{
                 if(schedulePostDto.getStartTime() == null)
                     throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);

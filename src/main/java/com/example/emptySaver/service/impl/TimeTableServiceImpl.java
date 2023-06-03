@@ -134,7 +134,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         List<Schedule> scheduleList = timeTable.getScheduleList();
         scheduleList.add(savedSchedule);
-        timeTable.calcAllWeekScheduleData();
+        //timeTable.calcAllWeekScheduleData();
 
         log.info("add Schedule"+ savedSchedule.getId() + " to Member" + member.getId());
     }
@@ -176,7 +176,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         List<Schedule> scheduleList = teamTimeTable.getScheduleList();
         scheduleList.add(savedSchedule);
-        teamTimeTable.calcAllWeekScheduleData();
+        //teamTimeTable.calcAllWeekScheduleData();
 
         //this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId());    //그룹장 자신에게 저장
         this.setCheckTeamSchedule(savedSchedule.getId(),true);
@@ -545,8 +545,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         else
             updateNonPeriodicSchedule((Non_Periodic_Schedule)schedule, (Non_Periodic_Schedule)updateData);
 
-        Schedule savedSchedule = scheduleRepository.save(schedule);
-        savedSchedule.getTimeTable().calcAllWeekScheduleData();
+        scheduleRepository.save(schedule);
+        //savedSchedule.getTimeTable().calcAllWeekScheduleData();
     }
 
     @Transactional
@@ -596,7 +596,7 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         Time_Table timeTable = schedule.getTimeTable();
         timeTable.getScheduleList().remove(schedule);   //서로의 연관관계 끊기
-        timeTable.calcAllWeekScheduleData();
+        //timeTable.calcAllWeekScheduleData();
 
         schedule.setTimeTable(null);                    //서로의 연관관계 끊기
 

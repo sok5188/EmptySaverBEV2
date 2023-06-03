@@ -93,7 +93,7 @@ public class ScheduleService {
                     nonPeriodicSchedule.setStartTime(startTime);
                     nonPeriodicSchedule.setEndTime(endTime);
                     Non_Periodic_Schedule save = scheduleRepository.save(nonPeriodicSchedule);
-                    //log.info("saved: " + save.getName() +", "+save.getEndTime());
+                    log.info("saved: " + save.getName() +", "+save.getEndTime());
                 }
 
             }

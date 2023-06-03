@@ -322,7 +322,7 @@ public class CrawlService {
                     log.error("========================================");
                     log.error("Category Movie doesnt have etc column.. Check The DataBase!");
                     log.error("========================================");
-                    return;
+                    //return;
                 }else{
                     targetCategory=etc.get();
                 }
@@ -331,6 +331,7 @@ public class CrawlService {
             String title=a.text();
             Elements divs = tr.select("td > div");
             List<RoomInfo> roomInfoList = new ArrayList<>();
+            log.info("divs: " + divs.size());
             for (Element div : divs) {
                 //TODO: 상영관 정보 ex, (2관) -> () 는 사용할거면 지워야할듯
                 String movieRoomNum = div.select("span.place").text();
@@ -346,8 +347,8 @@ public class CrawlService {
                 roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
             }
             TmpMovie tmpMovie = new TmpMovie(title, movieInfoUrl, roomInfoList, movieRunningTime);
-            System.out.println("add movie : "+tmpMovie);
-            System.out.println("===============================================");
+//            System.out.println("add movie : "+tmpMovie);
+//            System.out.println("===============================================");
             movieList.add(tmpMovie);
         }
         /*
