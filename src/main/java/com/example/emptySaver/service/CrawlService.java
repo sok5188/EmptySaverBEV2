@@ -365,8 +365,14 @@ public class CrawlService {
         int count=5;
         while (count-->0){
             Document movieInfoDoc = Jsoup.connect(movieInfoUrl).userAgent(userAgent).headers(sameHeader).get();
-            Elements detailInfo = movieInfoDoc.selectXpath("/html/body/div[3]/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd");
-            if(detailInfo.size()>3){
+//            System.out.println("movieInfoDoc = " + movieInfoDoc);
+            Elements detailInfo = movieInfoDoc.selectXpath("//*[@id=\"main_pack\"]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd");
+            ///html/body/div[3]/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd
+            ///html/body/div[3]/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd
+            ////*[@id="main_pack"]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd
+            ////*[@id="main_pack"]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd
+            System.out.println("detailInfo = " + detailInfo);
+            if(detailInfo.text().length()>3){
                 return detailInfo;
             }
             System.out.println("Failed to load movieInfo.. Try Again");
