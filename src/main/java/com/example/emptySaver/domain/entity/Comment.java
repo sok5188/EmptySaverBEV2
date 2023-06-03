@@ -37,7 +37,7 @@ public class Comment {
     @Column(nullable = false, length = 10000)
     private String text;
     @Column(nullable = false)
-    private ZonedDateTime date;
+    private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
@@ -52,7 +52,7 @@ public class Comment {
         this.member=member;
         this.team=team;
         this.text=text;
-        this.date=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
+        this.date=ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         member.getComments().add(this);
     }
     @Builder(builderMethodName = "init_post")
@@ -60,7 +60,7 @@ public class Comment {
         //post의 댓글이면 team정보 X
         this.member=member;
         this.text=text;
-        this.date= LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
+        this.date= ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         this.post=post;
         member.getComments().add(this);
         post.getCommentList().add(this);

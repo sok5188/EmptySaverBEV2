@@ -29,7 +29,7 @@ public class PostDto {
         private String title;
         private String content;
         private Long postId;
-        private ZonedDateTime dateTime;
+        private LocalDateTime dateTime;
         private List<CommentDto.CommentRes> comments;
     }
 

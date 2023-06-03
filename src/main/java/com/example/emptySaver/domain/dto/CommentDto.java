@@ -38,7 +38,7 @@ public class CommentDto {
     public static class CommentInfo{
         private Long commentId;
         private String text;
-        private ZonedDateTime dateTime;
+        private LocalDateTime dateTime;
         private Boolean isOwner;
         private String writerName;
         private Boolean amIWriter;

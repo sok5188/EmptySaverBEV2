@@ -18,7 +18,7 @@ public class MemberTeam {
     @Id@GeneratedValue
     private Long id;
 
-    private ZonedDateTime joinDate;
+    private LocalDateTime joinDate;
 
     //private List<Team> team;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,7 +40,7 @@ public class MemberTeam {
         this.team=team;
         member.getMemberTeam().add(this);
         team.getTeamMembers().add(this);
-        this.joinDate=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
+        this.joinDate=ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         isBelong=false;
     }
 
