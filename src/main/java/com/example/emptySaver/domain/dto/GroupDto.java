@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class GroupDto {
@@ -90,7 +91,7 @@ public class GroupDto {
         private Long groupId;
         private String groupName;
         private String memberName;
-        private LocalDateTime inviteDate;
+        private ZonedDateTime inviteDate;
     }
 
 

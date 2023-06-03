@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,6 +19,6 @@ public class AlertDto {
     private String idType2;
     private String idValue;
     private String idValue2;
-    private LocalDateTime receiveTime;
+    private ZonedDateTime receiveTime;
     private Boolean isRead;
 }
