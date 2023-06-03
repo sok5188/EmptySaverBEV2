@@ -294,7 +294,7 @@ public class CrawlService {
             System.out.println("url : "+movieInfoUrl);
             // TODO: 영화 상세 보기 페이지에서 상영시간 parsing하기
             Elements detailInfo=parseDetail(movieInfoUrl);
-            // TODO : 일단 5번 시도해도 안긁어와지면 걍 넘어가기
+            // TODO : 일단 5번 시도해도 안긁어와지면 걍 넘어감
             if(detailInfo==null)
                 continue;
             System.out.println("detail Info : "+detailInfo.html());
@@ -369,8 +369,10 @@ public class CrawlService {
             if(detailInfo.size()>3){
                 return detailInfo;
             }
+            System.out.println("Failed to load movieInfo.. Try Again");
 
         }
+        System.out.println("All fail.. skip this movie");
         return null;
     }
 
