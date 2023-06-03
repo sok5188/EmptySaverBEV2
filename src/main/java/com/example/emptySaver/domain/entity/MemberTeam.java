@@ -6,6 +6,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +18,7 @@ public class MemberTeam {
     @Id@GeneratedValue
     private Long id;
 
-    private LocalDateTime  joinDate;
+    private ZonedDateTime joinDate;
 
     //private List<Team> team;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,7 +40,7 @@ public class MemberTeam {
         this.team=team;
         member.getMemberTeam().add(this);
         team.getTeamMembers().add(this);
-        this.joinDate=LocalDateTime.now();
+        this.joinDate=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
         isBelong=false;
     }
 

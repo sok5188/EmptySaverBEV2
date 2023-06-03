@@ -6,6 +6,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Entity
 @Getter
@@ -31,7 +33,7 @@ public class Notification implements Comparable<Notification>{
     private String idValue;
     private String idType2;
     private String idValue2;
-    private LocalDateTime receiveTime;
+    private ZonedDateTime receiveTime;
     private Boolean isRead;
     @Builder(builderMethodName = "init", builderClassName = "build")
     public Notification(Member member, String title, String body, String routeValue, String idType, String idValue){
@@ -41,7 +43,7 @@ public class Notification implements Comparable<Notification>{
         this.routeValue=routeValue;
         this.idType=idType;
         this.idValue = idValue;
-        receiveTime=LocalDateTime.now();
+        receiveTime=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
         isRead=false;
     }
     @Builder(builderMethodName = "doubleInit", builderClassName = "buildDouble")
@@ -55,7 +57,7 @@ public class Notification implements Comparable<Notification>{
         this.idValue = idValue;
         this.idType2=idType2;
         this.idValue2=idValue2;
-        receiveTime=LocalDateTime.now();
+        receiveTime= LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
         isRead=false;
     }
 
