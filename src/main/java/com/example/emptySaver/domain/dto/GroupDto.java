@@ -79,6 +79,7 @@ public class GroupDto {
 
         private List<CommentDto.CommentRes> commentList;
         private Boolean amIOwner;
+        private String categoryName;
     }
 
     @Data
