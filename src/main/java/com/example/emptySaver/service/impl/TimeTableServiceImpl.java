@@ -152,7 +152,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         List<Long> memberIdList = new ArrayList<>();
         List<MemberTeam> teamMembers = team.getTeamMembers();
         for (MemberTeam teamMember : teamMembers) {     //그룹원들  id 긁어오기
-            if(!OwnerId.equals(teamMember.getMember().getId()))
+            if(!OwnerId.equals(teamMember.getMember().getId())&&teamMember.isBelong())
                 memberIdList.add(teamMember.getMember().getId());
         }
 
