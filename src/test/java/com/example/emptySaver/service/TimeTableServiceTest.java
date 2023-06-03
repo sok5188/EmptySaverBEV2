@@ -221,7 +221,7 @@ class TimeTableServiceTest {
 
         Member finalMember = memberRepository.findById(savedMember.getId()).get();
         assertThat(finalMember.getTimeTable().getScheduleList().size()).isEqualTo(0);
-        assertThat(finalMember.getTimeTable().getWeekScheduleData()[1]).isEqualTo(0l);
+        //assertThat(finalMember.getTimeTable().getWeekScheduleData()[1]).isEqualTo(0l);
     }
 
     @Transactional

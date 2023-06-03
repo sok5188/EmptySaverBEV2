@@ -127,7 +127,7 @@ public class TimeTableController {
     }
 
     @PutMapping("/updateSchedule")
-    @Operation(summary = "특정 스케줄 변경", description = "특정 스케줄을 scheduleId를 이용해서 변경")
+    @Operation(summary = "특정 스케줄 변경", description = "특정 스케줄을 scheduleId를 이용해서 변경. 단 주기적<->비주기적 변경 불가")
     @Parameter(
             name = "scheduleId",
             description = "body가 아닌 uri에 담아서 보내기.<br>" +
@@ -189,7 +189,7 @@ public class TimeTableController {
     }
 
     @PutMapping("/team/updateSchedule")
-    @Operation(summary = "Team의 스케줄 업데이트", description = "그룹의 id, 스케줄 id, 업데이트 내용으로 요청<br>모든 팀원들에게 반영됨")
+    @Operation(summary = "Team의 스케줄 업데이트", description = "그룹의 id, 스케줄 id, 업데이트 내용으로 요청<br>모든 팀원들에게 반영됨. 단 주기적<->비주기적 변경 불가")
     @Parameter(
             name = "scheduleId",
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."

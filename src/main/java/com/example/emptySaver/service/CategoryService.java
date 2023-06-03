@@ -190,8 +190,9 @@ public class CategoryService {
 
         if(categoryName.equals("play")){
             return this.findAllPlay().stream().filter(g->g.getPlayType().getLabel().equals(labelName)).findAny();
-        }else if(categoryName.equals("movie"))
+        }else if(categoryName.equals("movie")){
             return this.findAllMovie().stream().filter(m->m.getMovieGenre().getLabel().equals(labelName)).findAny();
+        }
         else if(categoryName.equals("sports"))
             return this.findAllSports().stream().filter(sports -> sports.getSportType().getLabel().equals(labelName)).findAny();
         else if(categoryName.equals("study"))
