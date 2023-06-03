@@ -147,7 +147,7 @@ public class TimeTableDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "TimeTable의 정보를 받기 위한 형식")
+    @Schema(description = "search 대상의 시작과 끝의 정보를 날짜로만 받기 위한 형식")
     public static class TimeTableRequestForm{
         @Schema(description = "찾는 시작 시점, yyyy-mm-dd 형식으로 보내기")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -179,6 +179,38 @@ public class TimeTableDto {
             return;
 
         if(dto.getEndTime().isBefore(dto.getStartTime()))
+            throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
+    }
+
+    static public void checkTimeTableRequestFormValid(final TimeTableRequestForm form){
+        if(form.getStartDate().isAfter(form.getEndDate()))
+            throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
+
+        return;
+    }
+
+    static public void checkScheduleFormValid(final TimeTableDto.SchedulePostDto schedulePostDto){
+        TimeTableDto.checkSchedulePostDtoValid(schedulePostDto);
+
+        try {
+            if(schedulePostDto.getEndTime().isBefore(schedulePostDto.getStartTime()))
+                throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
+
+            if(schedulePostDto.getPeriodicType().equals("true")){
+                if(schedulePostDto.getPeriodicTimeStringList() == null)
+                    throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
+
+            }else{
+                if(schedulePostDto.getStartTime() == null)
+                    throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
+            }
+        }catch (NullPointerException e){
+            throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
+        }
+    }
+
+    static public void checkLocalDateValid(final LocalDateTime startTime, final LocalDateTime endTime){
+        if(endTime.isBefore(startTime))
             throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
     }
 }

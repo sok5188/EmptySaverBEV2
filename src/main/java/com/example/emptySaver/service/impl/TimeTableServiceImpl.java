@@ -619,13 +619,4 @@ public class TimeTableServiceImpl implements TimeTableService {
     }
 
 
-/*
-    public List<FriendDto.FriendInfo> getMatchingTimeFriendList(){
-        List<FriendDto.FriendInfo> friendList = friendService.getFriendList();
-        for (FriendDto.FriendInfo friendInfo : friendList) {
-
-        }
-        return friendInfoList;
-    }*/
-
 }

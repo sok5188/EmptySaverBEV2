@@ -1,5 +1,6 @@
 package com.example.emptySaver.service;
 
+import com.example.emptySaver.domain.dto.FriendDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.repository.*;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,7 @@ public class ScheduleRecommendService {
     private final TimeTableService timeTableService;
     private final GroupService groupService;
     private final CategoryService categoryService;
+    private final FriendService friendService;
 
     private final TimeDataSuperUltraConverter timeDataConverter;
     private final PeriodicScheduleRepository periodicScheduleRepository;
@@ -38,11 +41,6 @@ public class ScheduleRecommendService {
 
     //TODO: 지금은 모든 팀원이 빈 시간만 서칭 -> 팀원을 선정하면 그 팀원끼리 빈시간 서칭도 바로 가능, 근데 언제 몇명이 비었는지 모두 알려주기는 힘들듯
     public List<String> findEmptyTimeOfTeam(final Long teamId, final LocalDate startDate, final LocalDate endDate){
-        if(startDate.isAfter(endDate)){
-            log.info("끝 날짜가 시작 날짜보다 빠를 수 없음.");
-            return new ArrayList<>();
-        }
-
         Team team = groupService.getTeamById(teamId);
 
         List<Member> memberList = new ArrayList<>();    //팀 멤버들 가져옴
@@ -50,6 +48,45 @@ public class ScheduleRecommendService {
             memberList.add(teamMember.getMember());
         }
 
+        return this.findEmptyTimeOfMemberList(memberList,startDate,endDate);
+    }
+
+    public List<String> findEmptyTimeWithFriends(final LocalDate startDate, final LocalDate endDate){
+        List<Member> memberList = friendService.getFriendByMemberEntityList();
+        memberList.add(memberService.getMember());    //자기 자신의 timetable도 제공하야 하므로 list에 넣음
+
+        return this.findEmptyTimeOfMemberList(memberList,startDate,endDate);
+    }
+
+    public List<String> findEmptyTimeWithSelectedFriends(final List<Long> friendMemberIdList,final LocalDate startDate, final LocalDate endDate){
+        List<Member> memberList = new ArrayList<>();
+        for (Long friendMemberId : friendMemberIdList) {
+            Optional<Member> byId = memberRepository.findById(friendMemberId);
+
+            if(!byId.isEmpty())
+                memberList.add(byId.get());
+        }
+
+        memberList.add(memberService.getMember());    //자기 자신의 timetable도 제공하야 하므로 list에 넣음
+
+        return this.findEmptyTimeOfMemberList(memberList,startDate,endDate);
+    }
+
+    public List<FriendDto.FriendInfo> matchingFriends(final LocalDateTime startTime, final LocalDateTime endTime){
+        List<FriendDto.FriendInfo> friendInfoList=new ArrayList<>();
+
+        List<Friend> friendEntityList = friendService.getFriendEntityList();
+        for (Friend friend : friendEntityList) {
+            Time_Table timeTable = friend.getFriendMember().getTimeTable();
+
+            if(timeTable.isEmptyTime(startTime,endTime))    //친구가 빈 시간이 있는 지 확인
+                friendInfoList.add(friendService.friendToFriendDto(friend));
+        }
+
+        return friendInfoList;
+    }
+
+    private List<String> findEmptyTimeOfMemberList(List<Member> memberList, final LocalDate startDate, final LocalDate endDate){
         List<Periodic_Schedule> membersPeriodicHaveTimeScheduleList = new ArrayList<>();
         List<Non_Periodic_Schedule> membersNonPeriodicScheduleList = new ArrayList<>();
         List<long[]> memberWeekDataList = new ArrayList<>();    //일단 주기 데이터 가져옴

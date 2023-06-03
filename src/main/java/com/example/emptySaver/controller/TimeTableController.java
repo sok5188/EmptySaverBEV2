@@ -1,5 +1,6 @@
 package com.example.emptySaver.controller;
 
+import com.example.emptySaver.domain.dto.FriendDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.Team;
 import com.example.emptySaver.errorHandler.BaseException;
@@ -33,30 +34,6 @@ public class TimeTableController {
 
     private final TeamRepository teamRepository;
 
-    private void checkIsAvailableScheduleForm(final TimeTableDto.SchedulePostDto schedulePostDto){
-        TimeTableDto.checkSchedulePostDtoValid(schedulePostDto);
-
-        try {
-            if(schedulePostDto.getEndTime().isBefore(schedulePostDto.getStartTime()))
-                throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
-
-            if(schedulePostDto.getPeriodicType().equals("true")){
-                if(schedulePostDto.getPeriodicTimeStringList() == null)
-                    throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
-
-            }else{
-                if(schedulePostDto.getStartTime() == null)
-                    throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
-            }
-        }catch (NullPointerException e){
-            throw new BaseException(BaseResponseStatus.NOT_AVAILABLE_SCHEDULE_FORM);
-        }
-    }
-
-    private void checkLocalDateException(final LocalDateTime startTime, final LocalDateTime endTime){
-        if(endTime.isBefore(startTime))
-            throw new BaseException(BaseResponseStatus.LOCAL_DATE_TIME_END_ERROR);
-    }
 
     @PostMapping("/team/findEmptyTime")
     @Operation(summary = "팀원들의 빈시간 정보 받기", description = "그룹의 멤버들의 스케줄를 분석해서, 모든 멤버가 겹치지 않는 시간을 문자열 정보로 넘김<br>" +
@@ -66,7 +43,7 @@ public class TimeTableController {
             description = "groupId"
     )
     public ResponseEntity<List<String>> getEmptyTimeOfTeam(final @RequestParam Long groupId, @RequestBody final TimeTableDto.ScheduleSearchRequestForm searchForm){
-        this.checkLocalDateException(searchForm.getStartTime(),searchForm.getEndTime());
+        TimeTableDto.checkLocalDateValid(searchForm.getStartTime(),searchForm.getEndTime());
 
         List<String> emptyDataList = scheduleRecommendService.findEmptyTimeOfTeam(groupId,
                 searchForm.getStartTime().toLocalDate(), searchForm.getEndTime().toLocalDate());
@@ -82,7 +59,7 @@ public class TimeTableController {
                     "true로 설정해도 관심사가 없는 멤버, 그리고 false로 설정한 경우 모든 스케줄을 추천 받음"
     )
     public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> getRecommendScheduleToMember(@RequestParam final boolean interestFilterOn,@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
-        this.checkLocalDateException(requestForm.getStartTime(),requestForm.getEndTime());
+        TimeTableDto.checkLocalDateValid(requestForm.getStartTime(),requestForm.getEndTime());
         List<TimeTableDto.SearchedScheduleDto> recommendScheduleList = scheduleRecommendService.getRecommendScheduleList(interestFilterOn, requestForm);
         return new ResponseEntity<>(recommendScheduleList, HttpStatus.OK);
     }
@@ -102,7 +79,7 @@ public class TimeTableController {
     @PostMapping("/findSchedule")
     @Operation(summary = "시간내의 스케줄 정보 찾기", description = "정한 search 시간 활용해서 공개 스케줄을 검색해옴")
     public ResponseEntity<List<TimeTableDto.SearchedScheduleDto>> searchSchedule(@RequestBody TimeTableDto.ScheduleSearchRequestForm requestForm){
-        this.checkLocalDateException(requestForm.getStartTime(),requestForm.getEndTime());
+        TimeTableDto.checkLocalDateValid(requestForm.getStartTime(),requestForm.getEndTime());
         List<TimeTableDto.SearchedScheduleDto> searchedScheduleDtoList = timeTableService.getSearchedScheduleDtoList(requestForm);
 
         return new ResponseEntity<>(searchedScheduleDtoList, HttpStatus.OK);
@@ -112,7 +89,7 @@ public class TimeTableController {
     @Operation(summary = "자신과 자신의 그룹의 TimeTable 정보 가져오기", description = "로그인 한 유저, 자신과 자신의 그룹의 timeTable의 정보를 가져옴")
     @ApiResponse(responseCode = "200", description = "list의 첫번째 원소가 ")
     public ResponseEntity<TimeTableDto.MemberAllTimeTableInfo> getMemberAndGroupTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
-        this.checkLocalDateException(requestForm.getStartDate().atStartOfDay(),requestForm.getEndDate().atStartOfDay());
+        TimeTableDto.checkTimeTableRequestFormValid(requestForm);
 
         Long currentMemberId = memberService.getCurrentMemberId();
         TimeTableDto.MemberAllTimeTableInfo memberAllTimeTableInfo = timeTableService.getMemberAllTimeTableInfo(currentMemberId, requestForm.getStartDate(), requestForm.getEndDate());
@@ -122,7 +99,7 @@ public class TimeTableController {
     @PostMapping("/getTimeTable")
     @Operation(summary = "TimeTable 정보 가져오기", description = "로그인 한 유저, 자신의 timeTable의 정보를 가져옴")
     public ResponseEntity<TimeTableDto.TimeTableInfo> getMemberTimeTable(@RequestBody TimeTableDto.TimeTableRequestForm requestForm){
-        this.checkLocalDateException(requestForm.getStartDate().atStartOfDay(),requestForm.getEndDate().atStartOfDay());
+        TimeTableDto.checkTimeTableRequestFormValid(requestForm);
 
         Long currentMemberId = memberService.getCurrentMemberId();
         //log.info("build: " + requestForm.toString());
@@ -140,7 +117,7 @@ public class TimeTableController {
             "startTime과 endTime은 'yyyy-MM-dd'T'HH:mm:ss'형식의 String으로 보내면 인식됩니다. <br>"+
             "새로 추가된 ")
     public ResponseEntity<String> addMemberSchedule(@RequestBody TimeTableDto.SchedulePostDto schedulePostData){
-        this.checkIsAvailableScheduleForm(schedulePostData);
+        TimeTableDto.checkScheduleFormValid(schedulePostData);
         //TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
 
         Long currentMemberId = memberService.getCurrentMemberId();
@@ -158,8 +135,7 @@ public class TimeTableController {
                     "getMemberTimeTable로 얻은 정보에서 scheduleId 추출해 사용."
     )
     public ResponseEntity<String> updateSchedule(final @RequestParam Long scheduleId, final @RequestBody TimeTableDto.SchedulePostDto updateData){
-        this.checkIsAvailableScheduleForm(updateData);
-        //TimeTableDto.checkSchedulePostDtoValid(updateData);
+        TimeTableDto.checkScheduleFormValid(updateData);
 
         timeTableService.updateScheduleInTimeTable(scheduleId, updateData);
         return new ResponseEntity<>("Schedule update, id: " +scheduleId, HttpStatus.OK);
@@ -197,8 +173,7 @@ public class TimeTableController {
                     "공개 스케줄을 스케줄 검색을 통해 모든 유저에게 보일 수 있습니다."
     )
     public ResponseEntity<String> addTeamSchedule(final @RequestParam Long groupId,final @RequestParam boolean isPublicTypeSchedule, final @RequestBody TimeTableDto.SchedulePostDto schedulePostData){
-        this.checkIsAvailableScheduleForm(schedulePostData);
-        //TimeTableDto.checkSchedulePostDtoValid(schedulePostData);
+        TimeTableDto.checkScheduleFormValid(schedulePostData);
         log.info("groupId:"+groupId);
         Long currentMemberId = memberService.getCurrentMemberId();
         //Team team = teamRepository.findById(groupId).get();
@@ -220,8 +195,7 @@ public class TimeTableController {
             description = "각각의 팀원들에게는 내용만 복사된 독립된 스케줄로 저장되기 때문에, 반드시 team의 timetable에서 가져온 id이어야한다."
     )
     public ResponseEntity<String> updateTeamSchedule(final @RequestParam Long groupId,final @RequestParam Long scheduleId,@RequestBody TimeTableDto.SchedulePostDto updatePostData){
-        this.checkIsAvailableScheduleForm(updatePostData);
-        //TimeTableDto.checkSchedulePostDtoValid(updatePostData);
+        TimeTableDto.checkScheduleFormValid(updatePostData);
 
         Long currentMemberId = memberService.getCurrentMemberId();
         Team team = teamRepository.findById(groupId).get();
@@ -300,6 +274,30 @@ public class TimeTableController {
         return new ResponseEntity<>("Schedule copy saved for member", HttpStatus.OK);
     }
 
-    //@Operation(summary = "")
+    @PostMapping("findFriendsHaveTime")
+    @Operation(summary = "해당 시간이 빈 친구 목록 받기", description = "자신의 친구 중에서 해당 시간이 빈 친구의 정보를 받아옴")
+    public ResponseEntity<List<FriendDto.FriendInfo>> getFriendsHaveTime(final @RequestBody TimeTableDto.ScheduleSearchRequestForm searchForm){
+        TimeTableDto.checkLocalDateValid(searchForm.getStartTime(), searchForm.getEndTime());
+        List<FriendDto.FriendInfo> friendInfos = scheduleRecommendService.matchingFriends(searchForm.getStartTime(), searchForm.getEndTime());
+        return new ResponseEntity<>(friendInfos, HttpStatus.OK);
+   }
+
+    @PostMapping("findEmptyTimeWithAllFriends")
+    @Operation(summary = "자신의 모든 친구와 빈 시간 찾기", description = "설정한 시간 내에서 자신의 모든 친구와 빈 시간 찾기")
+    public ResponseEntity<List<String>> getEmptyTimeWithAllFriends(final @RequestBody TimeTableDto.TimeTableRequestForm searchForm ){
+        TimeTableDto.checkTimeTableRequestFormValid(searchForm);
+        List<String> emptyTimeWithFriends = scheduleRecommendService.findEmptyTimeWithFriends(searchForm.getStartDate(), searchForm.getEndDate());
+        return new ResponseEntity<>(emptyTimeWithFriends, HttpStatus.OK);
+   }
+
+    @PostMapping("findEmptyTimeWithSelectedFriends")
+    @Operation(summary = "자신의 모든 친구와 빈 시간 찾기", description = "설정한 시간 내에서 자신의 모든 친구와 빈 시간 찾기")
+    public ResponseEntity<List<String>> getEmptyTimeWithSelectedFriends(final @RequestBody FriendDto.FriendMemberIdList friendMemberIdList
+            ,final @RequestBody TimeTableDto.TimeTableRequestForm searchForm ){
+        TimeTableDto.checkTimeTableRequestFormValid(searchForm);
+        List<String> emptyTimeWithSelectedFriends = scheduleRecommendService.findEmptyTimeWithSelectedFriends(friendMemberIdList.getFriendMemberIdLst()
+                , searchForm.getStartDate(), searchForm.getEndDate());
+        return new ResponseEntity<>(emptyTimeWithSelectedFriends, HttpStatus.OK);
+   }
 
 }

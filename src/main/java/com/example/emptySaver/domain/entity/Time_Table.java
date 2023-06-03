@@ -127,4 +127,17 @@ public class Time_Table {
 
         return periodicScheduleList;
     }
+
+    public boolean isEmptyTime(final LocalDateTime startTime, final LocalDateTime endTime){
+        boolean isEmpty = true;
+        int sizeCnt =0;
+        sizeCnt += this.getNonPeriodicScheduleInBound(startTime,endTime).size();
+        sizeCnt += this.getPeriodicScheduleInBound(startTime,endTime).size();
+        sizeCnt += this.getPeriodicScheduleInBound(startTime,endTime).size();
+
+        if (sizeCnt >0)
+            isEmpty = false;
+
+        return isEmpty;
+    }
 }

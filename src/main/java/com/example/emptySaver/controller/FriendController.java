@@ -22,6 +22,14 @@ public class FriendController {
     private final FriendService friendService;
     private final TimeTableService timeTableService;
 
+
+    @GetMapping("/getMatchingTimeFriendList")
+    @Operation(summary = "친구 리스트에서 같이 할수 있는 친구 목록 반환")
+    public ResponseEntity<FriendDto.res> getMatchingTimeFriendList(){
+        List<FriendDto.FriendInfo> friendList = friendService.getFriendList();
+        return new ResponseEntity<>(new FriendDto.res<>(friendList), HttpStatus.OK);
+    }
+
     @PostMapping("/getFriendTimeTable")
     @Operation(summary = "친구 시간표 조회하기", description = "회원의 친구의 시간표를 조회하는 API")
     @Parameter(
