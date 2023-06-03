@@ -532,20 +532,22 @@ public class TimeTableServiceImpl implements TimeTableService {
     //멤버로 수정
     @Override
     @Transactional
-    public void updateScheduleInTimeTable(final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData){
-        Schedule schedule = this.getScheduleById(scheduleId);
-
-        if(schedule instanceof Periodic_Schedule)
-            updatePostData.setPeriodicType("true");
-
-        Schedule updateData = this.convertDtoToSchedule(updatePostData);
-
-        if(schedule instanceof Periodic_Schedule)
-            updatePeriodicSchedule((Periodic_Schedule)schedule, (Periodic_Schedule)updateData);
-        else
-            updateNonPeriodicSchedule((Non_Periodic_Schedule)schedule, (Non_Periodic_Schedule)updateData);
-
-        scheduleRepository.save(schedule);
+    public void updateScheduleInTimeTable(final Long scheduleId, final Long memberId,TimeTableDto.SchedulePostDto updatePostData){
+        this.deleteScheduleInTimeTable(scheduleId);
+        this.saveScheduleInTimeTable(memberId, updatePostData);
+        //Schedule schedule = this.getScheduleById(scheduleId);
+//
+//        if(schedule instanceof Periodic_Schedule)
+//            updatePostData.setPeriodicType("true");
+//
+//        Schedule updateData = this.convertDtoToSchedule(updatePostData);
+//
+//        if(schedule instanceof Periodic_Schedule)
+//            updatePeriodicSchedule((Periodic_Schedule)schedule, (Periodic_Schedule)updateData);
+//        else
+//            updateNonPeriodicSchedule((Non_Periodic_Schedule)schedule, (Non_Periodic_Schedule)updateData);
+//
+//        scheduleRepository.save(schedule);
         //savedSchedule.getTimeTable().calcAllWeekScheduleData();
     }
 
@@ -573,17 +575,23 @@ public class TimeTableServiceImpl implements TimeTableService {
 
     @Override
     @Transactional
-    public void updateTeamSchedule(final Long teamId,final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData){
-        Team team = groupService.getTeamById(teamId);
-        Schedule schedule = this.getScheduleById(scheduleId);
-        Long originScheduleId = schedule.getId();
-        List<Schedule> copyScheduleList = scheduleRepository.findByOriginScheduleId(originScheduleId);
-        for (Schedule copySchedule : copyScheduleList) {
-            this.updateScheduleInTimeTable(copySchedule.getId(),updatePostData);
-        }
+    public void updateTeamSchedule(final Long teamId, final Long teamOwnerId,final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData){
+        this.deleteScheduleInTimeTable(scheduleId);
 
-        this.updateScheduleInTimeTable(originScheduleId,updatePostData);
-        log.info("update team Schedule "+ scheduleId);
+        boolean isPeriodicType = false;
+        if(updatePostData.getPeriodicType().equals("true"))
+            isPeriodicType = true;
+        this.saveScheduleByTeam(teamId, teamOwnerId , isPeriodicType,updatePostData);
+//        Team team = groupService.getTeamById(teamId);
+//        Schedule schedule = this.getScheduleById(scheduleId);
+//        Long originScheduleId = schedule.getId();
+//        List<Schedule> copyScheduleList = scheduleRepository.findByOriginScheduleId(originScheduleId);
+//        for (Schedule copySchedule : copyScheduleList) {
+//            this.updateScheduleInTimeTable(copySchedule.getId(),updatePostData);
+//        }
+//
+//        this.updateScheduleInTimeTable(originScheduleId,updatePostData);
+        log.info("update team Schedule ");
     }
 
     @Override

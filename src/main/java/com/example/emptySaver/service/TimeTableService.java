@@ -34,11 +34,11 @@ public interface TimeTableService {
 
     //멤버로 수정
     @Transactional
-    void updateScheduleInTimeTable(Long scheduleId, TimeTableDto.SchedulePostDto updatePostData);
+    void updateScheduleInTimeTable(Long scheduleId, Long memberId,TimeTableDto.SchedulePostDto updatePostData);
 
     //팀 전체 수정
     @Transactional
-    void updateTeamSchedule(final Long teamId,final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData);
+    void updateTeamSchedule(final Long teamId,final Long teamOwnerId,final Long scheduleId, TimeTableDto.SchedulePostDto updatePostData);
 
     @Transactional
     void deleteScheduleInTimeTable(Long scheduleId);
