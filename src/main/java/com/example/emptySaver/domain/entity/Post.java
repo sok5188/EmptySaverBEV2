@@ -33,7 +33,7 @@ public class Post {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Team team;
 
-    private ZonedDateTime date;
+    private LocalDateTime date;
 
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList = new ArrayList<>();
@@ -44,7 +44,7 @@ public class Post {
         this.team=team;
         this.title=title;
         this.content=content;
-        this.date=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
+        this.date=ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         team.getTeamPosts().add(this);
     }
 

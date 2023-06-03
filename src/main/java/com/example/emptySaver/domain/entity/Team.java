@@ -39,7 +39,7 @@ public class Team {
         this.category=category;
         this.owner = owner;
         category.getCategoryTeamList().add(this);
-        this.createTime=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
+        this.createTime=ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 
     //TODO: 활동 일정? 스케쥴같은 정보가 내장되어있거나 매핑으로 찾을 수 있어야 한다.
@@ -55,7 +55,7 @@ public class Team {
     @JoinColumn(name = "owner_id")
     private Member owner;
 
-    private ZonedDateTime createTime;
+    private LocalDateTime createTime;
 
     @OneToOne(mappedBy = "team",  cascade = CascadeType.REMOVE)
     private Time_Table timeTable;

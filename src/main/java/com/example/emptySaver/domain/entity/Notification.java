@@ -33,7 +33,7 @@ public class Notification implements Comparable<Notification>{
     private String idValue;
     private String idType2;
     private String idValue2;
-    private ZonedDateTime receiveTime;
+    private LocalDateTime receiveTime;
     private Boolean isRead;
     @Builder(builderMethodName = "init", builderClassName = "build")
     public Notification(Member member, String title, String body, String routeValue, String idType, String idValue){
@@ -43,7 +43,7 @@ public class Notification implements Comparable<Notification>{
         this.routeValue=routeValue;
         this.idType=idType;
         this.idValue = idValue;
-        receiveTime=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
+        receiveTime=ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         isRead=false;
     }
     @Builder(builderMethodName = "doubleInit", builderClassName = "buildDouble")
@@ -57,7 +57,7 @@ public class Notification implements Comparable<Notification>{
         this.idValue = idValue;
         this.idType2=idType2;
         this.idValue2=idValue2;
-        receiveTime= LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
+        receiveTime= ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         isRead=false;
     }
 

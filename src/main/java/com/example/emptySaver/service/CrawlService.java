@@ -53,10 +53,10 @@ public class CrawlService {
         //깃헙올라갈때 빌드 오류 방지
         if(id.equals("fake"))
             return;
-        this.InitCrawl();
-        this.CrawlRecruiting();
-        this.CrawlNonSubject();
-        this.CrawlMovie();
+//        this.InitCrawl();
+//        this.CrawlRecruiting();
+//        this.CrawlNonSubject();
+//        this.CrawlMovie();
     }
 
     @Scheduled(cron = "0 0 5 * * *",zone = "Asia/Seoul")

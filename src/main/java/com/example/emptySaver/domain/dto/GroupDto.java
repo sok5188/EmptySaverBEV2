@@ -91,7 +91,7 @@ public class GroupDto {
         private Long groupId;
         private String groupName;
         private String memberName;
-        private ZonedDateTime inviteDate;
+        private LocalDateTime inviteDate;
     }
 
 
