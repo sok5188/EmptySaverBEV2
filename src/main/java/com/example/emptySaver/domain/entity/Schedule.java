@@ -21,7 +21,8 @@ import java.time.LocalDateTime;
 //@DiscriminatorColumn // 하위 테이블의 구분 컬럼 생성 default = DTYPE
 public class Schedule {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "ScheduleIdGenerator")
+    @TableGenerator(table = "SEQUENCES", name = "ScheduleIdGenerator")
     @Column(name = "schedule_id")
     private Long id;
     private String name;
