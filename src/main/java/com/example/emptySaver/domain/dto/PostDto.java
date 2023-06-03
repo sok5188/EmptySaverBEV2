@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class PostDto {
@@ -28,7 +29,7 @@ public class PostDto {
         private String title;
         private String content;
         private Long postId;
-        private LocalDateTime dateTime;
+        private ZonedDateTime dateTime;
         private List<CommentDto.CommentRes> comments;
     }
 

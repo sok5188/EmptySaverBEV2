@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class CommentDto {
@@ -37,7 +38,7 @@ public class CommentDto {
     public static class CommentInfo{
         private Long commentId;
         private String text;
-        private LocalDateTime dateTime;
+        private ZonedDateTime dateTime;
         private Boolean isOwner;
         private String writerName;
         private Boolean amIWriter;
