@@ -199,7 +199,7 @@ public class BoardService {
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);
         Post build = Post.init().memberName(member.getName()).team(team).title(req.getTitle()).content(req.getContent()).build();
         postRepository.save(build);
-        fcmService.sendMessageToMemberList(team.getTeamMembers().stream().map( memberTeam -> memberTeam.getMember().getId()).collect(Collectors.toList())
+        fcmService.sendMessageToMemberList(team.getTeamMembers().stream().filter(memberTeam -> memberTeam.isBelong()).map( memberTeam -> memberTeam.getMember().getId()).collect(Collectors.toList())
                 , team.getName()+" 그룹에 새로운 공지사항이  등록되었습니다.", req.getContent(), "notification","group", String.valueOf(team.getId()));
     }
     @Transactional
