@@ -293,8 +293,10 @@ public class CrawlService {
             String movieInfoUrl="https://search.naver.com/search.naver"+href;
             System.out.println("url : "+movieInfoUrl);
             // TODO: 영화 상세 보기 페이지에서 상영시간 parsing하기
-            Document movieInfoDoc = Jsoup.connect(movieInfoUrl).userAgent(userAgent).headers(sameHeader).get();
-            Elements detailInfo = movieInfoDoc.selectXpath("/html/body/div[3]/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd");
+            Elements detailInfo=parseDetail(movieInfoUrl);
+            // TODO : 일단 5번 시도해도 안긁어와지면 걍 넘어가기
+            if(detailInfo==null)
+                continue;
             System.out.println("detail Info : "+detailInfo.html());
             String[] split = detailInfo.html().split("<span class=\"cm_bar_info\"></span>");
             String movieGenre=split[0];
@@ -357,6 +359,19 @@ public class CrawlService {
         }*/
         scheduleService.saveMovieScheduleList(movieList);
         //return movieList;
+    }
+
+    private Elements parseDetail(String movieInfoUrl) throws IOException {
+        int count=5;
+        while (count-->0){
+            Document movieInfoDoc = Jsoup.connect(movieInfoUrl).userAgent(userAgent).headers(sameHeader).get();
+            Elements detailInfo = movieInfoDoc.selectXpath("/html/body/div[3]/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]/div[2]/dl/div[1]/dd");
+            if(detailInfo.size()>3){
+                return detailInfo;
+            }
+
+        }
+        return null;
     }
 
     @Builder
