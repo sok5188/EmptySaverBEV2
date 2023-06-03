@@ -73,6 +73,7 @@ public class ScheduleService {
                 for (CrawlService.MovieTimeInfo timeInfo: roomInfo.timeInfoList) {
                     Non_Periodic_Schedule nonPeriodicSchedule = new Non_Periodic_Schedule();
                     nonPeriodicSchedule.setName(movie.title);
+                    nonPeriodicSchedule.setPublicType(false);
                     nonPeriodicSchedule.setBody(timeInfo.reservationUrl);
                     nonPeriodicSchedule.setCategory(MOVIE);
                     nonPeriodicSchedule.setSubCategory(BY_API);

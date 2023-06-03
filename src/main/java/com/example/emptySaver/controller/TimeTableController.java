@@ -137,7 +137,8 @@ public class TimeTableController {
     public ResponseEntity<String> updateSchedule(final @RequestParam Long scheduleId, final @RequestBody TimeTableDto.SchedulePostDto updateData){
         TimeTableDto.checkScheduleFormValid(updateData);
 
-        timeTableService.updateScheduleInTimeTable(scheduleId, updateData);
+        Long currentMemberId = memberService.getCurrentMemberId();
+        timeTableService.updateScheduleInTimeTable(scheduleId, currentMemberId, updateData);
         return new ResponseEntity<>("Schedule update, id: " +scheduleId, HttpStatus.OK);
     }
 
@@ -205,7 +206,7 @@ public class TimeTableController {
             return new ResponseEntity<>("request member is not Group owner", HttpStatus.BAD_REQUEST);
         }
 
-        timeTableService.updateTeamSchedule(groupId,scheduleId,updatePostData);
+        timeTableService.updateTeamSchedule(groupId,currentMemberId,scheduleId,updatePostData);
         return new ResponseEntity<>("team schedule updated", HttpStatus.OK);
     }
 

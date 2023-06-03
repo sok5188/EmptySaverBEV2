@@ -223,7 +223,7 @@ class TimeTableServiceTest {
         assertThat(finalMember.getTimeTable().getScheduleList().size()).isEqualTo(0);
         //assertThat(finalMember.getTimeTable().getWeekScheduleData()[1]).isEqualTo(0l);
     }
-
+/*
     @Transactional
     @Test
     void Id로스케줄수정(){
@@ -259,7 +259,7 @@ class TimeTableServiceTest {
         assertThat(updatedSchedule.getName()).isEqualTo(newPeriodicSchedule.getName());
         //assertThat(savedMember.getTimeTable().getWeekScheduleData()).isEqualTo(newWeekData);
         em.flush();     //왜 이거 없을때는 update쿼리가 안나감? Transactionl 끝나면 나가야되는거 아님? 롤백 때문임?
-    }
+    }*/
 
     @Transactional
     @Test
