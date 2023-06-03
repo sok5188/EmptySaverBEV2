@@ -142,7 +142,7 @@ public class BoardService {
                 List<CommentDto.CommentInfo> childList=new ArrayList<>();
                 comment.getChildComment().forEach(child->childList.add(
                         CommentDto.CommentInfo.builder().commentId(child.getId()).text(child.getText())
-                                .dateTime(child.getDate()).isOwner(child.getMember().equals(team.getOwner())).build()
+                                .dateTime(child.getDate()).isOwner(child.getMember().equals(team.getOwner())).writerName(team.isAnonymous()?child.getMember().getNickname():child.getMember().getName()).build()
                 ));
                 result.add(CommentDto.CommentRes.builder().parent(parent).childList(childList).build());
             }
