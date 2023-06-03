@@ -6,6 +6,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class Post {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Team team;
 
-    private LocalDateTime date;
+    private ZonedDateTime date;
 
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList = new ArrayList<>();
@@ -42,7 +44,7 @@ public class Post {
         this.team=team;
         this.title=title;
         this.content=content;
-        this.date=LocalDateTime.now();
+        this.date=LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul"));
         team.getTeamPosts().add(this);
     }
 
