@@ -66,20 +66,19 @@ public class CrawlService {
         this.InitCrawl();
         this.CrawlRecruiting();
         this.CrawlNonSubject();
+    }
+    @Scheduled(cron = "0 0 7 * * *",zone = "Asia/Seoul")
+    @Transactional
+    public void MovieCrawl1() throws IOException {
+        log.info("crawl movie 1");
         this.CrawlMovie();
     }
-//    @Scheduled(cron = "0 0 6 * * *",zone = "Asia/Seoul")
-//    @Transactional
-//    public void MovieCrawl1() throws IOException {
-//        log.info("crawl movie 1");
-//        this.CrawlMovie();
-//    }
-//    @Scheduled(cron = "0 0 7 * * *",zone = "Asia/Seoul")
-//    @Transactional
-//    public void MovieCrawl2() throws IOException {
-//        log.info("crawled movie 2");
-//        this.CrawlMovie();
-//    }
+    @Scheduled(cron = "0 0 8 * * *",zone = "Asia/Seoul")
+    @Transactional
+    public void MovieCrawl2() throws IOException {
+        log.info("crawled movie 2");
+        this.CrawlMovie();
+    }
     public void InitCrawl() throws IOException{
         log.info("crawl construct start");
         formData.put("_enpass_login_","submit");
