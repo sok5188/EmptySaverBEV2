@@ -1,6 +1,5 @@
 package com.example.emptySaver.service.impl;
 
-import com.example.emptySaver.domain.dto.FriendDto;
 import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
@@ -170,6 +169,7 @@ public class TimeTableServiceImpl implements TimeTableService {
             schedule.setSubCategory(categoryService.getLabelByCategory(teamCategory));
         }
 
+        this.checkValidSchedule(teamTimeTable, schedule);
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
         savedSchedule.setOriginScheduleId(savedSchedule.getId());   //원본id 저장
         //log.info("team savedSchedule: "+ savedSchedule.getGroupName());
@@ -272,7 +272,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         for (Team team : groupList) {
             Time_Table teamTimeTable = team.getTimeTable();
             TimeTableDto.TimeTableInfo timeTableInfo = this.calcTimeTableDataPerWeek(startDate, endDate
-                    , teamTimeTable.calcPeriodicScheduleInBound(startTime,endTime), teamTimeTable.getPeriodicScheduleInBound(startTime,endTime)
+                    , teamTimeTable.calcPeriodicScheduleInBound(), teamTimeTable.getPeriodicScheduleInBound()
                     ,teamTimeTable.getPeriodicScheduleOverlap(startTime,endTime),teamTimeTable.getNonPeriodicScheduleInBound(startTime,endTime));
             groupTimeTableInfoList.add(TimeTableDto.GroupTimeTableInfo.builder()
                     .groupId(team.getId())
@@ -290,9 +290,9 @@ public class TimeTableServiceImpl implements TimeTableService {
         Time_Table timeTable = member.getTimeTable();
         //timeTable.calcAllWeekScheduleData();
         endDate = endDate.plusDays(1);
-        long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.atStartOfDay());
+        long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound();
         //final List<Schedule> scheduleList = timeTable.getScheduleList();
-        List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
+        List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound();
         List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(), endDate.atStartOfDay());
         List<Non_Periodic_Schedule> nonPeriodicScheduleInBound = timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
 
@@ -500,6 +500,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         copySchedule.setTimeTable(timeTable);
         copySchedule.setPublicType(false);
 
+        this.checkValidSchedule(timeTable, copySchedule);
         //copySchedule.setTimeTable(timeTable);
         Schedule savedSchedule = scheduleRepository.save(copySchedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
 
@@ -509,6 +510,18 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         log.info("add Schedule"+ savedSchedule.getId() + " to Member" + member.getId());
     }
+
+    public void checkValidSchedule(final Time_Table memberTimeTable, final Schedule schedule){
+        if(schedule instanceof  Periodic_Schedule){
+            if(!memberTimeTable.isPeriodicNotOverlapWithExistSchedule((Periodic_Schedule) schedule))
+                throw new BaseException(BaseResponseStatus.TIME_IS_OVERLAP);
+        }else{
+            Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule) schedule;
+            if(!memberTimeTable.isTimeNotOverlapWithExistSchedule(nonPeriodicSchedule.getStartTime(), nonPeriodicSchedule.getEndTime()))
+                throw new BaseException(BaseResponseStatus.TIME_IS_OVERLAP);
+        }
+    }
+
 
     //멤버로 스케줄 저장
     @Override
@@ -520,6 +533,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         Time_Table timeTable = member.getTimeTable();
         schedule.setTimeTable(timeTable);
         schedule.setPublicType(false);
+
+        this.checkValidSchedule(timeTable, schedule);
         Schedule savedSchedule = scheduleRepository.save(schedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
         log.info("savedSchedule: "+ savedSchedule.getGroupId());
         List<Schedule> scheduleList = timeTable.getScheduleList();
@@ -528,7 +543,6 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         log.info("add Schedule"+ savedSchedule.getId() + " to Member" + member.getId());
     }
-
     //멤버로 수정
     @Override
     @Transactional

@@ -19,17 +19,29 @@ public class TimeDataSuperUltraConverter {
 
     private Map<Integer,String> intToDayMap = Map.of(0,"월",1, "화", 2,"수",3,"목",4,"금",5,"토",6,"일");
 
-    public boolean checkBitsIsBelongToLocalDataTime(long targetBits, LocalDateTime startTime, LocalDateTime endTime){
-        Long timeBits = this.convertTimeToBit(startTime, endTime);
+    public static boolean checkBitsIsOverlapToLocalDataTime(long targetBits, LocalDateTime startTime, LocalDateTime endTime){
+        Long timeBits = convertTimeToBit(startTime, endTime);
 
-        long andOpRes = targetBits & timeBits;
-
-        if(andOpRes != targetBits)  //시간에 속한다면 targetBits가 그대로 남아야함
+        if((targetBits & timeBits) == 0) {
             return false;
+        }
+
         return true;
     }
 
-    public Long convertTimeToBit(LocalDateTime startTime, LocalDateTime endTime){
+    public static boolean checkBitsIsBelongToLocalDataTime(long targetBits, LocalDateTime startTime, LocalDateTime endTime){
+        Long timeBits = convertTimeToBit(startTime, endTime);
+
+        long andOpRes = targetBits & timeBits;
+
+        if(andOpRes != targetBits) { //시간에 속한다면 targetBits가 그대로 남아야함
+            return false;
+        }
+
+        return true;
+    }
+
+    public static Long convertTimeToBit(LocalDateTime startTime, LocalDateTime endTime){
         Long retBits = 0l;
 
         int startIdx = startTime.getHour()*2 + (startTime.getMinute()/30);

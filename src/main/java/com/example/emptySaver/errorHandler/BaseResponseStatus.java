@@ -44,6 +44,7 @@ public enum BaseResponseStatus {
     LOCAL_DATE_TIME_END_ERROR(false, 2501,"종료 시간이 시작 시간보다 빠를 수 없습니다."),
     INVALID_NOTIFICATION_ID(false, 2502,"유효하지 않은 알림 ID 입니다"),
     NOT_AVAILABLE_SCHEDULE_FORM(false, 2503,"유효하지 않은 스케줄 형식을 저장하려 합니다."),
+    TIME_IS_OVERLAP(false, 2504,"이미 저장된 스케줄과 겹칩니다."),
     /**
      * 3000 : Response 오류
      */

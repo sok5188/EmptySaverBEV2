@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @Entity
 @ToString
 public class Non_Periodic_Schedule extends Schedule{
-    //private LocalDateTime startTime;
-    //private LocalDateTime endTime;
     static public Non_Periodic_Schedule copySchedule(Non_Periodic_Schedule schedule){
         Non_Periodic_Schedule nonPeriodicSchedule = new Non_Periodic_Schedule();
 

@@ -1,10 +1,12 @@
 package com.example.emptySaver.domain.entity;
 
+import com.example.emptySaver.utils.TimeDataSuperUltraConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +61,10 @@ public class Time_Table {
         });*/
     }
 
-    public long[] calcPeriodicScheduleInBound(final LocalDateTime start, final LocalDateTime end){
+    public long[] calcPeriodicScheduleInBound(){
         this.weekScheduleData = new long[]{0,0,0,0,0,0,0};   //0으로 init 후 재계산
 
-        for (Periodic_Schedule schedule: this.getPeriodicScheduleInBound(start, end)) {
+        for (Periodic_Schedule schedule: this.getPeriodicScheduleInBound()) {
             addWeekScheduleData(schedule.getWeekScheduleData());
         }
         return this.weekScheduleData;
@@ -90,22 +92,18 @@ public class Time_Table {
         return nonPeriodicScheduleList;
     }
 
-    public List<Periodic_Schedule> getPeriodicScheduleInBound(final LocalDateTime start, final LocalDateTime end){
-        LocalDateTime startTime = start.minusMinutes(1);
-        LocalDateTime endTime = end.plusMinutes(1);
-
+    //무기한 주기 데이터만
+    public List<Periodic_Schedule> getPeriodicScheduleInBound(){
         List<Periodic_Schedule> periodicScheduleList = new ArrayList<>();
         for (Schedule schedule: this.scheduleList) {
             if (schedule instanceof  Non_Periodic_Schedule)
                 continue;
             Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
-            if(periodicSchedule.getStartTime() == null){
+
+            if(periodicSchedule.getStartTime() == null){    //무기한 주기 데이터만
                 periodicScheduleList.add(periodicSchedule);
             }
-            /*
-            else if(periodicSchedule.getStartTime().isAfter(startTime)
-                    && periodicSchedule.getEndTime().isBefore(endTime))
-                periodicScheduleList.add(periodicSchedule);*/
+
         }
 
         return periodicScheduleList;
@@ -120,24 +118,125 @@ public class Time_Table {
             if(schedule.getStartTime() == null)
                 continue;
             Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
-            if((periodicSchedule.getStartTime().isBefore(endTime) && periodicSchedule.getEndTime().isAfter(endTime.minusMinutes(1)))
-                    ||(startTime.isBefore(periodicSchedule.getEndTime()) && periodicSchedule.getEndTime().isBefore(endTime.plusMinutes(1))))
+            if(this.isOverlapTimeWithPeriodicSchedule(periodicSchedule,startTime,endTime))
                 periodicScheduleList.add(periodicSchedule);
         }
 
         return periodicScheduleList;
     }
 
-    public boolean isEmptyTime(final LocalDateTime startTime, final LocalDateTime endTime){
-        boolean isEmpty = true;
-        int sizeCnt =0;
-        sizeCnt += this.getNonPeriodicScheduleInBound(startTime,endTime).size();
-        sizeCnt += this.getPeriodicScheduleInBound(startTime,endTime).size();
-        sizeCnt += this.getPeriodicScheduleInBound(startTime,endTime).size();
+    private boolean isOverlapTimeWithPeriodicSchedule(final Periodic_Schedule periodicSchedule, final LocalDateTime startTime, final LocalDateTime endTime){
+        if((periodicSchedule.getStartTime().isBefore(endTime) && periodicSchedule.getEndTime().isAfter(endTime.minusMinutes(1)))
+                ||(startTime.isBefore(periodicSchedule.getEndTime()) && periodicSchedule.getEndTime().isBefore(endTime.plusMinutes(1))))
+            return true;
+        return false;
+    }
 
-        if (sizeCnt >0)
-            isEmpty = false;
+    private boolean isOverlapTime(final LocalDateTime a_startTime, final LocalDateTime a_endTime, final LocalDateTime b_startTime, final LocalDateTime b_endTime){
+        if((a_startTime.isBefore(b_endTime) && a_endTime.isAfter(b_endTime.minusMinutes(1)))
+                ||(b_startTime.isBefore(a_endTime) &&a_endTime.isBefore(b_endTime.plusMinutes(1))))
+            return true;
+        return false;
+    }
 
-        return isEmpty;
+    public final boolean isTimeNotOverlapWithExistSchedule(final LocalDateTime startTime, final LocalDateTime endTime){
+        final long[] weekBits = this.calcPeriodicScheduleInBound();
+
+        if(this.isBitsArrOverlapTime(weekBits,startTime,endTime)){
+            System.out.println("찾았음1");
+            return false;
+        }
+
+        for (Schedule schedule: this.scheduleList) {
+            if (schedule instanceof  Periodic_Schedule) {
+                Periodic_Schedule targetSchedule = (Periodic_Schedule) schedule;
+
+                if (targetSchedule.getStartTime() == null) {  //무기한인 경우
+                    continue;
+
+                }else{
+                    System.out.println("찾았음2");
+                    if(this.isOverlapTimeWithPeriodicSchedule(targetSchedule,startTime,endTime)
+                            && this.isBitsArrOverlapTime(targetSchedule.getWeekScheduleData(),startTime,endTime))
+                        return false;
+                }
+            }else{  //비주기와 함꼐라면 두렵지 않어~~
+                Non_Periodic_Schedule targetSchedule = (Non_Periodic_Schedule)schedule;
+                if(this.isOverlapTime(targetSchedule.getStartTime(), targetSchedule.getEndTime(), startTime, endTime))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public final boolean isPeriodicNotOverlapWithExistSchedule(Periodic_Schedule periodicSchedule){
+        final long[] weekBits = this.calcPeriodicScheduleInBound();
+
+        if(this.isOverlapBits(weekBits, periodicSchedule.getWeekScheduleData()))
+            return false;
+
+        for (Schedule schedule: this.scheduleList) {
+
+            if (schedule instanceof  Periodic_Schedule){
+                Periodic_Schedule targetSchedule = (Periodic_Schedule)schedule;
+
+                if(targetSchedule.getStartTime() == null){  //무기한인 경우 위에서 확인
+                    continue;
+
+                }else if(periodicSchedule.getEndTime() == null){ //뮤기한 주기 데이터 저장 시도시
+                    if(targetSchedule.getStartTime().isBefore(LocalDateTime.now().plusMinutes(1))
+                            && targetSchedule.getEndTime().isAfter(LocalDateTime.now().minusMinutes(1)))
+                        if(this.isOverlapBits(weekBits, targetSchedule.getWeekScheduleData()))
+                            return false;
+                }else{     //기한이 있는 주기 데이터 저장 시도 시
+
+                    if(this.isOverlapTimeWithPeriodicSchedule(targetSchedule,periodicSchedule.getStartTime(), periodicSchedule.getEndTime())){
+                        if(this.isOverlapBits(weekBits, targetSchedule.getWeekScheduleData()))
+                            return false;
+                    }
+
+                }
+
+            }else{  //비주기인 경우
+                Non_Periodic_Schedule targetSchedule = (Non_Periodic_Schedule)schedule;
+
+                if(periodicSchedule.getStartTime() == null){
+                    if(this.isBitsArrOverlapTime(periodicSchedule.getWeekScheduleData(),targetSchedule.getStartTime(),targetSchedule.getEndTime())){
+                        return false;
+                    }
+                }else{  //기한있는 주기 스케줄인 경우
+                    if(this.isOverlapTimeWithPeriodicSchedule(periodicSchedule,targetSchedule.getStartTime(), targetSchedule.getEndTime())){
+                        if(this.isBitsArrOverlapTime(periodicSchedule.getWeekScheduleData(),targetSchedule.getStartTime(),targetSchedule.getEndTime())){
+                            return false;
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        return true;
+    }
+
+    //TODO: 하루이상의 비주기라면 바꿔야됨. startDayOfWeek를
+    private final boolean isBitsArrOverlapTime(final long[] bitArr, final LocalDateTime startTime, final LocalDateTime endTime){
+        final int startDayOfWeek = startTime.toLocalDate().getDayOfWeek().getValue() -1; //월요일부터 0~6까지 정수
+
+        if(TimeDataSuperUltraConverter.checkBitsIsOverlapToLocalDataTime(bitArr[startDayOfWeek], startTime,endTime)){
+            return true;
+        }
+
+        return false;
+    }
+
+    //겹치는 bit가 있는지 확인
+    private final boolean isOverlapBits(final long[] a, final long[] b){
+        for (int i = 0; i < a.length; i++) {
+            if((a[i] & b[i]) > 0){
+                return true;
+            }
+        }
+        return false;
     }
 }

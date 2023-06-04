@@ -61,6 +61,7 @@ public class ScheduleService {
             nonPeriodicScheduleRepository.deleteAll(movieList);
 
             log.info("delete all past movies");
+            return;
         }
 
         log.info("no movie to delete");
