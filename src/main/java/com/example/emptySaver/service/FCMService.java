@@ -28,13 +28,14 @@ public class FCMService {
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
     public void sendMessageToMember(Long memberId,String title, String body, String routeValue,String idType, String idValue,String idType2, String idValue2){
+        String subBody = body.length() > 40 ? body.substring(0, 37) + "..." : body;
         Notification notification=Notification.builder()
-                .setTitle(title).setBody(body.length()>20?body.substring(0,17)+"...":body).build();
+                .setTitle(title).setBody(subBody).build();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
         Message message=Message.builder().setToken(member.getFcmToken()).putData("routeValue",routeValue).putData("idType",idType)
                 .putData("idValue",idValue=="x"?"-1":idValue).putData("idType2",idType2).putData("idValue2",idValue2=="x"?"-1":idValue2).setNotification(notification).build();
         com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.doubleInit()
-                .member(member).title(title).body(body).routeValue(routeValue)
+                .member(member).title(title).body(subBody).routeValue(routeValue)
                 .idType(idType).idValue(idValue=="x"?"-1":idValue).idType2(idType2).idValue2(idValue2=="x"?"-1":idValue2).build();
         log.info("message double : "+idType2 + " / val "+idValue2);
         try {
@@ -46,13 +47,14 @@ public class FCMService {
         }
     }
     public void sendMessageToMember(Long memberId,String title, String body, String routeValue,String idType, String idValue){
+        String subBody = body.length() > 40 ? body.substring(0, 37) + "..." : body;
         Notification notification=Notification.builder()
-                .setTitle(title).setBody(body.length()>20?body.substring(0,17)+"...":body).build();
+                .setTitle(title).setBody(subBody).build();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
         Message message=Message.builder().setToken(member.getFcmToken()).putData("routeValue",routeValue).putData("idType",idType)
                 .putData("idValue",idValue=="x"?"-1":idValue).setNotification(notification).build();
         com.example.emptySaver.domain.entity.Notification build = com.example.emptySaver.domain.entity.Notification.init()
-                .member(member).title(title).body(body).routeValue(routeValue)
+                .member(member).title(title).body(subBody).routeValue(routeValue)
                 .idType(idType).idValue(idValue=="x"?"-1":idValue).build();
         try {
             log.info("now Send message:"+message.toString());

@@ -184,7 +184,7 @@ public class BoardService {
         });
         log.info("result Size:"+result.size());
         PostDto.PostDetailRes response = PostDto.PostDetailRes.builder().title(post.getTitle()).content(post.getContent()).postId(post.getId())
-                .dateTime(post.getDate()).comments(result).build();
+                .dateTime(post.getDate()).comments(result).amIOwner(post.getTeam().getOwner().equals(member)).build();
         return response;
     }
 
@@ -200,7 +200,7 @@ public class BoardService {
         Post build = Post.init().memberName(member.getName()).team(team).title(req.getTitle()).content(req.getContent()).build();
         postRepository.save(build);
         fcmService.sendMessageToMemberList(team.getTeamMembers().stream().filter(memberTeam -> memberTeam.isBelong()).map( memberTeam -> memberTeam.getMember().getId()).collect(Collectors.toList())
-                , team.getName()+" 그룹에 새로운 공지사항이  등록되었습니다.", req.getContent(), "notification","group", String.valueOf(team.getId()));
+                , team.getName()+" 그룹에 새로운 공지사항이  등록되었습니다.", req.getTitle(), "post","group", String.valueOf(team.getId()),"post",String.valueOf(build.getId()));
     }
     @Transactional
     public void deletePost(Long postId){
