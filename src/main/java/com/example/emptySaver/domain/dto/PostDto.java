@@ -31,6 +31,7 @@ public class PostDto {
         private Long postId;
         private LocalDateTime dateTime;
         private List<CommentDto.CommentRes> comments;
+        private Boolean amIOwner;
     }
 
     @Data
