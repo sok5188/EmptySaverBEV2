@@ -260,7 +260,7 @@ public class TimeTableController {
     }
 
     @GetMapping("/getMovieScheduleList")
-    @Operation(summary = "오늘 상영 영화의 스케줄들을 받아오기", description = "일단 오늘 것만")
+    @Operation(summary = "오늘 상영 영화의 스케줄들을 받아오기", description = "일단 오늘 것만 가능하게 구현했습니다.")
     public ResponseEntity<List<TimeTableDto.TeamScheduleDto>> getMovieScheduleList(){
         List<TimeTableDto.TeamScheduleDto> movieScheduleToDay = scheduleService.getMovieScheduleToDay();
         return new ResponseEntity<>(movieScheduleToDay, HttpStatus.OK);
@@ -276,7 +276,7 @@ public class TimeTableController {
     }
 
     @PostMapping("findFriendsHaveTime")
-    @Operation(summary = "해당 시간이 빈 친구 목록 받기", description = "자신의 친구 중에서 해당 시간이 빈 친구의 정보를 받아옴")
+    @Operation(summary = "해당 시간이 빈 친구 목록 받기", description = "자신의 친구 중에서 설정한 시간이 빈 친구들의 정보를 받아옵니다.")
     public ResponseEntity<List<FriendDto.FriendInfo>> getFriendsHaveTime(final @RequestBody TimeTableDto.ScheduleSearchRequestForm searchForm){
         TimeTableDto.checkLocalDateValid(searchForm.getStartTime(), searchForm.getEndTime());
         List<FriendDto.FriendInfo> friendInfos = scheduleRecommendService.matchingFriends(searchForm.getStartTime(), searchForm.getEndTime());
@@ -284,7 +284,7 @@ public class TimeTableController {
    }
 
     @PostMapping("findEmptyTimeWithAllFriends")
-    @Operation(summary = "자신의 모든 친구와 빈 시간 찾기", description = "설정한 시간 내에서 자신의 모든 친구와 빈 시간 찾기")
+    @Operation(summary = "자신의 모든 친구와 빈 시간 찾기", description = "설정한 시간 내에서 자신의 모든 친구와 빈 시간 찾아서 string으로 반환해줍니다.")
     public ResponseEntity<List<String>> getEmptyTimeWithAllFriends(final @RequestBody TimeTableDto.TimeTableRequestForm searchForm ){
         TimeTableDto.checkTimeTableRequestFormValid(searchForm);
         List<String> emptyTimeWithFriends = scheduleRecommendService.findEmptyTimeWithFriends(searchForm.getStartDate(), searchForm.getEndDate());
@@ -292,7 +292,8 @@ public class TimeTableController {
    }
 
     @PostMapping("findEmptyTimeWithSelectedFriends")
-    @Operation(summary = "자신의 모든 친구와 빈 시간 찾기", description = "설정한 시간 내에서 자신의 모든 친구와 빈 시간 찾기")
+    @Operation(summary = "자신이 선택한 친구와 빈 시간 찾기", description = "설정한 시간 내에서 자신이 선택한 친구와 빈 시간 찾아서 string으로 반환해줍니다.<br>" +
+            "이때 선택할 FriendMemberIdList에는 친구들의 FriendMemberId를 담아서 보내야 합니다.")
     public ResponseEntity<List<String>> getEmptyTimeWithSelectedFriends(final @RequestBody FriendDto.FriendMemberIdList friendMemberIdList
             ,final @RequestBody TimeTableDto.TimeTableRequestForm searchForm ){
         TimeTableDto.checkTimeTableRequestFormValid(searchForm);

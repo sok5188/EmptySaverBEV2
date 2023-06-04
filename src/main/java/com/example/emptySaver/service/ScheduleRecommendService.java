@@ -79,7 +79,7 @@ public class ScheduleRecommendService {
         for (Friend friend : friendEntityList) {
             Time_Table timeTable = friend.getFriendMember().getTimeTable();
 
-            if(timeTable.isEmptyTime(startTime,endTime))    //친구가 빈 시간이 있는 지 확인
+            if(timeTable.isTimeNotOverlapWithExistSchedule(startTime,endTime))    //친구가 빈 시간이 있는 지 확인
                 friendInfoList.add(friendService.friendToFriendDto(friend));
         }
 
@@ -92,7 +92,7 @@ public class ScheduleRecommendService {
         List<long[]> memberWeekDataList = new ArrayList<>();    //일단 주기 데이터 가져옴
         for (Member member : memberList) {
             Time_Table timeTable = member.getTimeTable();
-            memberWeekDataList.add(timeTable.calcPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.plusDays(1).atStartOfDay()));
+            memberWeekDataList.add(timeTable.calcPeriodicScheduleInBound());
             membersPeriodicHaveTimeScheduleList.addAll(timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(),endDate.plusDays(1).atStartOfDay()));
             membersNonPeriodicScheduleList.addAll(timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(),endDate.plusDays(1).atStartOfDay()));
         }
@@ -274,11 +274,11 @@ public class ScheduleRecommendService {
         Time_Table timeTable = member.getTimeTable();
 
         //timeTable.calcAllWeekScheduleData();
-        final long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound(startTime,endTime);
+        final long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound();
 
 
         List<Non_Periodic_Schedule> memberNonPeriodicScheduleList = timeTable.getNonPeriodicScheduleInBound(startTime,endTime); //new ArrayList<>();    // 멤버의 비주기 스케줄 가져옴
-        List<Periodic_Schedule> memberPeriodicScheduleList = timeTable.getPeriodicScheduleInBound(startTime,endTime); // new ArrayList<>();    // 멤버의 주기 스케줄 가져옴
+        List<Periodic_Schedule> memberPeriodicScheduleList = timeTable.getPeriodicScheduleInBound(); // new ArrayList<>();    // 멤버의 주기 스케줄 가져옴
         List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startTime, endTime);
         //log.info("ovelap size = " + periodicScheduleOverlap.size());
 

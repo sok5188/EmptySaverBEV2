@@ -2,6 +2,8 @@ package com.example.emptySaver.service;
 
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.*;
+import com.example.emptySaver.errorHandler.BaseException;
+import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.ScheduleRepository;
 import com.example.emptySaver.repository.TeamRepository;
@@ -20,8 +22,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -64,7 +65,34 @@ class ScheduleRecommendServiceTest {
         return periodicSchedule;
     }
 
+    @Transactional
+    @DisplayName("스케줄 overlap 확인")
+    @Test
+    void checkScheduleOverlapTest(){
+        Member member = Member.init().name("멤버").build();
+        em.persist(member);
 
+        Time_Table timeTable = Time_Table.builder().title("육사시미").member(member).build();
+        em.persist(timeTable);
+
+
+        em.flush();     //저장시킴
+        em.clear();
+
+        Member savedMember = memberRepository.findById(member.getId()).get();   //저장된 멤버 호출
+
+        TimeTableDto.SchedulePostDto periodicSchedule = getTempSchedulePostDto(new String[] {"화,9:00-15:00","수,9:00-15:00","금,9:00-15:00","일,9:00-15:00"});
+        timeTableService.saveScheduleInTimeTable(savedMember.getId(), periodicSchedule);        //멤버에게 스케줄 저장
+        TimeTableDto.SchedulePostDto nonPeriodicSchedulePostDto = this.getNonPeriodicSchedulePostDto(19,7,0,3);
+
+        assertThatThrownBy(() ->timeTableService.saveScheduleInTimeTable(savedMember.getId(), nonPeriodicSchedulePostDto))
+                .isInstanceOf(BaseException.class);
+
+        assertThatThrownBy(() ->timeTableService.saveScheduleInTimeTable(savedMember.getId(),getTempSchedulePostDto(new String[] {"일,14:30-16:00"})))
+                .isInstanceOf(BaseException.class);
+
+
+    }
 
     @Transactional
     @DisplayName("추천 동작 확인")
