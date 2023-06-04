@@ -184,7 +184,7 @@ public class BoardService {
         });
         log.info("result Size:"+result.size());
         PostDto.PostDetailRes response = PostDto.PostDetailRes.builder().title(post.getTitle()).content(post.getContent()).postId(post.getId())
-                .dateTime(post.getDate()).comments(result).build();
+                .dateTime(post.getDate()).comments(result).amIOwner(post.getTeam().getOwner().equals(member)).build();
         return response;
     }
 
