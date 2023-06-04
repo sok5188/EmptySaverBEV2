@@ -28,7 +28,7 @@ public class FCMService {
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
     public void sendMessageToMember(Long memberId,String title, String body, String routeValue,String idType, String idValue,String idType2, String idValue2){
-        String subBody = body.length() > 20 ? body.substring(0, 17) + "..." : body;
+        String subBody = body.length() > 40 ? body.substring(0, 37) + "..." : body;
         Notification notification=Notification.builder()
                 .setTitle(title).setBody(subBody).build();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
@@ -47,7 +47,7 @@ public class FCMService {
         }
     }
     public void sendMessageToMember(Long memberId,String title, String body, String routeValue,String idType, String idValue){
-        String subBody = body.length() > 20 ? body.substring(0, 17) + "..." : body;
+        String subBody = body.length() > 40 ? body.substring(0, 37) + "..." : body;
         Notification notification=Notification.builder()
                 .setTitle(title).setBody(subBody).build();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
