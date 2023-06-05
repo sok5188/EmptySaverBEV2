@@ -353,7 +353,7 @@ public class CrawlService {
                         }
                     }
                     log.info("now url : "+sb);
-                    movieTimeInfoList.add(new MovieTimeInfo(target.text(),sb));
+                    movieTimeInfoList.add(new MovieTimeInfo(target.text(),sb.toString()));
                 }
                 roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
             }
