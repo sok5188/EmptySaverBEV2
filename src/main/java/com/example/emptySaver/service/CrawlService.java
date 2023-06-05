@@ -344,13 +344,17 @@ public class CrawlService {
                     String reserveUrl = target.attr("href");
                     String[] strings = reserveUrl.split("/");
                     StringBuilder sb=new StringBuilder();
-                    for (String string : strings) {
-                        if(string.equals("NLCHS")){
+                    for (int i = 0, stringsLength = strings.length; i < stringsLength; i++) {
+                        String string = strings[i];
+                        if (string.equals("NLCHS")) {
                             log.info("replace to mobile link");
                             sb.append("NLCMW");
-                        }else{
+                        } else {
                             sb.append(string);
                         }
+                        if(i!=stringsLength-1)
+                            sb.append("/");
+
                     }
                     log.info("now url : "+sb);
                     movieTimeInfoList.add(new MovieTimeInfo(target.text(),sb.toString()));
