@@ -352,7 +352,8 @@ public class CrawlService {
                             sb.append(string);
                         }
                     }
-                    movieTimeInfoList.add(new MovieTimeInfo(target.text(),target.attr("href")));
+                    log.info("now url : "+sb);
+                    movieTimeInfoList.add(new MovieTimeInfo(target.text(),sb));
                 }
                 roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
             }
