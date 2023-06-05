@@ -3,6 +3,7 @@ package com.example.emptySaver.controller;
 import com.example.emptySaver.domain.dto.CommentDto;
 import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
+import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.service.GroupService;
@@ -124,6 +125,15 @@ public class GroupController {
         if(!groupService.checkOwner(req.getGroupId()))
             return new ResponseEntity<>("그룹장만 초대를 보낼 수 있습니다.",HttpStatus.BAD_REQUEST);
         String member = groupService.addMemberToTeam(req.getMemberId(), req.getGroupId(),"group");
+        return new ResponseEntity<>("invite Member "+member +" to Group",HttpStatus.OK);
+    }
+    @PostMapping("/sendInviteByEmail")
+    @Operation(summary = "멤버를 그룹에 초대(이메일로)", description = "그룹에서 멤버를 !!이메일로!! 초대하는 API(그룹장만 가능)")
+    public ResponseEntity<String> sendInviteFromTeamByEmail(@RequestBody GroupDto.groupInviteReq req){
+        if(!groupService.checkOwner(req.getGroupId()))
+            return new ResponseEntity<>("그룹장만 초대를 보낼 수 있습니다.",HttpStatus.BAD_REQUEST);
+        Member memberByEmail = memberService.getMemberByEmail(req.getEmail());
+        String member = groupService.addMemberToTeam(memberByEmail.getId(), req.getGroupId(),"group");
         return new ResponseEntity<>("invite Member "+member +" to Group",HttpStatus.OK);
     }
 
