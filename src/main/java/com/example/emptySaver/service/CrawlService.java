@@ -341,6 +341,17 @@ public class CrawlService {
                 List<MovieTimeInfo> movieTimeInfoList = new ArrayList<>();
                 for (Element target : as) {
                     // TODO : 해당 상영관에서 해당 영화가 상영되는 시간 및 예매 페이지 href
+                    String reserveUrl = target.attr("href");
+                    String[] strings = reserveUrl.split("/");
+                    StringBuilder sb=new StringBuilder();
+                    for (String string : strings) {
+                        if(string.equals("NLCHS")){
+                            log.info("replace to mobile link");
+                            sb.append("NLCMW");
+                        }else{
+                            sb.append(string);
+                        }
+                    }
                     movieTimeInfoList.add(new MovieTimeInfo(target.text(),target.attr("href")));
                 }
                 roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
