@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,10 +60,10 @@ public class Time_Table {
         });*/
     }
 
-    public long[] calcPeriodicScheduleInBound(){
+    public long[] calcPeriodicScheduleInBound(boolean getHideType){
         this.weekScheduleData = new long[]{0,0,0,0,0,0,0};   //0으로 init 후 재계산
 
-        for (Periodic_Schedule schedule: this.getPeriodicScheduleInBound()) {
+        for (Periodic_Schedule schedule: this.getPeriodicScheduleInBound(getHideType)) {
             addWeekScheduleData(schedule.getWeekScheduleData());
         }
         return this.weekScheduleData;
@@ -75,12 +74,15 @@ public class Time_Table {
             this.weekScheduleData[i] |= otherScheduleData[i];
     }
 
-    public List<Non_Periodic_Schedule> getNonPeriodicScheduleInBound(final LocalDateTime start, final LocalDateTime end){
+    public List<Non_Periodic_Schedule> getNonPeriodicScheduleInBound(final LocalDateTime start, final LocalDateTime end, boolean getHideType){
         LocalDateTime startTime = start.minusMinutes(1);
         LocalDateTime endTime = end.plusMinutes(1);
 
         List<Non_Periodic_Schedule> nonPeriodicScheduleList = new ArrayList<>();
         for (Schedule schedule: this.scheduleList) {
+            if(!getHideType && schedule.isHideType())
+                continue;
+
             if (schedule instanceof  Periodic_Schedule)
                 continue;
             Non_Periodic_Schedule nonPeriodicSchedule = (Non_Periodic_Schedule)schedule;
@@ -93,9 +95,12 @@ public class Time_Table {
     }
 
     //무기한 주기 데이터만
-    public List<Periodic_Schedule> getPeriodicScheduleInBound(){
+    public List<Periodic_Schedule> getPeriodicScheduleInBound(boolean getHideType){
         List<Periodic_Schedule> periodicScheduleList = new ArrayList<>();
         for (Schedule schedule: this.scheduleList) {
+            if(!getHideType && schedule.isHideType())
+                continue;
+
             if (schedule instanceof  Non_Periodic_Schedule)
                 continue;
             Periodic_Schedule periodicSchedule = (Periodic_Schedule)schedule;
@@ -109,10 +114,13 @@ public class Time_Table {
         return periodicScheduleList;
     }
 
-    public List<Periodic_Schedule> getPeriodicScheduleOverlap(final LocalDateTime startTime, final LocalDateTime endTime){
+    public List<Periodic_Schedule> getPeriodicScheduleOverlap(final LocalDateTime startTime, final LocalDateTime endTime, boolean getHideType){
 
         List<Periodic_Schedule> periodicScheduleList = new ArrayList<>();
         for (Schedule schedule: this.scheduleList) {
+            if(!getHideType && schedule.isHideType())
+                continue;
+
             if (schedule instanceof  Non_Periodic_Schedule)
                 continue;
             if(schedule.getStartTime() == null)
@@ -140,7 +148,7 @@ public class Time_Table {
     }
 
     public final boolean isTimeNotOverlapWithExistSchedule(final LocalDateTime startTime, final LocalDateTime endTime){
-        final long[] weekBits = this.calcPeriodicScheduleInBound();
+        final long[] weekBits = this.calcPeriodicScheduleInBound(true);
 
         if(this.isBitsArrOverlapTime(weekBits,startTime,endTime)){
             System.out.println("찾았음1");
@@ -170,7 +178,7 @@ public class Time_Table {
     }
 
     public final boolean isPeriodicNotOverlapWithExistSchedule(Periodic_Schedule periodicSchedule){
-        final long[] weekBits = this.calcPeriodicScheduleInBound();
+        final long[] weekBits = this.calcPeriodicScheduleInBound(true);
 
         if(this.isOverlapBits(weekBits, periodicSchedule.getWeekScheduleData()))
             return false;

@@ -8,7 +8,6 @@ import com.example.emptySaver.domain.entity.Time_Table;
 import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.SubjectRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
-import com.example.emptySaver.service.impl.TimeTableServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +85,7 @@ class SubjectServiceTest {
 
         LocalDateTime startDate = LocalDateTime.of(2023, 4, 30,10,0);
         LocalDateTime endDate = LocalDateTime.of(2023, 5, 10,12,30);
-        TimeTableDto.TimeTableInfo timeTableDto = timeTableService.getMemberTimeTableByDayNum(savedMember.getId(), startDate.toLocalDate(), endDate.toLocalDate());
+        TimeTableDto.TimeTableInfo timeTableDto = timeTableService.getMemberTimeTableByDayNum(savedMember.getId(), startDate.toLocalDate(), endDate.toLocalDate(), true);
 
         List<List<TimeTableDto.ScheduleDto>> scheduleListPerDays = timeTableDto.getScheduleListPerDays();
         for (List<TimeTableDto.ScheduleDto> ss: scheduleListPerDays) {

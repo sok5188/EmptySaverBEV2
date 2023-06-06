@@ -3,8 +3,6 @@ package com.example.emptySaver.controller;
 import com.example.emptySaver.domain.dto.FriendDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.domain.entity.Team;
-import com.example.emptySaver.errorHandler.BaseException;
-import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.service.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -70,10 +66,14 @@ public class TimeTableController {
             name ="scheduleId",
             description = "group schedule 저장시 멤버에게 알림으로 날라간 scheduleId를 담아 요청"
     )
-    public ResponseEntity<String> saveGroupSchedule(final @RequestParam Long scheduleId){
+    @Parameter(
+            name = "hideType",
+            description = "저장할때 숨기고 싶은지 여부를 같이 보내주세요~. 숨기고 싶다면 true입니다."
+    )
+    public ResponseEntity<String> saveGroupSchedule(final @RequestParam Long scheduleId, final @RequestParam boolean hideType){
         Long currentMemberId = memberService.getCurrentMemberId();
-        timeTableService.saveScheduleInDB(currentMemberId, scheduleId);
-        return new ResponseEntity<>("Group Schedule saved for member", HttpStatus.OK);
+        timeTableService.saveScheduleInDB(currentMemberId, scheduleId, hideType);
+        return new ResponseEntity<>("Group Schedule saved for member as hide: "+ hideType, HttpStatus.OK);
     }
 
     @PostMapping("/findSchedule")
@@ -104,7 +104,7 @@ public class TimeTableController {
         Long currentMemberId = memberService.getCurrentMemberId();
         //log.info("build: " + requestForm.toString());
         TimeTableDto.TimeTableInfo timeTableInfo
-                = timeTableService.getMemberTimeTableByDayNum(currentMemberId, requestForm.getStartDate(), requestForm.getEndDate());
+                = timeTableService.getMemberTimeTableByDayNum(currentMemberId, requestForm.getStartDate(), requestForm.getEndDate(), true);
         return new ResponseEntity<>(timeTableInfo, HttpStatus.OK);
     }
 
@@ -254,8 +254,13 @@ public class TimeTableController {
             name = "accept",
             description = "수락/ 거절 여부를 boolean으로"
     )
-    public ResponseEntity<String> setCheckTeamSchedule(final @RequestParam Long scheduleId, final @RequestParam boolean accept){
-        timeTableService.setCheckTeamSchedule(scheduleId, accept);
+    @Parameter(
+            name = "hideType",
+            description = "저장할때 숨기고 싶은지 여부를 같이 보내주세요~. 숨기고 싶다면 true입니다."
+    )
+    public ResponseEntity<String> setCheckTeamSchedule(final @RequestParam Long scheduleId, final @RequestParam boolean accept
+            ,final @RequestParam boolean hideType){
+        timeTableService.setCheckTeamSchedule(scheduleId, accept, hideType);
         return new ResponseEntity<>("set read schedule", HttpStatus.OK);
     }
 
@@ -269,10 +274,18 @@ public class TimeTableController {
     @PostMapping("saveScheduleByCopy")
     @Operation(summary = "스케줄 id로 개인 스케줄에 복사시켜 저장하기", description = "영화 스케줄 저장, 팀 스케줄 저장등 스케줄 id값만 있으면,<br>" +
             "데이터를 복사해서 개인 스케줄에 저장시킨다.")
-    public ResponseEntity<String> saveScheduleByCopy(final @RequestParam Long scheduleId){
+    @Parameter(
+            name ="scheduleId",
+            description = "schedule 저장 시 저장시키고 싶은 원본 scheduleId를 담아 요청"
+    )
+    @Parameter(
+            name = "hideType",
+            description = "저장할때 숨기고 싶은지 여부를 같이 보내주세요~. 숨기고 싶다면 true입니다."
+    )
+    public ResponseEntity<String> saveScheduleByCopy(final @RequestParam Long scheduleId, final @RequestParam boolean hideType){
         Long currentMemberId = memberService.getCurrentMemberId();
-        timeTableService.saveScheduleInDB(currentMemberId, scheduleId);
-        return new ResponseEntity<>("Schedule copy saved for member", HttpStatus.OK);
+        timeTableService.saveScheduleInDB(currentMemberId, scheduleId, hideType);
+        return new ResponseEntity<>("Schedule copy saved for member as hide: "+ hideType, HttpStatus.OK);
     }
 
     @PostMapping("findFriendsHaveTime")

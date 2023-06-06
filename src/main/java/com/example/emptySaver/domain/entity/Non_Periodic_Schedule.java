@@ -29,6 +29,7 @@ public class Non_Periodic_Schedule extends Schedule{
         nonPeriodicSchedule.setStartTime(schedule.getStartTime());
         nonPeriodicSchedule.setEndTime(schedule.getEndTime());
 
+        nonPeriodicSchedule.setHideType(schedule.isHideType());
         return nonPeriodicSchedule;
     }
 }

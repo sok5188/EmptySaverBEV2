@@ -1,6 +1,5 @@
 package com.example.emptySaver.controller;
 
-import com.example.emptySaver.domain.dto.CommentDto;
 import com.example.emptySaver.domain.dto.GroupDto;
 import com.example.emptySaver.domain.dto.TimeTableDto;
 import com.example.emptySaver.errorHandler.BaseException;
@@ -189,7 +188,7 @@ public class GroupController {
         //Long currentMemberId = memberService.getCurrentMemberId();
         //log.info("build: " + requestForm.toString());
         TimeTableDto.TimeTableInfo timeTableInfo
-                = timeTableService.getMemberTimeTableByDayNum(groupMemberId, requestForm.getStartDate(), requestForm.getEndDate());
+                = timeTableService.getMemberTimeTableByDayNum(groupMemberId, requestForm.getStartDate(), requestForm.getEndDate(), false);
         return new ResponseEntity<>(timeTableInfo, HttpStatus.OK);
     }
     @GetMapping("/isOwner/{groupId}")

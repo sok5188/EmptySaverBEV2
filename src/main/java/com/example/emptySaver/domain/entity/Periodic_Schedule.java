@@ -38,6 +38,7 @@ public class Periodic_Schedule extends Schedule{
         periodicSchedule.setStartTime(schedule.getStartTime());
         periodicSchedule.setEndTime(schedule.getEndTime());
 
+        periodicSchedule.setHideType(schedule.isHideType());
         return periodicSchedule;
     }
 }
