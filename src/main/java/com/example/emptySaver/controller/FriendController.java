@@ -88,5 +88,10 @@ public class FriendController {
         friendService.removeFriend(friendId,true);
         return new ResponseEntity<>("delete friend request",HttpStatus.OK);
     }
+    @GetMapping("/getNotGroupFriend/{groupId}")
+    @Operation(summary = "그룹에 초대 가능한 친구 목록" ,description = "그룹에 속하지 않은 친구 목록을 조회하는 API")
+    public ResponseEntity<FriendDto.res> getNotGroupFriendList(@PathVariable Long groupId){
+        return new ResponseEntity<>(friendService.getNotGroupFriendList(groupId),HttpStatus.OK);
+    }
 
 }

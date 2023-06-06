@@ -4,10 +4,14 @@ import com.example.emptySaver.config.jwt.SecurityUtil;
 import com.example.emptySaver.domain.dto.FriendDto;
 import com.example.emptySaver.domain.entity.Friend;
 import com.example.emptySaver.domain.entity.Member;
+import com.example.emptySaver.domain.entity.MemberTeam;
+import com.example.emptySaver.domain.entity.Team;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.repository.FriendRepository;
 import com.example.emptySaver.repository.MemberRepository;
+import com.example.emptySaver.repository.MemberTeamRepository;
+import com.example.emptySaver.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,6 +29,8 @@ import java.util.Optional;
 public class FriendService {
     private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
+    private final MemberTeamRepository memberTeamRepository;
+    private final TeamRepository teamRepository;
     private final FCMService fcmService;
     private Member getMember() {
         String userName = SecurityUtil.getCurrentUsername().orElseThrow(() -> new BaseException(BaseResponseStatus.FAILED_TO_LOGIN));
@@ -185,5 +192,23 @@ public class FriendService {
     private Friend getFriend(Long friendId) {
         Friend friend = friendRepository.findById(friendId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_FRIEND_ID));
         return friend;
+    }
+
+    public FriendDto.res getNotGroupFriendList(Long groupId) {
+        Member member = getMember();
+        List<Friend> withFriendByOwner = friendRepository.findWithFriendMemberByOwner(member);
+
+        Team team = teamRepository.findById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        List<MemberTeam> withMemberByTeam = memberTeamRepository.findWithMemberByTeam(team);
+        List<Member> collect = withMemberByTeam.stream().map(MemberTeam::getMember).collect(Collectors.toList());
+        List<FriendDto.FriendInfo> friendInfoList=new ArrayList<>();
+        withFriendByOwner.stream().forEach(friend -> {
+            if(friend.isFriend()&&collect.contains(friend.getFriendMember()))
+                friendInfoList.add(FriendDto.FriendInfo.builder().friendName(friend.getFriendMember().getName())
+                        .friendEmail(friend.getFriendMember().getEmail())
+                        .friendId(friend.getId()).friendMemberId(friend.getFriendMember().getId())
+                        .build());
+        });
+        return new FriendDto.res(friendInfoList);
     }
 }

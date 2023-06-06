@@ -59,24 +59,20 @@ public class CrawlService {
         this.CrawlMovie();
     }
 
-    @Scheduled(cron = "0 0 5 * * *",zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 8 * * *",zone = "Asia/Seoul")
     @Transactional
     public void ScheduleCrawl() throws IOException {
         log.info("Schedule Called Crawl Uostory!");
         this.InitCrawl();
         this.CrawlRecruiting();
         this.CrawlNonSubject();
-    }
-    @Scheduled(cron = "0 0 7 * * *",zone = "Asia/Seoul")
-    @Transactional
-    public void MovieCrawl1() throws IOException {
-        log.info("crawl movie 1");
+        log.info("crawled movie 1");
         this.CrawlMovie();
     }
-    @Scheduled(cron = "0 0 8 * * *",zone = "Asia/Seoul")
+    @Scheduled(cron = "0 15 9 * * *",zone = "Asia/Seoul")
     @Transactional
-    public void MovieCrawl2() throws IOException {
-        log.info("crawled movie 2");
+    public void MovieCrawl1() throws IOException {
+        log.info("crawl movie 2");
         this.CrawlMovie();
     }
     public void InitCrawl() throws IOException{
@@ -189,6 +185,7 @@ public class CrawlService {
             System.out.println("fin li");
             System.out.println("Now fin flag:"+isFin);
         }
+        log.info("recruiting crawl finished size : "+recruitingList.size());
         recruitingRepository.saveAll(recruitingList);
 
     }
@@ -252,6 +249,7 @@ public class CrawlService {
 
             }
         }
+        log.info("non sub crawling finished now size : "+nonSubjectList.size());
         nonSubjectRepository.saveAll(nonSubjectList);
 
     }
@@ -341,7 +339,23 @@ public class CrawlService {
                 List<MovieTimeInfo> movieTimeInfoList = new ArrayList<>();
                 for (Element target : as) {
                     // TODO : 해당 상영관에서 해당 영화가 상영되는 시간 및 예매 페이지 href
-                    movieTimeInfoList.add(new MovieTimeInfo(target.text(),target.attr("href")));
+                    String reserveUrl = target.attr("href");
+                    String[] strings = reserveUrl.split("/");
+                    StringBuilder sb=new StringBuilder();
+                    for (int i = 0, stringsLength = strings.length; i < stringsLength; i++) {
+                        String string = strings[i];
+                        if (string.equals("NLCHS")) {
+                            log.info("replace to mobile link");
+                            sb.append("NLCMW");
+                        } else {
+                            sb.append(string);
+                        }
+                        if(i!=stringsLength-1)
+                            sb.append("/");
+
+                    }
+                    log.info("now url : "+sb);
+                    movieTimeInfoList.add(new MovieTimeInfo(target.text(),sb.toString()));
                 }
                 roomInfoList.add(new RoomInfo(movieRoomNum,movieTimeInfoList));
             }

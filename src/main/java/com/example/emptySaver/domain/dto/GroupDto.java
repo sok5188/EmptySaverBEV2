@@ -65,6 +65,12 @@ public class GroupDto {
     }
     @Data
     @Builder
+    public static class groupInviteReq{
+        private String email;
+        private Long groupId;
+    }
+    @Data
+    @Builder
     public static class DetailGroupRes{
         private Long groupId;
         private String groupName;
