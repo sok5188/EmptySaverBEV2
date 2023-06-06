@@ -67,16 +67,16 @@ public class CrawlService {
         this.CrawlRecruiting();
         this.CrawlNonSubject();
     }
-    @Scheduled(cron = "0 0 7 * * *",zone = "Asia/Seoul")
+    @Scheduled(cron = "0 15 9 * * *",zone = "Asia/Seoul")
     @Transactional
     public void MovieCrawl1() throws IOException {
-        log.info("crawl movie 1");
+        log.info("crawl movie 2");
         this.CrawlMovie();
     }
     @Scheduled(cron = "0 0 8 * * *",zone = "Asia/Seoul")
     @Transactional
     public void MovieCrawl2() throws IOException {
-        log.info("crawled movie 2");
+        log.info("crawled movie 1");
         this.CrawlMovie();
     }
     public void InitCrawl() throws IOException{
@@ -189,6 +189,7 @@ public class CrawlService {
             System.out.println("fin li");
             System.out.println("Now fin flag:"+isFin);
         }
+        log.info("recruiting crawl finished size : "+recruitingList.size());
         recruitingRepository.saveAll(recruitingList);
 
     }
@@ -252,6 +253,7 @@ public class CrawlService {
 
             }
         }
+        log.info("non sub crawling finished now size : "+nonSubjectList.size());
         nonSubjectRepository.saveAll(nonSubjectList);
 
     }
