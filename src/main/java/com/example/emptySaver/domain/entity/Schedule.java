@@ -32,6 +32,9 @@ public class Schedule {
     private boolean publicType;
 
     @ColumnDefault("false")
+    private boolean hideType;
+
+    @ColumnDefault("false")
     private boolean groupType;      //그룹에 의해 추가된 경우
     private Long groupId;
     private String groupName;

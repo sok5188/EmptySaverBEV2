@@ -155,7 +155,7 @@ class TimeTableServiceTest {
 
         LocalDateTime startDate = LocalDateTime.of(2023, 4, 30,10,0);
         LocalDateTime endDate = LocalDateTime.of(2023, 5, 10,12,30);
-        TimeTableDto.TimeTableInfo timeTableDto = timeTableService.getMemberTimeTableByDayNum(savedMember.getId(), startDate.toLocalDate(), endDate.toLocalDate());
+        TimeTableDto.TimeTableInfo timeTableDto = timeTableService.getMemberTimeTableByDayNum(savedMember.getId(), startDate.toLocalDate(), endDate.toLocalDate(), true);
 
 
         List<List<TimeTableDto.ScheduleDto>> scheduleListPerDays = timeTableDto.getScheduleListPerDays();

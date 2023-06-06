@@ -49,6 +49,9 @@ public class TimeTableDto {
         private Boolean groupType = false;
         //@Builder.Default
 
+        @Builder.Default
+        private boolean hideType = false;
+
         @Schema(description = "개인 스케줄인 경우 -1")
         @Builder.Default
         private Long groupId = -1l; //개인 스케줄은 -1
@@ -120,6 +123,10 @@ public class TimeTableDto {
 
         @Schema(description = "스케줄이 주기적인지의 정보를 문자열로")
         private String periodicType;
+
+        @Schema(description = "스케줄을 타인에게 숨길지 여부. true라면 숨김. 빈값으로 넘기면 일단 공개시킴")
+        @Builder.Default
+        private Boolean hideType = false;
 
         @Builder.Default
         private List<String> periodicTimeStringList = new ArrayList<>(); //only for Periodic

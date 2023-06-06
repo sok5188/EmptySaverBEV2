@@ -18,15 +18,15 @@ public interface TimeTableService {
     List<TimeTableDto.TeamScheduleDto> getTeamScheduleList(Long teamId);
 
     @Transactional
-    void setCheckTeamSchedule(final Long scheduleId, final boolean accept);
+    void setCheckTeamSchedule(final Long scheduleId, final boolean accept, boolean hideType);
 
     TimeTableDto.MemberAllTimeTableInfo getMemberAllTimeTableInfo(Long memberId, LocalDate startDate, LocalDate endDate);
 
-    TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId, LocalDate startDate, LocalDate endDate);
+    TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId, LocalDate startDate, LocalDate endDate, boolean getHideType);
 
     //schedule id로 복사본 저장
     @Transactional
-    void saveScheduleInDB(Long memberId, Long scheduleId);
+    void saveScheduleInDB(Long memberId, Long scheduleId, boolean hideType);
 
     //멤버로 스케줄 저장
     @Transactional

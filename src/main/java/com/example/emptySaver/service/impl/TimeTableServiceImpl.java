@@ -159,6 +159,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         schedulePostDto.setGroupName(team.getName());
         schedulePostDto.setGroupType(true);
         Schedule schedule = this.convertDtoToSchedule(schedulePostDto);
+        schedule.setHideType(false);
         schedule.setTimeTable(teamTimeTable);
         schedule.setPublicType(isPublicTypeSchedule);
 
@@ -179,7 +180,7 @@ public class TimeTableServiceImpl implements TimeTableService {
         //teamTimeTable.calcAllWeekScheduleData();
 
         //this.saveScheduleInOwnerTimeTable(schedulePostDto,savedSchedule.getId());    //그룹장 자신에게 저장
-        this.setCheckTeamSchedule(savedSchedule.getId(),true);
+        this.setCheckTeamSchedule(savedSchedule.getId(),true, schedulePostDto.getHideType());
 
 
         //그룹원들에게 알림보내기
@@ -234,21 +235,21 @@ public class TimeTableServiceImpl implements TimeTableService {
     }
 
     @Override
-    public void setCheckTeamSchedule(final Long scheduleId, final boolean accept) {
+    public void setCheckTeamSchedule(final Long scheduleId, final boolean accept, boolean hideType) {
         Member member = memberService.getMember();
         Schedule schedule = this.getScheduleById(scheduleId);
         ScheduleMember build = ScheduleMember.builder().member(member).schedule(schedule).accept(accept).build();
         ScheduleMember savedEntity = scheduleMemberRepository.save(build);
 
         if(accept){ //유저의 스케줄로도 저장
-            this.saveScheduleInDB(member.getId(), scheduleId);
+            this.saveScheduleInDB(member.getId(), scheduleId, hideType);
         }
         log.info("accpet?: " +savedEntity.isAccept());
     }
 
     @Override
     public TimeTableDto.MemberAllTimeTableInfo getMemberAllTimeTableInfo(Long memberId, LocalDate startDate, LocalDate endDate){
-        TimeTableDto.TimeTableInfo memberTimeTable = this.getMemberTimeTableByDayNum(memberId, startDate, endDate);
+        TimeTableDto.TimeTableInfo memberTimeTable = this.getMemberTimeTableByDayNum(memberId, startDate, endDate, true);
         List<TimeTableDto.GroupTimeTableInfo> groupOfMemberTimeTableList = this.getGroupOfMemberTimeTableList(memberId, startDate, endDate);
 
         return TimeTableDto.MemberAllTimeTableInfo.builder()
@@ -272,8 +273,8 @@ public class TimeTableServiceImpl implements TimeTableService {
         for (Team team : groupList) {
             Time_Table teamTimeTable = team.getTimeTable();
             TimeTableDto.TimeTableInfo timeTableInfo = this.calcTimeTableDataPerWeek(startDate, endDate
-                    , teamTimeTable.calcPeriodicScheduleInBound(), teamTimeTable.getPeriodicScheduleInBound()
-                    ,teamTimeTable.getPeriodicScheduleOverlap(startTime,endTime),teamTimeTable.getNonPeriodicScheduleInBound(startTime,endTime));
+                    , teamTimeTable.calcPeriodicScheduleInBound(true), teamTimeTable.getPeriodicScheduleInBound(true)
+                    ,teamTimeTable.getPeriodicScheduleOverlap(startTime,endTime, true),teamTimeTable.getNonPeriodicScheduleInBound(startTime,endTime, true));
             groupTimeTableInfoList.add(TimeTableDto.GroupTimeTableInfo.builder()
                     .groupId(team.getId())
                     .timeTableInfo(timeTableInfo)
@@ -284,17 +285,17 @@ public class TimeTableServiceImpl implements TimeTableService {
     }
 
     @Override
-    public TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId, LocalDate startDate, LocalDate endDate){
+    public TimeTableDto.TimeTableInfo getMemberTimeTableByDayNum(Long memberId, LocalDate startDate, LocalDate endDate, boolean getHideType){
         Member member = memberRepository.findById(memberId).get();
 
         Time_Table timeTable = member.getTimeTable();
         //timeTable.calcAllWeekScheduleData();
         endDate = endDate.plusDays(1);
-        long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound();
+        long[] weekScheduleData = timeTable.calcPeriodicScheduleInBound(getHideType);
         //final List<Schedule> scheduleList = timeTable.getScheduleList();
-        List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound();
-        List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(), endDate.atStartOfDay());
-        List<Non_Periodic_Schedule> nonPeriodicScheduleInBound = timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay());
+        List<Periodic_Schedule> periodicScheduleInBound = timeTable.getPeriodicScheduleInBound(getHideType);
+        List<Periodic_Schedule> periodicScheduleOverlap = timeTable.getPeriodicScheduleOverlap(startDate.atStartOfDay(), endDate.atStartOfDay(), getHideType);
+        List<Non_Periodic_Schedule> nonPeriodicScheduleInBound = timeTable.getNonPeriodicScheduleInBound(startDate.atStartOfDay(), endDate.atStartOfDay(), getHideType);
 
         return calcTimeTableDataPerWeek(startDate,endDate,weekScheduleData,periodicScheduleInBound,periodicScheduleOverlap,nonPeriodicScheduleInBound);
     }
@@ -357,6 +358,7 @@ public class TimeTableServiceImpl implements TimeTableService {
                                     .name(schedule.getName())
                                     .body(schedule.getBody())
                                     .groupType(schedule.isGroupType())
+                                    .hideType(schedule.isHideType())
                                     .groupId(schedule.getGroupId())
                                     .groupName(schedule.getGroupName())
                                     .timeData(this.timeDataConverter.convertLongToBooleanList(weekBits[day]))
@@ -391,6 +393,7 @@ public class TimeTableServiceImpl implements TimeTableService {
                             .name(schedule.getName())
                             .body(schedule.getBody())
                             .groupType(schedule.isGroupType())
+                            .hideType(schedule.isHideType())
                             .groupId(schedule.getGroupId())
                             .groupName(schedule.getGroupName())
                             .timeData(this.timeDataConverter.convertLongToBooleanList(weekBits[dayOfWeekIdx]))
@@ -415,6 +418,7 @@ public class TimeTableServiceImpl implements TimeTableService {
                             .name(schedule.getName())
                             .body(schedule.getBody())
                             .groupType(schedule.isGroupType())
+                            .hideType(schedule.isHideType())
                             .groupId(schedule.getGroupId())
                             .groupName(schedule.getGroupName())
                             .timeData(this.timeDataConverter.convertLongToBooleanList(timeBitData))
@@ -466,6 +470,8 @@ public class TimeTableServiceImpl implements TimeTableService {
             periodicSchedule.setGroupId(schedulePostData.getGroupId());
             periodicSchedule.setGroupType(schedulePostData.getGroupType());
             periodicSchedule.setGroupName(schedulePostData.getGroupName());
+
+            periodicSchedule.setHideType(schedulePostData.getHideType());
             log.info("build Periodic Schedule " + periodicSchedule.toString());
             return periodicSchedule;
         }
@@ -479,13 +485,15 @@ public class TimeTableServiceImpl implements TimeTableService {
         nonPeriodicSchedule.setGroupId(schedulePostData.getGroupId());
         nonPeriodicSchedule.setGroupType(schedulePostData.getGroupType());
         nonPeriodicSchedule.setGroupName(schedulePostData.getGroupName());
+
+        nonPeriodicSchedule.setHideType(schedulePostData.getHideType());
         log.info("build NonPeriodic Schedule "+ nonPeriodicSchedule.toString());
         return  nonPeriodicSchedule;
     }
 
     @Override
     @Transactional
-    public void saveScheduleInDB(final Long memberId, final Long scheduleId){
+    public void saveScheduleInDB(final Long memberId, final Long scheduleId, boolean hideType){
         Member member = memberService.getMember();
         Time_Table timeTable = member.getTimeTable();
 
@@ -499,12 +507,13 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         copySchedule.setTimeTable(timeTable);
         copySchedule.setPublicType(false);
+        copySchedule.setHideType(hideType);
 
         this.checkValidSchedule(timeTable, copySchedule);
         //copySchedule.setTimeTable(timeTable);
         Schedule savedSchedule = scheduleRepository.save(copySchedule);//@JoinColumn을 가지고 있는게 주인이므로 set은 Schedule이
 
-        log.info("savedSchdeul: " + savedSchedule.getName() + "l " + savedSchedule.getStartTime());
+        log.info("savedSchedule: " + savedSchedule.getName() + "l " + savedSchedule.getStartTime());
         List<Schedule> scheduleList = timeTable.getScheduleList();
         scheduleList.add(savedSchedule);
 
