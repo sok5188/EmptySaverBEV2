@@ -58,25 +58,31 @@ public class CrawlService {
         this.CrawlNonSubject();
         this.CrawlMovie();
     }
+    @Scheduled(cron = "0 * * * * *",zone = "Asia/Seoul")
+    @Transactional
+    public void tmpScheduler() throws IOException {
+        log.info("Schedule Called Crawl Uostory!");
+        this.InitCrawl();
+        this.CrawlRecruiting();
+        this.CrawlNonSubject();
+        log.info("crawled movie 1");
+        this.CrawlMovie();
+    }
 
-    @Scheduled(cron = "0 0 5 * * *",zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 8 * * *",zone = "Asia/Seoul")
     @Transactional
     public void ScheduleCrawl() throws IOException {
         log.info("Schedule Called Crawl Uostory!");
         this.InitCrawl();
         this.CrawlRecruiting();
         this.CrawlNonSubject();
+        log.info("crawled movie 1");
+        this.CrawlMovie();
     }
     @Scheduled(cron = "0 15 9 * * *",zone = "Asia/Seoul")
     @Transactional
     public void MovieCrawl1() throws IOException {
         log.info("crawl movie 2");
-        this.CrawlMovie();
-    }
-    @Scheduled(cron = "0 0 8 * * *",zone = "Asia/Seoul")
-    @Transactional
-    public void MovieCrawl2() throws IOException {
-        log.info("crawled movie 1");
         this.CrawlMovie();
     }
     public void InitCrawl() throws IOException{
