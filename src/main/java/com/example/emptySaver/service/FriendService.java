@@ -203,7 +203,7 @@ public class FriendService {
         List<Member> collect = withMemberByTeam.stream().map(MemberTeam::getMember).collect(Collectors.toList());
         List<FriendDto.FriendInfo> friendInfoList=new ArrayList<>();
         withFriendByOwner.stream().forEach(friend -> {
-            if(friend.isFriend()&&collect.contains(friend.getFriendMember()))
+            if(friend.isFriend()&&!collect.contains(friend.getFriendMember()))
                 friendInfoList.add(FriendDto.FriendInfo.builder().friendName(friend.getFriendMember().getName())
                         .friendEmail(friend.getFriendMember().getEmail())
                         .friendId(friend.getId()).friendMemberId(friend.getFriendMember().getId())
