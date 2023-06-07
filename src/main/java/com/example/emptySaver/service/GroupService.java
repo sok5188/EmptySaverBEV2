@@ -302,7 +302,7 @@ public class GroupService {
     }
     public boolean checkAlone(Long groupId){
         Team team = this.getTeamById(groupId);
-        List<MemberTeam> byTeam = memberTeamRepository.findByTeam(team);
+        List<MemberTeam> byTeam = memberTeamRepository.findByTeam(team).stream().filter(mt->mt.isBelong()).collect(Collectors.toList());
         if(byTeam.size()>1)
             return false;
         return true;
