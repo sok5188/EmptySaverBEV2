@@ -115,14 +115,16 @@ public class UosSubjectAutoSaver {
 
     private void setSubjectStartEndTime(List<Subject> subjects, String year, String term){
         int yearToInt = Integer.parseInt(year);
-        int startMonth = 3, termMonthNum = 4;
+        int startMonth = 3;
         int startDay = 1;
         if(term.equals("A20")){
             startMonth = 9;
         }
 
+        int termDayNum = 7*16;
+
         LocalDateTime startTime = LocalDate.of(yearToInt, startMonth, startDay).atStartOfDay();
-        LocalDateTime endTime = startTime.plusMonths(4).minusDays(1);
+        LocalDateTime endTime = startTime.plusDays(termDayNum);
 
         for (Subject subject : subjects) {
             subject.setStartTime(startTime);
