@@ -24,6 +24,8 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TimeTableServiceImpl implements TimeTableService {
+    private final int TEAM_SCHEDULE_EXPIRATION_NUM = 30;
+
     @PersistenceContext
     private final EntityManager em;
 
@@ -222,12 +224,28 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         List<Schedule> scheduleList = timeTable.getScheduleList();
         log.info("scheduleList size: "+scheduleList.size());
-        List<TimeTableDto.TeamScheduleDto> teamScheduleDtoList = this.convertSchedulesToTeamScheduleDtoList(scheduleList);
+
+        List<Schedule> currentScheduleList = new ArrayList<>();
+        LocalDateTime expirationDate = LocalDateTime.now().minusDays(TEAM_SCHEDULE_EXPIRATION_NUM);
+
+        for (Schedule schedule : scheduleList) {
+            if (schedule instanceof Periodic_Schedule){
+                if(schedule.getEndTime() != null && schedule.getEndTime().isBefore(expirationDate)) //만료기간 이전꺼는 반영 x
+                        continue;
+            }else{
+                if(schedule.getEndTime().isBefore(expirationDate)) //만료기간 이전꺼는 반영 x
+                    continue;
+            }
+            currentScheduleList.add(schedule);
+        }
+
+        List<TimeTableDto.TeamScheduleDto> teamScheduleDtoList = this.convertSchedulesToTeamScheduleDtoList(currentScheduleList);
+
         for (int i = 0; i < teamScheduleDtoList.size(); i++) {
-            Optional<ScheduleMember> isRead = scheduleMemberRepository.findByMemberAndSchedule(member, scheduleList.get(i));
+            Optional<ScheduleMember> isRead = scheduleMemberRepository.findByMemberAndSchedule(member, currentScheduleList.get(i));
 
             if (!isRead.isEmpty())  {
-                log.info("read");
+                //log.info("read");
                 teamScheduleDtoList.get(i).setRead(true);
             }
         }
