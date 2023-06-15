@@ -517,7 +517,9 @@ public class TimeTableServiceImpl implements TimeTableService {
 
         Schedule schedule = this.getScheduleById(scheduleId);
         Schedule copySchedule;
-        if(schedule instanceof Periodic_Schedule) {
+        if(schedule instanceof Subject){
+            copySchedule = Subject.copySchedule((Subject) schedule);
+        }else if(schedule instanceof Periodic_Schedule) {
             copySchedule = Periodic_Schedule.copySchedule((Periodic_Schedule) schedule);
         }else{
             copySchedule = Non_Periodic_Schedule.copySchedule((Non_Periodic_Schedule) schedule);

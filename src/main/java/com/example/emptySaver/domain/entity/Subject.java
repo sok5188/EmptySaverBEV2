@@ -49,4 +49,28 @@ public class Subject extends Periodic_Schedule{
     private String term; // 학기 정보
 
     //private long[] weekScheduleData;
+
+    static public Periodic_Schedule copySchedule(Subject schedule){
+        Periodic_Schedule subject = new Subject();
+        subject.setWeekScheduleData(schedule.getWeekScheduleData());
+
+
+        subject.setName(schedule.getSubjectname());
+        subject.setBody(schedule.getClass_nm());
+        subject.setPublicType(false);
+
+        subject.setGroupType(false);
+        subject.setGroupId(schedule.getGroupId());
+        subject.setGroupName(schedule.getGroupName());
+        subject.setOriginScheduleId(schedule.getId());
+
+        subject.setCategory(schedule.getCategory());
+        subject.setSubCategory(schedule.getSubCategory());
+
+        subject.setStartTime(schedule.getStartTime());
+        subject.setEndTime(schedule.getEndTime());
+
+        subject.setHideType(schedule.isHideType());
+        return subject;
+    }
 }
