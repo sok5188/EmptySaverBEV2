@@ -22,7 +22,7 @@ import java.util.Optional;
 public class JwtFilter extends GenericFilterBean {
     private static final String[] whiteList={"/","/auth/*","/css/*","/helloTest",
             "/h2-console/*","/swagger-ui/*","/swagger-resources/*","/swagger-resources",
-            "/swagger-ui","/swagger-ui.html","/v3/api-docs/*","/v3/api-docs","/h2-console","/h2-console/*","/category/*"};
+            "/swagger-ui","/swagger-ui.html","/v3/api-docs/*","/v3/api-docs","/h2-console","/h2-console/*","/category/*","/actuator","/actuator/*"};
 
     private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -38,15 +38,15 @@ public class JwtFilter extends GenericFilterBean {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String jwt = resolveToken(httpServletRequest,1);
         String requestURI = httpServletRequest.getRequestURI();
-        logger.info("new Entered :{}",requestURI);
+        logger.debug("new Entered :{}",requestURI);
         //화이트리스트는 JWT체크를 하지 않음 (그냥 필터 pass)
         if(httpServletRequest.getCookies()!=null){
             Cookie[] cookies = httpServletRequest.getCookies();
-            logger.info("cookies.length = " + cookies.length);
+            logger.debug("cookies.length = " + cookies.length);
             for (Cookie cookie : cookies) {
-                logger.info("cookie = " + cookie);
-                logger.info("cookie.getName() = " + cookie.getName());
-                logger.info("cookie.getValue() = " + cookie.getValue());
+                logger.debug("cookie = " + cookie);
+                logger.debug("cookie.getName() = " + cookie.getName());
+                logger.debug("cookie.getValue() = " + cookie.getValue());
             }
         }
         if(isLoginCheckPath(requestURI)){
@@ -67,11 +67,11 @@ public class JwtFilter extends GenericFilterBean {
                         .filter(cookie -> cookie.getName().equals("RefreshToken")).findAny();
                 if(optionalCookie.isPresent()){
                     refresh=optionalCookie.get().getValue();
-                    System.out.println("refresh by Cookie = " + refresh);
-                    logger.info("cookie exist? :{}",httpServletRequest.getCookies().length);
+                    logger.debug("refresh by Cookie = " + refresh);
+                    logger.debug("cookie exist? :{}",httpServletRequest.getCookies().length);
                 }else{
                     refresh=resolveToken(httpServletRequest,2);
-                    System.out.println("refresh by Header= " + refresh);
+                    logger.debug("refresh by Header= " + refresh);
                 }
 
                 if(tokenProvider.validateToken(refresh)==1){
@@ -88,18 +88,18 @@ public class JwtFilter extends GenericFilterBean {
                     }else{
                         //Refresh Token 사용불가
                         logger.debug("접근 토큰 만료, 리프레시 토큰 사용 불가, uri: {} url : {}", requestURI, httpServletRequest.getRequestURL());
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                        return;
+//                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+//                        return;
                     }
                 }
             }else{
                 //AccessToken,Refresh Token 사용불가
                 logger.debug("유효한 JWT 토큰이 없습니다, uri: {} url : {}", requestURI, httpServletRequest.getRequestURL());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+//                return;
             }
         }else{
-            logger.info("Received:{} is whiteList",requestURI);
+            logger.debug("Received:{} is whiteList",requestURI);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
@@ -112,7 +112,7 @@ public class JwtFilter extends GenericFilterBean {
         if(type==1)
             bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         else    bearerToken=request.getHeader(REFRESH_HEADER);
-        System.out.println("bearerToken:"+bearerToken);
+        logger.debug("bearerToken:"+bearerToken);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
