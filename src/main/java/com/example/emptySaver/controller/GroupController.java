@@ -113,8 +113,6 @@ public class GroupController {
     @GetMapping("/getGroupDetail/{groupId}")
     @Operation(summary = "그룹 상세 조회 페이지",description = "그룹의 상세정보를 조회하는 API(비공개 그룹은 그룹원만 조회 가능)")
     public ResponseEntity<GroupDto.DetailGroupRes> getGroupDetail(@PathVariable Long groupId){
-        if(!groupService.checkBelong(groupId)&&!groupService.checkPublic(groupId))
-            throw new BaseException(BaseResponseStatus.NOT_PUBLIC_ERROR);
         return new ResponseEntity<>(groupService.getGroupDetails(groupId),HttpStatus.OK);
     }
 

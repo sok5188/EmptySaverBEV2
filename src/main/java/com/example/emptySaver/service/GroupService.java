@@ -261,10 +261,13 @@ public class GroupService {
         GroupDto.GroupMemberRes res= new GroupDto.GroupMemberRes<>(result,team.isAnonymous());
         return res;
     }
+    @Transactional(readOnly = true)
     public GroupDto.DetailGroupRes getGroupDetails(Long groupId){
-        em.flush();
-        em.clear();
         Team team = teamRepository.findFirstWithCategoryById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+
+        if(!this.checkBelong(groupId)&&!this.checkPublic(groupId))
+            throw new BaseException(BaseResponseStatus.NOT_PUBLIC_ERROR);
+
         List<CommentDto.CommentRes> detailComments = boardService.getDetailComments(groupId);
         Member member = memberService.getMember();
         String status="no";
