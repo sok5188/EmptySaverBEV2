@@ -5,6 +5,7 @@ import com.example.emptySaver.config.jwt.TokenProvider;
 import com.example.emptySaver.domain.dto.AuthDto;
 import com.example.emptySaver.domain.dto.AuthDto.LoginForm;
 import com.example.emptySaver.domain.dto.AuthDto.SignInForm;
+import com.example.emptySaver.domain.entity.Member;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
 import com.example.emptySaver.service.MailService;
@@ -40,30 +41,29 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login", description = "로그인 성공 시 인증헤더에 접근토큰, 쿠키에 갱신토큰 심어준다.")
     public ResponseEntity<String> login(@RequestBody LoginForm loginDTO, HttpServletResponse response){
-        log.info("email: " + loginDTO.getEmail());
-        String username = memberService.getUserNameByEmail(loginDTO.getEmail());
-        log.info("User name: " + username);
+        Member member = memberService.getMemberByEmail(loginDTO.getEmail());
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(username, loginDTO.getPassword());
+                new UsernamePasswordAuthenticationToken(member.getUsername(), loginDTO.getPassword());
         try{
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             String accessJwt = tokenProvider.createToken(authentication,"Access");
-            String refreshJwt = tokenProvider.createToken(authentication,"Refresh");
+//            String refreshJwt = tokenProvider.createToken(authentication,"Refresh");
 
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + accessJwt);
-            httpHeaders.add(JwtFilter.REFRESH_HEADER,"Bearer "+refreshJwt);
-            log.info("in authenticate controller \nACCESS:{} \nREFRESH:{}",accessJwt,refreshJwt);
+//            httpHeaders.add(JwtFilter.REFRESH_HEADER,"Bearer "+refreshJwt);
+//            log.info("in authenticate controller \nACCESS:{} \nREFRESH:{}",accessJwt,refreshJwt);
 
 
-            memberService.setRefreshToken(username,refreshJwt);
+//            memberService.setRefreshToken(username,refreshJwt);
             //FCM token 설정
-            memberService.setFCMToken(username,loginDTO.getFcmToken());
-            Cookie cookie = new Cookie("RefreshToken",refreshJwt);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            //cookie.setSecure(true);
-            response.addCookie(cookie);
+            if(!member.getFcmToken().equals(loginDTO.getFcmToken()))
+                memberService.setFCMToken(member.getUsername(),loginDTO.getFcmToken());
+//            Cookie cookie = new Cookie("RefreshToken",refreshJwt);
+//            cookie.setHttpOnly(true);
+//            cookie.setPath("/");
+//            cookie.setSecure(true);
+//            response.addCookie(cookie);
 
             return new ResponseEntity<>(accessJwt, httpHeaders, HttpStatus.OK);
         } catch (Exception e){
