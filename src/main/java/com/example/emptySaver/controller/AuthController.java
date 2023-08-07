@@ -57,7 +57,11 @@ public class AuthController {
 
 //            memberService.setRefreshToken(username,refreshJwt);
             //FCM token 설정
-            if(!member.getFcmToken().equals(loginDTO.getFcmToken()))
+            if(loginDTO.getFcmToken()==null)
+                throw new BaseException(BaseResponseStatus.INVALID_FCMTOKEN);
+            if(member.getFcmToken()==null)
+                memberService.setFCMToken(member.getUsername(),loginDTO.getFcmToken());
+            else if(!member.getFcmToken().equals(loginDTO.getFcmToken()))
                 memberService.setFCMToken(member.getUsername(),loginDTO.getFcmToken());
 //            Cookie cookie = new Cookie("RefreshToken",refreshJwt);
 //            cookie.setHttpOnly(true);

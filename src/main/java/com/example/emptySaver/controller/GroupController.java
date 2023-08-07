@@ -113,7 +113,8 @@ public class GroupController {
     @GetMapping("/getGroupDetail/{groupId}")
     @Operation(summary = "그룹 상세 조회 페이지",description = "그룹의 상세정보를 조회하는 API(비공개 그룹은 그룹원만 조회 가능)")
     public ResponseEntity<GroupDto.DetailGroupRes> getGroupDetail(@PathVariable Long groupId){
-        return new ResponseEntity<>(groupService.getGroupDetails(groupId),HttpStatus.OK);
+        GroupDto.DetailGroupRes detailGroupRes = groupService.makeDetailRes(groupId);
+        return new ResponseEntity<>(groupService.getStatus(detailGroupRes),HttpStatus.OK);
     }
 
     @PostMapping("/sendInvite")
@@ -209,6 +210,18 @@ public class GroupController {
     public ResponseEntity<String> changeOwner(@RequestBody GroupDto.memberGroupReq req){
         String name = groupService.changeOwner(req);
         return new ResponseEntity<>("New Owner : "+name,HttpStatus.OK);
+    }
+
+
+    @GetMapping("/testCache/{number}")
+    public ResponseEntity<String> cacheTest(@PathVariable Long number){
+        groupService.testCache(number);
+        return ResponseEntity.ok("okok");
+    }
+    @GetMapping("/testCache2")
+    public ResponseEntity<GroupDto.DetailGroupRes> cacheTest2(){
+        GroupDto.DetailGroupRes in = groupService.makeDetailRes(1L);
+        return ResponseEntity.ok(in);
     }
 
 

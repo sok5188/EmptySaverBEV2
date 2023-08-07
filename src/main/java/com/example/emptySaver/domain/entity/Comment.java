@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -53,7 +54,7 @@ public class Comment {
         this.team=team;
         this.text=text;
         this.date=ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
-        member.getComments().add(this);
+//        member.getComments().add(this);
     }
     @Builder(builderMethodName = "init_post")
     public Comment(Member member, String text,Post post){
@@ -62,8 +63,8 @@ public class Comment {
         this.text=text;
         this.date= ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         this.post=post;
-        member.getComments().add(this);
-        post.getCommentList().add(this);
+//        member.getComments().add(this);
+//        post.getCommentList().add(this);
     }
     public void makeRelation(Comment child, Comment parent){
         child.parentComment=parent;

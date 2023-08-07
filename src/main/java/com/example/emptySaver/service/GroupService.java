@@ -12,6 +12,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,6 +75,7 @@ public class GroupService {
 
 
     @Transactional
+    @CacheEvict(value = "groupDetail",key = "#teamId")
     public String addMemberToTeam(Long memberId, Long teamId,String subject){
         //가입신청 or 그룹초대에 사용되는 메소드
         Member member = getMemberById(memberId);
@@ -114,10 +117,11 @@ public class GroupService {
         List<MemberTeam> byTeam = memberTeamRepository.findWithMemberByTeam(team);
         MemberTeam memberTeam = byTeam.stream().filter(mt -> mt.getMember().equals(member)).findAny()
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
-
         memberTeamRepository.delete(memberTeam);
+        team.removeMember();
     }
     @Transactional
+    @CacheEvict(value = "groupDetail",key = "#groupId")
     public void deleteGroup(Long groupId){
         Team team = teamRepository.findById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         teamRepository.delete(team);
@@ -261,41 +265,47 @@ public class GroupService {
         GroupDto.GroupMemberRes res= new GroupDto.GroupMemberRes<>(result,team.isAnonymous());
         return res;
     }
-    @Transactional(readOnly = true)
-    public GroupDto.DetailGroupRes getGroupDetails(Long groupId){
-        Team team = teamRepository.findFirstWithCategoryById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
 
-        if(!this.checkBelong(groupId)&&!this.checkPublic(groupId))
-            throw new BaseException(BaseResponseStatus.NOT_PUBLIC_ERROR);
-
-        List<CommentDto.CommentRes> detailComments = boardService.getDetailComments(groupId);
+    public GroupDto.DetailGroupRes getStatus(GroupDto.DetailGroupRes detailGroupRes){
         Member member = memberService.getMember();
         String status="no";
-        Optional<MemberTeam> any = memberTeamRepository.findWithTeamByMember(member).stream().filter(mt -> mt.getTeam().equals(team)).findAny();
+        Optional<MemberTeam> any = memberTeamRepository.findWithTeamByMember(member).stream().filter(mt -> mt.getTeam().getId().equals(detailGroupRes.getGroupId())).findAny();
         if(any.isPresent()){
             if(any.get().isBelong())
                 status="in";
             else status="mid";
         }
+        detailGroupRes.setMemberStatus(status);
+        Team team = teamRepository.findById(detailGroupRes.getGroupId()).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        detailGroupRes.setAmIOwner(team.getOwner().equals(member));
+        return detailGroupRes;
+    }
+    @Cacheable(value = "groupDetail",key = "#groupId")
+    public GroupDto.DetailGroupRes makeDetailRes(Long groupId){
+        Team team = teamRepository.findFirstWithCategoryById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
+        if(!this.checkBelong(groupId)&&!this.checkPublic(groupId))
+            throw new BaseException(BaseResponseStatus.NOT_PUBLIC_ERROR);
+
+        List<CommentDto.CommentRes> detailComments = boardService.getDetailComments(team.getId());
 
         return GroupDto.DetailGroupRes.builder()
-                .groupId(groupId).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
+                .groupId(team.getId()).groupName(team.getName()).oneLineInfo(team.getOneLineInfo())
                 .groupDescription(team.getDescription())
                 .nowMember(Long.valueOf(memberTeamRepository.findByTeam(team).stream().filter(memberTeam -> memberTeam.isBelong())
                         .collect(Collectors.toList()).size()))
                 .maxMember(team.getMaxMember()).isPublic(team.isPublic()).isAnonymous(team.isAnonymous())
                 .categoryLabel(categoryService.getLabelByCategory(team.getCategory()))
                 .commentList(detailComments)
-                .amIOwner(team.getOwner().equals(member))
+//                .amIOwner(team.getOwner().getId().equals(memberId))
                 .categoryName(categoryService.getCategoryNameByCategory(team.getCategory()))
-                .memberStatus(status)
+//                .memberStatus(status)
                 .build();
     }
 
     public boolean checkOwner(Long groupId){
         Member member = memberService.getMember();
         Team team =this.getTeamById(groupId);
-        return team.getOwner().equals(member);
+        return team.getOwner().getId().equals(member.getId());
     }
     public boolean checkBelong(Long groupId){
         Member member = memberService.getMember();
@@ -316,8 +326,10 @@ public class GroupService {
         Team team = teamRepository.findById(groupId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
         MemberTeam memberTeam = memberTeamRepository.findFirstByMemberAndTeam(member, team).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REQUEST));
         //최대 인원 초과 시 수락되지 않아야 한다.
-        List<MemberTeam> byTeam = memberTeamRepository.findByTeam(team);
+//        List<MemberTeam> byTeam = memberTeamRepository.findByTeam(team);
+        List<MemberTeam> byTeam = memberTeamRepository.findByTeamPessimistic(team);
         int size = byTeam.stream().filter(mt -> mt.isBelong()).collect(Collectors.toList()).size();
+//        Long size=team.getNowMember();
         if(size>=team.getMaxMember()){
             throw new BaseException(BaseResponseStatus.MAX_MEMBER_ERROR);
         }
@@ -325,6 +337,7 @@ public class GroupService {
             throw new BaseException(BaseResponseStatus.ALREADY_BELONG_ERROR);
         memberTeam.addMemberToTeam();
         fcmService.sendMessageToMember(memberId,"그룹에 가입되었습니다",team.getName()+"그룹에 가입이 완료되었습니다","group","group",String.valueOf(groupId));
+        team.addMember();
         return member.getName();
     }
 
@@ -343,5 +356,11 @@ public class GroupService {
         Team team = getTeamById(req.getGroupId());
         team.setOwner(target);
         return target.getName();
+    }
+
+    @Cacheable(cacheNames = "test", keyGenerator = "myCustomKeyGenerator")
+    public Long testCache(Long number){
+        log.info("Got Number : "+number);
+        return number;
     }
 }

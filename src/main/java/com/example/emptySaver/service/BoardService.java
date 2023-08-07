@@ -12,6 +12,7 @@ import com.example.emptySaver.repository.TeamRepository;
 import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +55,7 @@ public class BoardService {
         return commentRepository.findById(commentId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT_ID));
     }
     @Transactional
+    @CacheEvict(value = "groupDetail", key = "#commentAddReq.groupId")
     public void addCommentToDetail(CommentDto.CommentAddReq commentAddReq){
         Member member = memberService.getMember();
         Team team = teamRepository.findWithOwnerById(commentAddReq.getGroupId()).orElseThrow(()->new BaseException(BaseResponseStatus.INVALID_TEAM_ID));
@@ -191,9 +193,9 @@ public class BoardService {
     @Transactional
     public void addPost(PostDto.PostAddReq req){
         Member member = memberService.getMember();
-        log.info("member Name:"+member.getName());
+//        log.debug("member Name:"+member.getName()+ " member Class : {}",member.getClass());
         Team team = getTeam(req.getGroupId());
-        log.info("team name:"+team.getName());
+//        log.debug("team name:"+team.getName()+ " team Class : {}",team.getClass());
         //TODO: 지연로딩 될 지점 (아마)
         if(!team.getOwner().equals(member))
             throw new BaseException(BaseResponseStatus.NOT_ALLOWED);

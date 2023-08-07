@@ -67,7 +67,7 @@ public class TokenProvider implements InitializingBean {
         if(type.equals("Access")){
             now+=this.accessTokenValidityMs;
             Date validity = new Date(now);
-            log.info("authentication name : "+authentication.getName());
+            log.trace("authentication name : "+authentication.getName());
             String compact = Jwts.builder()
                     .setSubject(authentication.getName())
                     .claim(AUTHORITIES_KEY, authorities)
@@ -80,7 +80,7 @@ public class TokenProvider implements InitializingBean {
         else {
             now += this.refreshTokenValidityMs;
             Date validity = new Date(now);
-            log.info("authentication name : "+authentication.getName());
+            log.trace("authentication name : "+authentication.getName());
             return Jwts.builder()
                     .setSubject(authentication.getName())
                     .signWith(key, SignatureAlgorithm.HS512)
@@ -108,12 +108,12 @@ public class TokenProvider implements InitializingBean {
                             .map(SimpleGrantedAuthority::new)
                             .collect(Collectors.toList());
 
-            log.info("claims . getsubject : " + claims.getSubject());
+            log.trace("claims . getsubject : " + claims.getSubject());
             User principal = new User(claims.getSubject(), "", authorities);
 
             return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
         }else{
-            log.info("claims.getSubject() = " + claims.getSubject());
+            log.trace("claims.getSubject() = " + claims.getSubject());
             UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
             return new UsernamePasswordAuthenticationToken(userDetails,token,userDetails.getAuthorities());
         }
@@ -125,19 +125,19 @@ public class TokenProvider implements InitializingBean {
 
     public int validateToken(String token) {
         try {
-            log.info("now validate token");
+            log.trace("now validate token");
             Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            log.info("claimsJws : " + claimsJws.getSignature()+"/"+claimsJws.getBody());
+            log.trace("claimsJws : " + claimsJws.getSignature()+"/"+claimsJws.getBody());
             return 1;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            logger.info("잘못된 JWT 서명입니다.");
+            logger.trace("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
-            logger.info("만료된 JWT 토큰입니다.");
+            logger.trace("만료된 JWT 토큰입니다.");
             return 2;
         } catch (UnsupportedJwtException e) {
-            logger.info("지원되지 않는 JWT 토큰입니다.");
+            logger.trace("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            logger.info("JWT 토큰이 잘못되었습니다.");
+            logger.trace("JWT 토큰이 잘못되었습니다.");
         }
         return 0;
     }

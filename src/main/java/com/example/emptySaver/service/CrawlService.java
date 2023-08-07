@@ -47,7 +47,7 @@ public class CrawlService {
     Connection.Response first;
 
 
-    @PostConstruct
+//    @PostConstruct
     @Transactional
     public void CrawlService() throws IOException {
         //깃헙올라갈때 빌드 오류 방지
