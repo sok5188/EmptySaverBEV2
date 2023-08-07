@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -17,6 +18,8 @@ import java.time.ZonedDateTime;
 public class MemberTeam {
     @Id@GeneratedValue
     private Long id;
+//    @Version
+//    private Integer version;
 
     private LocalDateTime joinDate;
 
@@ -35,6 +38,7 @@ public class MemberTeam {
 
     private String relationSubject;
 
+    @Transactional
     public void initMemberTeam(Member member, Team team, Member owner){
         this.member=member;
         this.team=team;

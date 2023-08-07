@@ -19,12 +19,15 @@ public class Team {
     @Id@GeneratedValue
     @Column(name = "team_id")
     private Long id;
+//    @Version
+//    private Long version;
     private String name;
     private String oneLineInfo;
     @Column(length = 50000)
     private String description;
 
     private Long maxMember;
+    private Long nowMember;
     private boolean isPublic;
     private boolean isAnonymous;
     @Builder
@@ -40,6 +43,7 @@ public class Team {
         this.owner = owner;
         category.getCategoryTeamList().add(this);
         this.createTime=ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+        this.nowMember=0L;
     }
 
     //TODO: 활동 일정? 스케쥴같은 정보가 내장되어있거나 매핑으로 찾을 수 있어야 한다.
@@ -62,5 +66,12 @@ public class Team {
 
     @OneToMany(mappedBy = "team")
     private List<Post> teamPosts = new ArrayList<>();
+
+    public void addMember(){
+        this.nowMember++;
+    }
+    public void removeMember(){
+        this.nowMember++;
+    }
 
 }
