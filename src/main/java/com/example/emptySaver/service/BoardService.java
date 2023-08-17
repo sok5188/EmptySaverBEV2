@@ -5,10 +5,7 @@ import com.example.emptySaver.domain.dto.PostDto;
 import com.example.emptySaver.domain.entity.*;
 import com.example.emptySaver.errorHandler.BaseException;
 import com.example.emptySaver.errorHandler.BaseResponseStatus;
-import com.example.emptySaver.repository.CommentRepository;
-import com.example.emptySaver.repository.MemberTeamRepository;
-import com.example.emptySaver.repository.PostRepository;
-import com.example.emptySaver.repository.TeamRepository;
+import com.example.emptySaver.repository.*;
 import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +29,7 @@ public class BoardService {
     private final TeamRepository teamRepository;
     private final MemberTeamRepository memberTeamRepository;
     private final FCMService fcmService;
+    private final MemberRepository memberRepository;
     @Transactional
     public void deleteComment(Long commentId){
         Comment comment = getComment(commentId);
@@ -92,8 +90,9 @@ public class BoardService {
                     ,"groupDetail","group",String.valueOf(team.getId()));
     }
     @Transactional
-    public void addCommentToPost(CommentDto.PostCommentAddReq req){
-        Member member = memberService.getMember();
+    public void addCommentToPost(CommentDto.PostCommentAddReq req,Long currentMemberId){
+//        Member member = memberService.getMember();
+        Member member = memberRepository.findById(currentMemberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
         Post post = getPost(req.getPostId());
         if(req.getParentCommentId()>0){
             //parent 존재 -> 대댓글이다.
@@ -156,17 +155,18 @@ public class BoardService {
         });
         return result;
     }
-    public PostDto.PostDetailRes getPostDetail(Long postId){
+    public PostDto.PostDetailRes getPostDetail(Long postId,Long currentMemberId){
         Post post=postRepository.findWithTeamById(postId).orElseThrow(()->new BaseException(BaseResponseStatus.INVALID_POST_ID));
         if(!this.checkBelong(post.getTeam().getId()))
             throw new BaseException(BaseResponseStatus.NOT_BELONG_ERROR);
         List<Comment> byPost = commentRepository.findByPost(post);
-        Member member = memberService.getMember();
-        log.info("byPost size:"+byPost.size());
+//        Member member = memberService.getMember();
+        Member member = memberRepository.findById(currentMemberId).orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_USERID));
+        log.trace("byPost size:"+byPost.size());
         List<CommentDto.CommentRes> result = new ArrayList<>();
         byPost.stream().forEach(comment -> {
-            log.info("now comment:"+comment.getText());
-            log.info("is parent?:"+(comment.getParentComment()==null));
+            log.trace("now comment:"+comment.getText());
+            log.trace("is parent?:"+(comment.getParentComment()==null));
             if(comment.getParentComment()==null){
                 CommentDto.CommentInfo parent = CommentDto.CommentInfo.builder().commentId(comment.getId()).text(comment.getText()).dateTime(comment.getDate())
                         .isOwner(comment.getMember().equals(post.getTeam().getOwner()))

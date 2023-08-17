@@ -9,6 +9,8 @@ spring:
     username: ${db.username}
     password: ${db.password}
     driver-class: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 50
   jpa:
     hibernate:
       ddl-auto: update
@@ -26,7 +28,24 @@ mail:
 portal:
   id: ${portal.id}
   password: ${portal.password}
+management:
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+    shutdown:
+      enabled: true
 
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 
 
 

@@ -3,6 +3,7 @@ package com.example.emptySaver.controller;
 import com.example.emptySaver.domain.dto.CommentDto;
 import com.example.emptySaver.domain.dto.PostDto;
 import com.example.emptySaver.service.BoardService;
+import com.example.emptySaver.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/board")
 public class BoardController {
     private final BoardService boardService;
+    private final MemberService memberService;
     @PutMapping("/updateComment")
     @Operation(summary = "댓글을 수정하는 API", description = "해당 댓글의 id와 수정할 text를 받아 댓글 내용을 수정하는 API")
     public ResponseEntity<String> updateComment(@RequestBody CommentDto.CommentUpdateReq req){
@@ -41,7 +43,7 @@ public class BoardController {
     @PostMapping("/addPostComment")
     @Operation(summary = "공지사항에 댓글을 남기는 API", description = "그룹 내 공지사항에 댓글을 남기는 API(대댓글인 경우 부모 댓글의 id값을 줘야 한다 / 그렇지 않으면 -1주세용)")
     public ResponseEntity<String> addCommentToPost(@RequestBody CommentDto.PostCommentAddReq req){
-        boardService.addCommentToPost(req);
+        boardService.addCommentToPost(req,memberService.getCurrentMemberId());
         return new ResponseEntity<>("Comment Saved",HttpStatus.OK);
     }
 
@@ -67,7 +69,7 @@ public class BoardController {
     @GetMapping("/getPost/{postId}")
     @Operation(summary = "게시글 조회", description = "그룹 내 공지사항(게시글)을 조회하는 API(그룹 구성원만 가능)")
     public ResponseEntity<PostDto.PostDetailRes> getPostDetail(@PathVariable Long postId){
-        PostDto.PostDetailRes postDetail = boardService.getPostDetail(postId);
+        PostDto.PostDetailRes postDetail = boardService.getPostDetail(postId, memberService.getCurrentMemberId());
         return new ResponseEntity<>(postDetail,HttpStatus.OK);
     }
     @GetMapping("/getPostList/{groupId}")
