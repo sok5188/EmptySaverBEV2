@@ -1,5 +1,6 @@
 package com.example.emptySaver.domain.entity;
 
+import com.example.emptySaver.utils.Constant;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @ToString
 @DynamicUpdate
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "email",name = Constant.Constraint.EMAIL_UNIQUE)})
 public class Member {
     @Id
     @GeneratedValue

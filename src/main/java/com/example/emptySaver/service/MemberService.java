@@ -13,8 +13,10 @@ import com.example.emptySaver.repository.MemberRepository;
 import com.example.emptySaver.repository.MemberTeamRepository;
 import com.example.emptySaver.repository.TeamRepository;
 import com.example.emptySaver.repository.TimeTableRepository;
+import com.example.emptySaver.utils.Constant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +37,25 @@ public class MemberService {
 
     @Transactional
     public SignInForm join(SignInForm signInForm){
-        if(memberRepository.findFirstByEmail(signInForm.getEmail()).orElse(null)!=null)
-            throw new BaseException(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
+//        if(memberRepository.existsByEmail(signInForm.getEmail())) {
+//            log.debug("already exist.. {}"+signInForm.getEmail());
+//            throw new BaseException(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
+//        }
+
         String username= signInForm.getEmail().split("@")[0];
 
 
         Member build = Member.init().username(username).password(signInForm.getPassword()).classOf(signInForm.getClassOf())
                 .name(signInForm.getName()).nickname(signInForm.getNickname()).email(signInForm.getEmail()).build();
-        memberRepository.save(build);
+        try {
+            memberRepository.save(build);
+        }catch (DataIntegrityViolationException e){
+            if(e.getMessage().toUpperCase().contains(Constant.Constraint.EMAIL_UNIQUE.toUpperCase())){
+                log.debug("already exist.. {}"+signInForm.getEmail());
+                throw new BaseException(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
+            }
+            throw  e;
+        }
 
         Time_Table timeTable = Time_Table.builder().member(build).build();
         timeTableRepository.save(timeTable);
